@@ -1,26 +1,172 @@
 @import "tailwindcss";
 
+@theme {
+    --font-sans: var(--font-geist-sans);
+    --font-mono: var(--font-geist-mono);
+}
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+    /* Professional Tactical Green Palette */
+    --space-green: #10b981;
+    --space-emerald: #059669;
+    --bg-dark: #020402;
+    --grid-line: rgba(16, 185, 129, 0.25);
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+@layer base {
+    body {
+        @apply bg-[#020402] text-white selection:bg-emerald-500/30 overflow-x-hidden;
+        cursor: none;
+        background: #020402;
+        background-attachment: fixed;
+        font-family: 'Outfit', sans-serif;
+    }
+
+    * {
+        cursor: none !important;
+    }
+
+    @media (max-width: 1024px) {
+
+        body,
+        * {
+            cursor: auto !important;
+        }
+    }
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+@layer utilities {
+
+    /* High-Fidelity Geometric Glass Card */
+    .glass-card {
+        @apply bg-white/[0.02] backdrop-blur-xl border border-white/10 rounded-[2.5rem] transition-all duration-500;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+    }
+
+    .glass-card:hover {
+        @apply bg-white/[0.05] border-emerald-500/30;
+        transform: translateY(-8px);
+    }
+
+    /* Professional Designer Background Utilities */
+
+    /* 1. Base Grid (Increased Visibility) */
+    .designer-base-grid {
+        position: absolute;
+        inset: 0;
+        background-image:
+            linear-gradient(var(--grid-line) 1px, transparent 1px),
+            linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+        background-size: 40px 40px;
+        mask-image: radial-gradient(circle at center, black 40%, transparent 90%);
+    }
+
+    /* 2. Periodic Pattern Bands (Increased Visibility & Rhythmic Space) */
+    .designer-bands {
+        position: absolute;
+        inset: 0;
+        background-image:
+            repeating-linear-gradient(to bottom,
+                transparent,
+                transparent 400px,
+                rgba(16, 185, 129, 0.08) 400px,
+                rgba(16, 185, 129, 0.08) 600px);
+        z-index: 1;
+    }
+
+    /* 3. Moving Scanning Beam (Higher Contrast) */
+    .scanning-beam {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 20vh;
+        background: linear-gradient(to bottom,
+                transparent,
+                rgba(16, 185, 129, 0.1),
+                rgba(255, 255, 255, 0.05),
+                rgba(16, 185, 129, 0.1),
+                transparent);
+        animation: scan-move 10s linear infinite;
+        z-index: 2;
+        opacity: 0.6;
+    }
+
+    /* Button and HUD styles */
+    .cam-hud {
+        position: fixed;
+        inset: 40px;
+        pointer-events: none;
+        z-index: 9999;
+    }
+
+    .cam-bracket {
+        @apply absolute w-10 h-10 border-white/10;
+    }
+
+    .bracket-tl {
+        @apply top-0 left-0 border-t-2 border-l-2;
+    }
+
+    .bracket-tr {
+        @apply top-0 right-0 border-t-2 border-r-2;
+    }
+
+    .bracket-bl {
+        @apply bottom-0 left-0 border-b-2 border-l-2;
+    }
+
+    .bracket-br {
+        @apply bottom-0 right-0 border-b-2 border-r-2;
+    }
+
+    .rec-indicator {
+        @apply fixed top-10 left-12 flex items-center gap-3 font-mono text-[9px] font-black tracking-[0.3em] text-white/40 z-[10000];
+    }
+
+    .rec-dot {
+        @apply w-2 h-2 bg-red-600 rounded-full animate-pulse;
+    }
+
+    .btn-primary {
+        @apply px-10 py-4 bg-emerald-600/90 text-white font-black uppercase tracking-widest text-[11px] rounded transition-all;
+    }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@keyframes scan-move {
+    0% {
+        transform: translateY(-100%);
+    }
+
+    100% {
+        transform: translateY(1000%);
+    }
+}
+
+@keyframes nebula-float {
+    0% {
+        transform: translate(0, 0);
+        opacity: 0.4;
+    }
+
+    50% {
+        transform: translate(50px, 30px);
+        opacity: 0.7;
+    }
+
+    100% {
+        transform: translate(0, 0);
+        opacity: 0.4;
+    }
+}
+
+.designer-nebula {
+    pointer-events: none;
+    position: absolute;
+    width: 1200px;
+    height: 1200px;
+    background: radial-gradient(circle, rgba(16, 185, 129, 0.15) 0%, transparent 70%);
+    filter: blur(140px);
+    border-radius: 50%;
+    animation: nebula-float 20s ease-in-out infinite;
 }
