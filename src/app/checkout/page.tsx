@@ -5,16 +5,15 @@ import { motion } from 'framer-motion'
 import { ShoppingCart, ArrowLeft, Trash2, ShieldCheck, Zap } from 'lucide-react'
 import Link from 'next/link'
 import { useApp } from '@/context/AppContext'
-import ProEventBackground from '@/components/ui/ProEventBackground'
 
 export default function CheckoutPage() {
-    const { cart, removeFromCart } = useApp()
+    const { cart, removeFromCart, clearCart } = useApp()
 
     const total = cart.reduce((acc, item) => acc + item.fee, 0)
 
     return (
         <main className="min-h-screen bg-black text-white relative overflow-hidden">
-            <ProEventBackground theme="emerald" isDetailed={true} />
+
 
             <div className="relative z-10 max-w-4xl mx-auto pt-32 pb-24 px-6">
                 <Link href="/events" className="inline-flex items-center gap-2 text-white/40 hover:text-emerald-400 transition-colors mb-8 group">
@@ -93,14 +92,18 @@ export default function CheckoutPage() {
                             <button
                                 disabled={cart.length === 0}
                                 className="w-full py-4 bg-emerald-500 disabled:opacity-50 disabled:bg-white/10 text-black font-black uppercase text-[10px] tracking-widest hover:bg-emerald-400 transition-all rounded-xl shadow-[0_10px_30px_rgba(16,185,129,0.3)] flex items-center justify-center gap-2"
+                                onClick={() => {
+                                    alert('Registration Successful!')
+                                    clearCart()
+                                }}
                             >
                                 <Zap className="w-3.5 h-3.5" />
-                                Proceed to Payment
+                                Complete Registration
                             </button>
 
                             <div className="flex items-center justify-center gap-2 text-white/20">
                                 <ShieldCheck size={12} />
-                                <span className="text-[8px] font-black uppercase tracking-widest">Secure Checkout via Razorpay</span>
+                                <span className="text-[8px] font-black uppercase tracking-widest">Secure Registration</span>
                             </div>
                         </div>
                     </div>

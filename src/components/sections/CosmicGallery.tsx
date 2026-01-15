@@ -4,7 +4,6 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Camera, ShieldCheck } from 'lucide-react';
 import DomeGallery from '@/components/ui/DomeGallery';
-import { ArchiveBackground } from '@/components/ui/ArchiveBackground';
 
 // High-quality, reliable cultural/festival image links
 const memories = [
@@ -27,7 +26,7 @@ const memories = [
 export function CosmicGallery() {
     return (
         <section className="fixed inset-0 w-full h-full bg-[#020402] overflow-hidden flex flex-col">
-            <ArchiveBackground />
+
 
             <div className="relative pt-32 pb-0 px-12 z-20 pointer-events-none flex flex-col items-center text-center gap-4">
                 <motion.div

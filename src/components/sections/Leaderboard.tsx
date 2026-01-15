@@ -2,20 +2,12 @@
 
 import { motion } from 'framer-motion'
 import { Trophy, Activity, Shield, Zap, Search, ChevronRight, Star } from 'lucide-react'
-import ProEventBackground from '@/components/ui/ProEventBackground'
 
-const ranks = [
-    { rank: 1, name: 'S. KULKARNI', events: 12, pts: 2850, origin: 'STUDENT_001', status: 'CHAMPION' },
-    { rank: 2, name: 'A. DESHMUKH', events: 10, pts: 2640, origin: 'STUDENT_042', status: 'ELITE' },
-    { rank: 3, name: 'R. HEGDE', events: 9, pts: 2420, origin: 'STUDENT_082', status: 'ELITE' },
-    { rank: 4, name: 'V. SHETTY', events: 8, pts: 2100, origin: 'STUDENT_019', status: 'PRO' },
-    { rank: 5, name: 'M. BHAT', events: 7, pts: 1850, origin: 'STUDENT_057', status: 'ACTIVE' },
-]
+const ranks: any[] = []
 
 export function Leaderboard() {
     return (
         <section className="relative min-h-screen py-32 px-6 bg-[#020603] overflow-hidden">
-            <ProEventBackground theme="emerald" />
 
             {/* Background Glow */}
             <div className="absolute top-0 left-0 w-full h-full pointer-events-none z-0">
@@ -70,44 +62,51 @@ export function Leaderboard() {
 
                     {/* Rows */}
                     <div className="divide-y divide-white/5">
-                        {ranks.map((entry, i) => (
-                            <motion.div
-                                key={entry.rank}
-                                initial={{ opacity: 0, x: -20 }}
-                                whileInView={{ opacity: 1, x: 0 }}
-                                transition={{ delay: i * 0.1 }}
-                                className="grid grid-cols-5 p-10 items-center group hover:bg-white/[0.04] transition-all will-change-gpu"
-                            >
-                                <div className="flex items-center gap-8">
-                                    <span className={`text-5xl font-black italic tracking-tighter ${i < 3 ? 'text-white' : 'text-white/10'}`}>
-                                        #{(i + 1).toString().padStart(2, '0')}
-                                    </span>
-                                    {i === 0 && <Trophy className="w-8 h-8 text-emerald-500 animate-bounce" />}
-                                </div>
-
-                                <div className="col-span-2 md:col-span-1 space-y-2">
-                                    <div className="font-black text-white text-2xl group-hover:text-emerald-500 transition-all uppercase italic tracking-tighter group-hover:translate-x-2">
-                                        {entry.name}
+                        {ranks.length > 0 ? (
+                            ranks.map((entry, i) => (
+                                <motion.div
+                                    key={entry.rank}
+                                    initial={{ opacity: 0, x: -20 }}
+                                    whileInView={{ opacity: 1, x: 0 }}
+                                    transition={{ delay: i * 0.1 }}
+                                    className="grid grid-cols-5 p-10 items-center group hover:bg-white/[0.04] transition-all will-change-gpu"
+                                >
+                                    <div className="flex items-center gap-8">
+                                        <span className={`text-5xl font-black italic tracking-tighter ${i < 3 ? 'text-white' : 'text-white/10'}`}>
+                                            #{(i + 1).toString().padStart(2, '0')}
+                                        </span>
+                                        {i === 0 && <Trophy className="w-8 h-8 text-emerald-500 animate-bounce" />}
                                     </div>
-                                    <div className="text-[10px] font-black text-white/20 uppercase tracking-widest transition-colors group-hover:text-emerald-500/50">
-                                        ID: {entry.origin}
+
+                                    <div className="col-span-2 md:col-span-1 space-y-2">
+                                        <div className="font-black text-white text-2xl group-hover:text-emerald-500 transition-all uppercase italic tracking-tighter group-hover:translate-x-2">
+                                            {entry.name}
+                                        </div>
+                                        <div className="text-[10px] font-black text-white/20 uppercase tracking-widest transition-colors group-hover:text-emerald-500/50">
+                                            ID: {entry.origin}
+                                        </div>
                                     </div>
-                                </div>
 
-                                <div className="hidden md:block">
-                                    <div className="inline-flex items-center gap-3 px-6 py-2 bg-white/5 border border-white/10 rounded-full group-hover:border-emerald-500/50 transition-colors">
-                                        <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                                        <span className="text-[10px] font-black text-white/40 tracking-[0.2em]">{entry.status}</span>
+                                    <div className="hidden md:block">
+                                        <div className="inline-flex items-center gap-3 px-6 py-2 bg-white/5 border border-white/10 rounded-full group-hover:border-emerald-500/50 transition-colors">
+                                            <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                                            <span className="text-[10px] font-black text-white/40 tracking-[0.2em]">{entry.status}</span>
+                                        </div>
                                     </div>
-                                </div>
 
-                                <div className="text-center font-black text-white/60 text-2xl font-mono">{entry.events}</div>
+                                    <div className="text-center font-black text-white/60 text-2xl font-mono">{entry.events}</div>
 
-                                <div className="text-right text-4xl font-black text-white italic tracking-tighter drop-shadow-xl group-hover:scale-110 transition-transform">
-                                    {entry.pts.toLocaleString()}
-                                </div>
-                            </motion.div>
-                        ))}
+                                    <div className="text-right text-4xl font-black text-white italic tracking-tighter drop-shadow-xl group-hover:scale-110 transition-transform">
+                                        {entry.pts.toLocaleString()}
+                                    </div>
+                                </motion.div>
+                            ))
+                        ) : (
+                            <div className="p-20 text-center">
+                                <p className="text-white/20 font-black uppercase tracking-[0.4em] text-xs">Awaiting Network Synchronization...</p>
+                                <p className="text-emerald-500/40 font-black uppercase tracking-[0.2em] text-[10px] mt-2">No active rankings detected in session data.</p>
+                            </div>
+                        )}
                     </div>
 
                     {/* Footer */}

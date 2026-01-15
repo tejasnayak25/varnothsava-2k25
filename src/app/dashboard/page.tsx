@@ -5,9 +5,8 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { LogOut, Zap, Shield, Terminal, Cpu, ChevronRight, Activity, ScanLine, Trophy } from 'lucide-react'
 import { useApp } from '@/context/AppContext'
 import { useRouter } from 'next/navigation'
-import TerminalBackground from '@/components/ui/TerminalBackground'
 import HolographicAvatar from '@/components/ui/HolographicAvatar'
-import GridScan from '@/components/ui/GridScan'
+import ProEventBackground from '@/components/ui/ProEventBackground'
 
 export default function DashboardPage() {
     const { userData, logout, isLoggedIn, updateAvatar } = useApp()
@@ -44,22 +43,7 @@ export default function DashboardPage() {
 
     return (
         <main className="min-h-screen bg-black text-emerald-400 font-mono relative overflow-hidden selection:bg-emerald-500/30 selection:text-emerald-200">
-            <div className="fixed inset-0 z-0 opacity-60 pointer-events-none">
-                <GridScan
-                    sensitivity={0.55}
-                    lineThickness={1}
-                    linesColor="#064e3b"
-                    gridScale={0.15}
-                    scanColor="#10b981"
-                    scanOpacity={0.3}
-                    enablePost
-                    bloomIntensity={0.5}
-                    chromaticAberration={0.003}
-                    noiseIntensity={0.02}
-                    scanOnClick={false}
-                    enableGyro={false}
-                />
-            </div>
+            <ProEventBackground theme="emerald" />
 
             <div
                 className="relative z-10 max-w-7xl mx-auto pt-24 pb-20 px-6"

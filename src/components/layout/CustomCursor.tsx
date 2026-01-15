@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useRef } from 'react'
 import { motion, useSpring, useMotionValue, AnimatePresence } from 'framer-motion'
 
 export function CustomCursor() {
@@ -132,27 +132,49 @@ export function CustomCursor() {
                         />
 
                         {/* TACTICAL COORDINATES TEXT */}
-                        <motion.div
-                            className="fixed top-0 left-0 ml-8 mt-8 flex flex-col pointer-events-none"
-                            style={{
-                                x: springX,
-                                y: springY,
-                                willChange: 'transform'
-                            }}
-                            animate={{
-                                opacity: isHovering ? 0.8 : 0.2,
-                                scale: isHovering ? 0.8 : 0.6,
-                            }}
-                        >
-                            <span className="text-[6px] font-black text-emerald-400 tracking-[0.2em] uppercase">POS_SYNC</span>
-                            <div className="flex gap-2 text-[5px] font-mono text-white/40">
-                                <span>X_{Math.round(cursorX.get())}</span>
-                                <span>Y_{Math.round(cursorY.get())}</span>
-                            </div>
-                        </motion.div>
+                        <CursorCoordinates cursorX={cursorX} cursorY={cursorY} isHovering={isHovering} springX={springX} springY={springY} />
                     </>
                 )}
             </AnimatePresence>
         </div>
+    )
+}
+
+function CursorCoordinates({ cursorX, cursorY, isHovering, springX, springY }: any) {
+    const xRef = useRef<HTMLSpanElement>(null)
+    const yRef = useRef<HTMLSpanElement>(null)
+
+    useEffect(() => {
+        const unsubscribeX = cursorX.on('change', (v: number) => {
+            if (xRef.current) xRef.current.innerText = `X_${Math.round(v)}`
+        })
+        const unsubscribeY = cursorY.on('change', (v: number) => {
+            if (yRef.current) yRef.current.innerText = `Y_${Math.round(v)}`
+        })
+        return () => {
+            unsubscribeX()
+            unsubscribeY()
+        }
+    }, [cursorX, cursorY])
+
+    return (
+        <motion.div
+            className="fixed top-0 left-0 ml-8 mt-8 flex flex-col pointer-events-none"
+            style={{
+                x: springX,
+                y: springY,
+                willChange: 'transform'
+            }}
+            animate={{
+                opacity: isHovering ? 0.8 : 0.2,
+                scale: isHovering ? 0.8 : 0.6,
+            }}
+        >
+            <span className="text-[6px] font-black text-emerald-400 tracking-[0.2em] uppercase">POS_SYNC</span>
+            <div className="flex gap-2 text-[5px] font-mono text-white/40">
+                <span ref={xRef}>X_0</span>
+                <span ref={yRef}>Y_0</span>
+            </div>
+        </motion.div>
     )
 }

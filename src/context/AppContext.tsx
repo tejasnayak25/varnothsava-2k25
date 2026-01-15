@@ -50,28 +50,6 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     const [isLoggedIn, setIsLoggedIn] = useState(false)
     const [userData, setUserData] = useState<UserData | null>(null)
 
-    // Load from LocalStorage on mount
-    useEffect(() => {
-        const savedUser = localStorage.getItem('v_user_data')
-        const savedIsLoggedIn = localStorage.getItem('v_is_logged_in')
-        if (savedUser && savedIsLoggedIn === 'true') {
-            setUserData(JSON.parse(savedUser))
-            setIsLoggedIn(true)
-        }
-    }, [])
-
-    // Sync with LocalStorage
-    useEffect(() => {
-        if (userData) {
-            localStorage.setItem('v_user_data', JSON.stringify(userData))
-        } else {
-            localStorage.removeItem('v_user_data')
-        }
-    }, [userData])
-
-    useEffect(() => {
-        localStorage.setItem('v_is_logged_in', isLoggedIn.toString())
-    }, [isLoggedIn])
 
     const addToCart = (event: Event) => {
         if (!cart.find(item => item.id === event.id)) {
@@ -88,15 +66,9 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     const totalAmount = cart.reduce((total, item) => total + item.fee, 0)
 
     const login = (email: string, password?: string) => {
-        // Dummy login check against stored users
-        const users = JSON.parse(localStorage.getItem('v_all_users') || '[]')
-        const foundUser = users.find((u: UserData) => u.email === email && (!password || u.password === password))
-        if (foundUser) {
-            setUserData(foundUser)
-            setIsLoggedIn(true)
-        } else {
-            alert("Invalid credentials or user not found. Please register.")
-        }
+        // Backend Integration Point: authentication logic will go here
+        // For now, we'll just allow setting the state if the user wants to test UI
+        console.log('Login attempt:', { email })
     }
 
     const logout = () => {
@@ -104,76 +76,33 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         setUserData(null)
     }
 
-    const registerUser = (data: Omit<UserData, 'id' | 'profileCode' | 'hasPaid' | 'registeredEvents' | 'avatar' | 'studentType'>) => {
-        const profileCode = Math.random().toString(36).substring(2, 8).toUpperCase()
-        const id = Math.random().toString(36).substring(2, 11)
-        const studentType = data.email.endsWith('@sode-edu.in') ? 'internal' : 'external'
-
-        const newUser: UserData = {
-            ...data,
-            id,
-            profileCode,
-            hasPaid: false,
-            registeredEvents: [],
-            avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${data.name}`,
-            studentType
-        }
-
-        const users = JSON.parse(localStorage.getItem('v_all_users') || '[]')
-        users.push(newUser)
-        localStorage.setItem('v_all_users', JSON.stringify(users))
-
-        setUserData(newUser)
+    const registerUser = (data: any) => {
+        // Backend Integration Point: registration logic will go here
+        console.log('Register attempt:', data)
+        setUserData({ ...data, id: 'temp-id', hasPaid: false, registeredEvents: [], avatar: '', studentType: 'external', profileCode: 'TEMP' })
         setIsLoggedIn(true)
     }
 
     const markAsPaid = () => {
         if (userData) {
-            const updatedUser = { ...userData, hasPaid: true }
-            setUserData(updatedUser)
-
-            // Update in all users list too
-            const users = JSON.parse(localStorage.getItem('v_all_users') || '[]')
-            const index = users.findIndex((u: UserData) => u.email === userData.email)
-            if (index !== -1) {
-                users[index] = updatedUser
-                localStorage.setItem('v_all_users', JSON.stringify(users))
-            }
+            setUserData({ ...userData, hasPaid: true })
         }
     }
 
     const updateRegisteredEvents = (events: { id: string, teamName: string }[]) => {
         if (userData) {
-            // Merge existing with new, avoiding duplicates by event ID
             const existing = userData.registeredEvents || []
             const newEvents = events.filter(ne => !existing.find(ee => ee.id === ne.id))
-
-            const updatedUser = {
+            setUserData({
                 ...userData,
                 registeredEvents: [...existing, ...newEvents]
-            }
-            setUserData(updatedUser)
-
-            const users = JSON.parse(localStorage.getItem('v_all_users') || '[]')
-            const index = users.findIndex((u: UserData) => u.email === userData.email)
-            if (index !== -1) {
-                users[index] = updatedUser
-                localStorage.setItem('v_all_users', JSON.stringify(users))
-            }
+            })
         }
     }
 
     const updateAvatar = (avatarUrl: string) => {
         if (userData) {
-            const updatedUser = { ...userData, avatar: avatarUrl }
-            setUserData(updatedUser)
-
-            const users = JSON.parse(localStorage.getItem('v_all_users') || '[]')
-            const index = users.findIndex((u: UserData) => u.email === userData.email)
-            if (index !== -1) {
-                users[index] = updatedUser
-                localStorage.setItem('v_all_users', JSON.stringify(users))
-            }
+            setUserData({ ...userData, avatar: avatarUrl })
         }
     }
 

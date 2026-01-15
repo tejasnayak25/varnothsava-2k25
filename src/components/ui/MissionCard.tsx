@@ -53,6 +53,8 @@ interface EventCardProps {
     className?: string
 }
 
+import EventCard from '../gaming/EventCard'
+
 export const MissionCard = memo(({
     event,
     idx,
@@ -72,6 +74,35 @@ export const MissionCard = memo(({
         window.addEventListener('resize', checkMobile)
         return () => window.removeEventListener('resize', checkMobile)
     }, [])
+
+    if (event.type === 'Gaming') {
+        return (
+            <div className={`event-card-reveal will-change-transform will-change-opacity translate-z-0 ${className}`}>
+                <Tilt
+                    tiltMaxAngleX={isMobile ? 0 : 10}
+                    tiltMaxAngleY={isMobile ? 0 : 10}
+                    scale={isMobile ? 1 : 1.04}
+                    perspective={2000}
+                    transitionSpeed={2000}
+                    tiltEnable={!isMobile}
+                    className="w-full group h-[520px]"
+                >
+                    <EventCard
+                        gameName={event.category || 'GAMING'}
+                        eventTitle={event.title}
+                        date={event.date}
+                        prizePool={event.prizePool}
+                        entryFee={`₹${event.fee}`}
+                        slots="64 TEAMS"
+                        image={event.visual}
+                        theme={event.title.toLowerCase().includes('valorant') ? 'valorant' : 'bgmi'}
+                        onRegister={() => onRegister(event)}
+                        onDetail={() => router.push(`/events/${event.id}`)}
+                    />
+                </Tilt>
+            </div>
+        )
+    }
 
     return (
         <div className={`event-card-reveal will-change-transform will-change-opacity translate-z-0 ${className}`}>

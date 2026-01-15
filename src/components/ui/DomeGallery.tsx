@@ -427,8 +427,8 @@ export default function DomeGallery({
                                     data-assembled={isAssembled}
                                     data-dragging={draggingRef.current}
                                 >
-                                    <div className="item__image" role="button" aria-label={it.alt} onClick={onTileClick} onPointerUp={onTilePointerUp}>
-                                        <img src={it.src} draggable={false} alt={it.alt} />
+                                    <div className="item__image" role="button" aria-label={it.alt} onClick={onTileClick} onPointerUp={onTilePointerUp} style={{ willChange: 'transform, opacity' }}>
+                                        <img src={it.src} draggable={false} alt={it.alt} loading="lazy" />
                                     </div>
                                 </div>
                             );
