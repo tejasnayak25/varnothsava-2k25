@@ -1,15 +1,18 @@
 'use client'
 
-import React, { useState, useRef, useMemo, useEffect } from 'react'
+import React, { useState, useRef, useEffect, useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Mail, Lock, Rocket, ArrowRight, Shield, Globe, Cpu, User, School, Search, Upload, CheckCircle2, ChevronDown, Camera, X, Fingerprint, Sparkles, Activity } from 'lucide-react'
+import { Mail, Lock, Rocket, ArrowRight, Shield, Globe, Cpu, User, School, Search, Upload, CheckCircle2, ChevronDown, Camera, X, Phone, Zap } from 'lucide-react'
 import { useApp } from '@/context/AppContext'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
+import GridScan from '@/components/ui/GridScan'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import * as THREE from 'three'
-import ProEventBackground from '@/components/ui/ProEventBackground'
+import ElectricBorder from '@/components/ui/ElectricBorder'
+import { createUserWithEmail, loginWithEmail, loginWithGoogle, onUserSignedIn } from '@/lib/firebaseClient'
+import { NetworkPoints } from '@/components/ui/NeuralNetworkBackground'
 
-// --- COLLEGES DATA (CONSISTENT) ---
+// --- COLLEGES DATA ---
 const COLLEGES = [
     "Nitte Mahalinga Adyanthaya Memorial Institute of Technology (NMAMIT), Nitte, Udupi",
     "Moodlakatte Institute of Technology, Kundapura",
@@ -53,56 +56,74 @@ const GoogleIcon = () => (
     </svg>
 )
 
-// --- REFINED PROFESSIONAL STUDENT PORTAL ---
 function StudentPortalSphere() {
     const meshRef = useRef<THREE.Mesh>(null)
+    const innerRef = useRef<THREE.Mesh>(null)
     const pointsRef = useRef<THREE.Points>(null)
     const { mouse } = useThree()
 
     useFrame((state) => {
-        if (!meshRef.current || !pointsRef.current) return
+        if (!meshRef.current || !pointsRef.current || !innerRef.current) return
         const t = state.clock.getElapsedTime()
         meshRef.current.rotation.y = t * 0.2
+        innerRef.current.rotation.y = -t * 0.4
         pointsRef.current.rotation.y = -t * 0.15
 
-        // Subtle mouse tracking
-        meshRef.current.position.x += (mouse.x * 1.5 - meshRef.current.position.x) * 0.05
-        meshRef.current.position.y += (mouse.y * 1.5 - meshRef.current.position.y) * 0.05
+        meshRef.current.position.x += (mouse.x * 2 - meshRef.current.position.x) * 0.05
+        meshRef.current.position.y += (mouse.y * 2 - meshRef.current.position.y) * 0.05
         pointsRef.current.position.copy(meshRef.current.position)
+        innerRef.current.position.copy(meshRef.current.position)
     })
 
     return (
         <group>
+            {/* Outer Wireframe */}
             <mesh ref={meshRef}>
-                <sphereGeometry args={[2.2, 48, 48]} />
+                <sphereGeometry args={[2.5, 64, 64]} />
                 <meshStandardMaterial
                     color="#10b981"
-                    emissive="#059669"
-                    emissiveIntensity={1.2}
+                    emissive="#10b981"
+                    emissiveIntensity={2}
                     wireframe
                     transparent
                     opacity={0.3}
                 />
             </mesh>
-            <points ref={pointsRef}>
-                <sphereGeometry args={[3.8, 48, 48]} />
-                <pointsMaterial
-                    size={0.03}
-                    color="#fbbf24"
+            {/* Inner Core */}
+            <mesh ref={innerRef}>
+                <sphereGeometry args={[1.2, 32, 32]} />
+                <meshStandardMaterial
+                    color="#34d399"
+                    emissive="#10b981"
+                    emissiveIntensity={4}
                     transparent
-                    opacity={0.5}
+                    opacity={0.6}
+                />
+            </mesh>
+            <points ref={pointsRef}>
+                <sphereGeometry args={[4.2, 64, 64]} />
+                <pointsMaterial
+                    size={0.035}
+                    color="#10b981"
+                    transparent
+                    opacity={0.4}
                     sizeAttenuation
                 />
             </points>
-            <ambientLight intensity={1} />
-            <pointLight position={[10, 10, 10]} intensity={2} color="#10b981" />
+            <ambientLight intensity={1.5} />
+            <pointLight position={[10, 10, 10]} intensity={3} color="#10b981" />
+            <pointLight position={[-10, -10, -10]} intensity={1.5} color="#3b82f6" />
         </group>
     )
 }
 
+import Lottie from 'lottie-react'
+
 export default function LoginPage() {
-    const { login, registerUser, isLoggedIn } = useApp()
+    const { needsOnboarding, registerUser, isLoggedIn, mountUser, login, isInitializing, userData } = useApp()
     const router = useRouter()
+
+    const [step, setStep] = useState(1)
     const [isRegister, setIsRegister] = useState(false)
 
     // Form States
@@ -110,242 +131,402 @@ export default function LoginPage() {
     const [password, setPassword] = useState('')
     const [name, setName] = useState('')
     const [usn, setUsn] = useState('')
+    const [age, setAge] = useState('')
+    const [phone, setPhone] = useState('')
+    const [gender, setGender] = useState('Male')
     const [college, setCollege] = useState('')
     const [otherCollege, setOtherCollege] = useState('')
+    const [idCardPreview, setIdCardPreview] = useState('')
 
     // Dropdown helpers
     const [collegeSearch, setCollegeSearch] = useState('')
     const [isDropdownOpen, setIsDropdownOpen] = useState(false)
+    const [isLoading, setIsLoading] = useState(false)
 
-    const filteredColleges = COLLEGES.filter(c =>
+    // Auto-select college for internal users
+    useEffect(() => {
+        if (email.endsWith('@sode-edu.in')) {
+            setCollege("Shri Madhwa Vadiraja Institute of Technology & Management (SMVITM), Bantakal, Udupi")
+        }
+    }, [email])
+
+    // Handle authentication state changes
+    useEffect(() => {
+        // Only redirect if fully initialized and logged in with complete profile
+        if (!isInitializing && isLoggedIn && !needsOnboarding && userData) {
+            router.push('/profile')
+        }
+        // If needs onboarding, show step 2
+        if (!isInitializing && needsOnboarding) {
+            setStep(2)
+        }
+    }, [isLoggedIn, needsOnboarding, isInitializing, userData, router])
+
+    const filteredColleges = useMemo(() => COLLEGES.filter(c =>
         c.toLowerCase().includes(collegeSearch.toLowerCase())
-    )
+    ), [collegeSearch])
 
-    const handleSubmitLogin = (e: React.FormEvent) => {
+    const handleSubmitStep1 = async (e: React.FormEvent) => {
         e.preventDefault()
-        if (!isRegister) {
-            login(email, password)
-            router.push('/events')
+        if (isLoading) return
+        setIsLoading(true)
+        if (isRegister) {
+            try {
+                await createUserWithEmail(email, password)
+                setStep(2)
+            } catch (error: any) {
+                alert(error.message || "An error occurred during registration.")
+            } finally {
+                setIsLoading(false)
+            }
+        } else {
+            try {
+                await login(email, password)
+                router.push('/profile')
+            } catch (error: any) {
+                console.error("Login failed:", error)
+                setIsLoading(false)
+            }
         }
     }
 
-    const handleRegister = (e: React.FormEvent) => {
-        e.preventDefault()
-        const finalCollege = college === 'Other' ? otherCollege : college
-        registerUser({
-            name,
-            email,
-            password: password || 'student_pass',
-            usn,
-            collegeName: finalCollege,
-            age: '19',
-            phone: 'PENDING'
-        })
-        router.push('/events')
+    const handleGoogleLoginStep1 = async () => {
+        if (isLoading) return
+        setIsLoading(true)
+        try {
+            const user = await loginWithGoogle()
+            if (needsOnboarding) {
+                setStep(2)
+                setEmail(user.email || '')
+                setName(user.displayName || '')
+            } else {
+                router.push('/profile')
+            }
+        } catch (error: any) {
+            console.error("Google login failed:", error)
+            if (error.code === 'auth/popup-blocked') {
+                alert("The login popup was blocked by your browser. Please allow popups for this site and try again.")
+            } else if (error.code === 'auth/cancelled-popup-request') {
+                console.log("Popup request cancelled.")
+            } else {
+                alert("Google login failed: " + error.message)
+            }
+        } finally {
+            setIsLoading(false)
+        }
     }
 
-    if (isLoggedIn) return null
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0]
+        if (file) {
+            const reader = new FileReader()
+            reader.onloadend = () => setIdCardPreview(reader.result as string)
+            reader.readAsDataURL(file)
+        }
+    }
+
+    const handleFinalSubmit = async (e: React.FormEvent) => {
+        e.preventDefault()
+        if (isLoading) return
+        setIsLoading(true)
+        const finalCollege = college === 'Other' ? otherCollege : college
+        try {
+            // Only send required fields - email comes from Firebase token
+            await registerUser({
+                name,
+                usn,
+                collegeName: finalCollege,
+                phone,
+            })
+            router.push('/profile')
+        } catch (error: any) {
+            console.error("Registration failed:", error)
+        } finally {
+            setIsLoading(false)
+        }
+    }
+
+    if (isInitializing) {
+        return (
+            <div className="h-screen w-full bg-[#050b14] flex items-center justify-center">
+                <GridScan />
+                <div className="relative z-10 flex flex-col items-center gap-6">
+                    <div className="w-16 h-16 border-2 border-emerald-500/20 border-t-emerald-500 rounded-full animate-spin" />
+                    <p className="text-emerald-500/60 font-mono text-xs tracking-widest uppercase animate-pulse">Synchronizing Portal</p>
+                </div>
+            </div>
+        )
+    }
 
     return (
-        <main className="h-screen w-full bg-[#020805] text-white relative flex items-center justify-center overflow-hidden font-sans">
-            {/* RICH BACKGROUND SYSTEM */}
-            <div className="fixed inset-0 z-0 pointer-events-none">
-                <ProEventBackground theme="emerald" />
-                <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/5 via-transparent to-black" />
-                <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-emerald-500/10 blur-[150px] rounded-full translate-x-1/2 -translate-y-1/2" />
+        <main className="h-screen w-full bg-[#050b14] text-white relative flex items-center justify-center overflow-hidden">
+            {/* LIVELY STARFIELD BACKGROUND */}
+            <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
+                <div className="absolute inset-0 bg-[#050b14]" />
+                <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_40%,#0c1a2e_0%,#050b14_100%)]" />
+
+                {/* Stars and Soft Nebula */}
+                <div className="absolute inset-0 z-0 opacity-40">
+                    <Canvas camera={{ position: [0, 0, 10], fov: 45 }}>
+                        <StarsBackground />
+                    </Canvas>
+                </div>
+
+                {/* Soft Nebula Drifts */}
+                <motion.div
+                    animate={{
+                        opacity: [0.1, 0.2, 0.1],
+                        scale: [1, 1.1, 1],
+                    }}
+                    transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
+                    className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_30%_30%,rgba(16,185,129,0.08),transparent_50%)] blur-3xl"
+                />
             </div>
 
-            <div className="container max-w-7xl h-full relative z-10 flex flex-col lg:flex-row items-center justify-center lg:justify-between px-6 lg:px-12 py-8 lg:py-0 gap-8 lg:gap-0">
+            <div className="relative z-10 w-full max-w-6xl px-8 flex flex-col lg:flex-row items-center justify-between gap-12 xl:gap-20">
 
-                {/* COMPACT LEFT PANEL */}
-                <motion.div
-                    initial={{ opacity: 0, x: -30 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    className="flex flex-col items-center lg:items-start text-center lg:text-left w-full lg:w-[45%] lg:pr-12"
-                >
-                    <div className="w-full h-[200px] lg:h-[350px] mb-4">
-                        <Canvas camera={{ position: [0, 0, 10], fov: 40 }}>
-                            <StudentPortalSphere />
-                        </Canvas>
-                    </div>
-
-                    <div className="space-y-4">
-                        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[10px] font-black uppercase tracking-[0.3em]">
-                            Varnothsava 2026 Portal
+                {/* LEFT CONTENT: Friendly Branding */}
+                <div className="lg:w-[45%] space-y-10 hidden lg:block">
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.8 }}
+                    >
+                        {/* 3D Visual - Softer Sphere */}
+                        <div className="w-[380px] h-[380px] relative mb-12">
+                            <Canvas camera={{ position: [0, 0, 10], fov: 45 }}>
+                                <ambientLight intensity={1.5} />
+                                <pointLight position={[10, 10, 10]} intensity={2} color="#10b981" />
+                                <StudentPortalSphere />
+                            </Canvas>
+                            <div className="absolute inset-0 bg-emerald-500/5 blur-[80px] rounded-full -z-10" />
                         </div>
-                        <h1 className="text-4xl lg:text-6xl font-black tracking-tighter leading-[0.9] text-white italic">
-                            THE STUDENT<br />
-                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-teal-200">EXPERIENCE.</span>
+
+                        <h1 className="text-6xl xl:text-7xl font-bold tracking-tight leading-tight">
+                            Varnothsava<br />
+                            <span className="text-emerald-500">Student Portal.</span>
                         </h1>
-                        <p className="max-w-sm mx-auto lg:mx-0 text-sm font-medium text-white/50 leading-relaxed">
-                            Access your personalized dashboard, track registrations, and explore the future of college festivities in one seamless interface.
+                        <p className="mt-6 text-xl text-white/40 font-medium leading-relaxed max-w-sm">
+                            Join your fellow students at the official college fest portal.
+                            Manage events and stay updated with ease.
                         </p>
+                    </motion.div>
+
+                    <div className="flex items-center gap-6 pt-10 border-t border-white/5">
+                        <div className="flex -space-x-3">
+                            {[1, 2, 3, 4].map(i => (
+                                <div key={i} className="w-11 h-11 rounded-full border-2 border-[#050b14] bg-emerald-900/30 backdrop-blur-md" />
+                            ))}
+                        </div>
+                        <p className="text-sm text-white/30 font-semibold tracking-wide uppercase">Join 2,500+ active students</p>
                     </div>
-                </motion.div>
+                </div>
 
-                {/* COMPACT PROFESSIONAL CARD WITH GLOWING HIGHLIGHT */}
-                <motion.div
-                    initial={{ opacity: 0, scale: 0.98 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    className="w-full lg:w-1/2 max-w-[480px] flex justify-center lg:justify-end relative"
-                >
-                    {/* OUTER PULSING GLOW */}
-                    <div className="absolute -inset-1 bg-emerald-500/20 rounded-[2.6rem] blur-2xl animate-pulse" />
-
-                    {/* ANIMATED TRACING BORDER */}
-                    <div className="absolute -inset-[1px] rounded-[2.55rem] overflow-hidden p-[1px] opacity-70">
-                        <div className="absolute inset-[-100%] bg-[conic-gradient(from_0deg,transparent_0deg,transparent_120deg,#10b981_180deg,transparent_240deg,transparent_360deg)] animate-spin-slow" />
-                    </div>
-
-                    <div className="w-full relative bg-[#020b08]/80 backdrop-blur-3xl border border-white/10 rounded-[2.5rem] p-8 lg:p-10 shadow-2xl overflow-hidden">
-                        {/* Subtle Content Shine */}
-                        <div className="absolute inset-0 bg-gradient-to-tr from-emerald-500/5 via-transparent to-white/5 pointer-events-none" />
-
+                {/* RIGHT CONTENT: Professional Card */}
+                <div className="w-full lg:w-[48%] max-w-[480px]">
+                    <motion.div
+                        initial={{ opacity: 0, scale: 0.98 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        className="bg-[#0c1420]/60 backdrop-blur-3xl border border-white/10 rounded-[2.5rem] p-10 xl:p-14 shadow-2xl relative"
+                    >
                         <AnimatePresence mode="wait">
-                            {!isRegister ? (
+                            {step === 1 ? (
                                 <motion.div
-                                    key="login-compact"
-                                    initial={{ opacity: 0, y: 10 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    exit={{ opacity: 0, y: -10 }}
-                                    className="space-y-6"
+                                    key="login"
+                                    initial={{ opacity: 0, x: 20 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    exit={{ opacity: 0, x: -20 }}
+                                    className="space-y-10"
                                 >
-                                    <div className="space-y-1">
-                                        <h2 className="text-3xl font-black text-white italic tracking-tighter">Sign In</h2>
-                                        <p className="text-[11px] font-bold text-white/40 uppercase tracking-widest italic">Personal Access Required</p>
+                                    <div className="space-y-2 text-center lg:text-left">
+                                        <h2 className="text-4xl font-bold tracking-tight">
+                                            {isRegister ? 'Sign Up' : 'Welcome Back'}
+                                        </h2>
+                                        <p className="text-white/40 font-medium text-sm">
+                                            {isRegister ? 'Create your student account today.' : 'Login to your student workspace.'}
+                                        </p>
                                     </div>
 
-                                    <div className="space-y-4">
-                                        <button className="w-full flex items-center justify-center gap-3 py-3.5 bg-white text-black rounded-2xl hover:bg-emerald-50 transition-all font-bold text-xs uppercase tracking-wider shadow-lg transform active:scale-[0.98]">
-                                            <GoogleIcon />
-                                            Google Account
-                                        </button>
+                                    <button
+                                        onClick={handleGoogleLoginStep1}
+                                        disabled={isLoading}
+                                        className="w-full h-15 flex items-center justify-center gap-3 bg-white text-black hover:bg-white/90 rounded-2xl text-[13px] font-bold transition-all shadow-lg active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
+                                    >
+                                        {isLoading ? (
+                                            <div className="flex items-center gap-2">
+                                                <div className="w-4 h-4 border-2 border-black/20 border-t-black rounded-full animate-spin" />
+                                                <span>Connecting...</span>
+                                            </div>
+                                        ) : (
+                                            <>
+                                                <GoogleIcon />
+                                                <span>Continue with Google</span>
+                                            </>
+                                        )}
+                                    </button>
 
-                                        <div className="flex items-center gap-4 px-2">
-                                            <div className="h-[1px] flex-1 bg-white/10" />
-                                            <span className="text-[9px] font-black text-white/20 uppercase tracking-[0.2em]">or credentials</span>
-                                            <div className="h-[1px] flex-1 bg-white/10" />
+                                    <div className="flex items-center gap-4">
+                                        <div className="h-[1px] flex-1 bg-white/5" />
+                                        <span className="text-[10px] font-bold text-white/20 uppercase tracking-[0.2em]">or Email</span>
+                                        <div className="h-[1px] flex-1 bg-white/5" />
+                                    </div>
+
+                                    <form onSubmit={handleSubmitStep1} className="space-y-6">
+                                        <div className="space-y-2">
+                                            <label className="text-[13px] font-semibold text-white/60 ml-1">Email Address</label>
+                                            <input
+                                                required type="email" value={email} onChange={(e) => setEmail(e.target.value)}
+                                                placeholder="name@university.edu"
+                                                className="w-full bg-white/[0.03] border border-white/10 rounded-2xl px-6 py-5 text-sm focus:border-emerald-500/50 outline-none transition-all placeholder:text-white/10"
+                                            />
+                                        </div>
+                                        <div className="space-y-2">
+                                            <label className="text-[13px] font-semibold text-white/60 ml-1">Password</label>
+                                            <input
+                                                required type="password" value={password} onChange={(e) => setPassword(e.target.value)}
+                                                placeholder="Enter your password"
+                                                className="w-full bg-white/[0.03] border border-white/10 rounded-2xl px-6 py-5 text-sm focus:border-emerald-500/50 outline-none transition-all placeholder:text-white/10"
+                                            />
                                         </div>
 
-                                        <form onSubmit={handleSubmitLogin} className="space-y-4">
-                                            <div className="space-y-2">
-                                                <div className="relative group/input">
-                                                    <Mail className="absolute left-5 top-1/2 -translate-y-1/2 w-4 h-4 text-white/20 group-focus-within/input:text-emerald-400 transition-colors" />
-                                                    <input
-                                                        required type="email" value={email} onChange={(e) => setEmail(e.target.value)}
-                                                        className="w-full bg-white/5 border border-white/10 rounded-2xl pl-14 pr-6 py-3.5 text-sm font-medium focus:border-emerald-500/40 focus:bg-white/[0.07] outline-none transition-all text-white placeholder:text-white/10"
-                                                        placeholder="Email Address"
-                                                    />
-                                                </div>
-                                            </div>
+                                        <button
+                                            disabled={isLoading}
+                                            className="w-full h-15 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-2xl text-[14px] transition-all shadow-xl mt-4 active:scale-[0.98] disabled:opacity-50 flex items-center justify-center gap-2"
+                                        >
+                                            {isLoading && <div className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin" />}
+                                            {isRegister ? 'Create Account' : 'Login'}
+                                        </button>
+                                    </form>
 
-                                            <div className="space-y-2">
-                                                <div className="relative group/input">
-                                                    <Lock className="absolute left-5 top-1/2 -translate-y-1/2 w-4 h-4 text-white/20 group-focus-within/input:text-emerald-400 transition-colors" />
-                                                    <input
-                                                        required type="password" value={password} onChange={(e) => setPassword(e.target.value)}
-                                                        className="w-full bg-white/5 border border-white/10 rounded-2xl pl-14 pr-6 py-3.5 text-sm font-medium focus:border-emerald-500/40 focus:bg-white/[0.07] outline-none transition-all text-white placeholder:text-white/10"
-                                                        placeholder="Password"
-                                                    />
-                                                </div>
-                                            </div>
-
-                                            <button className="w-full py-4 bg-emerald-500 text-white font-black uppercase text-xs tracking-[0.3em] rounded-2xl shadow-xl shadow-emerald-500/20 hover:bg-emerald-400 hover:shadow-emerald-500/40 transition-all active:scale-[0.98]">
-                                                Sign In to Portal
-                                            </button>
-                                        </form>
-                                    </div>
-
-                                    <div className="text-center pt-2">
-                                        <p className="text-[11px] font-bold text-white/30 uppercase tracking-widest">
-                                            New student? {' '}
-                                            <button
-                                                onClick={() => setIsRegister(true)}
-                                                className="text-emerald-400 hover:underline underline-offset-4"
-                                            >
-                                                Create Profile
-                                            </button>
-                                        </p>
+                                    <div className="text-center">
+                                        <button onClick={() => setIsRegister(!isRegister)} className="text-sm font-semibold text-white/30 hover:text-emerald-500 transition-colors underline decoration-emerald-500/0 hover:decoration-emerald-500 underline-offset-4">
+                                            {isRegister ? 'Already have an account? Sign In' : "New student? Create Account"}
+                                        </button>
                                     </div>
                                 </motion.div>
                             ) : (
                                 <motion.div
-                                    key="register-compact"
-                                    initial={{ opacity: 0, x: 20 }}
-                                    animate={{ opacity: 1, x: 0 }}
-                                    exit={{ opacity: 0, x: -20 }}
-                                    className="space-y-5"
+                                    key="onboarding"
+                                    initial={{ opacity: 0, scale: 0.95 }}
+                                    animate={{ opacity: 1, scale: 1 }}
+                                    className="space-y-8 max-h-[70vh] overflow-y-auto custom-scrollbar pr-2"
                                 >
-                                    <div className="flex items-center justify-between">
-                                        <div className="space-y-1">
-                                            <h2 className="text-2xl font-black text-white italic tracking-tighter">Registration</h2>
-                                            <p className="text-[10px] font-bold text-emerald-400/50 uppercase tracking-[0.2em]">New Student Profile</p>
+                                    <div className="space-y-2 text-center lg:text-left">
+                                        <div className="flex items-center justify-between">
+                                            <h2 className="text-3xl font-bold tracking-tight">Complete Profile</h2>
+                                            {email.endsWith('@sode-edu.in') ? (
+                                                <div className="px-3 py-1 bg-emerald-500/10 border border-emerald-500/20 rounded-full flex items-center gap-1.5">
+                                                    <Shield className="w-3.5 h-3.5 text-emerald-500" />
+                                                    <span className="text-[10px] font-bold text-emerald-500 uppercase tracking-wider">Internal Student</span>
+                                                </div>
+                                            ) : email && (
+                                                <div className="px-3 py-1 bg-white/5 border border-white/10 rounded-full flex items-center gap-1.5">
+                                                    <Globe className="w-3.5 h-3.5 text-white/40" />
+                                                    <span className="text-[10px] font-bold text-white/40 uppercase tracking-wider">External Student</span>
+                                                </div>
+                                            )}
                                         </div>
-                                        <button onClick={() => setIsRegister(false)} className="p-2.5 bg-white/5 rounded-xl hover:bg-white/10 transition-colors">
-                                            <X className="w-4 h-4" />
-                                        </button>
+                                        <p className="text-white/40 font-medium text-sm">Welcome! Please provide your college details to access the portal.</p>
                                     </div>
 
-                                    <form onSubmit={handleRegister} className="space-y-4 max-h-[45vh] overflow-y-auto px-1 custom-scrollbar pr-2">
-                                        <input required type="text" value={name} onChange={(e) => setName(e.target.value)} className="w-full bg-white/5 border border-white/10 rounded-xl px-5 py-3 text-sm font-medium focus:border-emerald-500/40 outline-none text-white" placeholder="Full Name" />
-                                        <input required type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="w-full bg-white/5 border border-white/10 rounded-xl px-5 py-3 text-sm font-medium focus:border-emerald-500/40 outline-none text-white" placeholder="Email (Student ID)" />
-                                        <input required type="text" value={usn} onChange={(e) => setUsn(e.target.value)} className="w-full bg-white/5 border border-white/10 rounded-xl px-5 py-3 text-sm font-medium focus:border-emerald-500/40 outline-none text-white" placeholder="USN / Roll Number" />
-
-                                        <div className="relative">
-                                            <button
-                                                type="button"
-                                                onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                                                className="w-full bg-white/5 border border-white/10 rounded-xl px-5 py-3 text-sm font-medium text-left text-white/40 flex justify-between items-center"
-                                            >
-                                                <span className="truncate">{college || 'Select College'}</span>
-                                                <ChevronDown className={`w-4 h-4 ${isDropdownOpen ? 'rotate-180' : ''}`} />
-                                            </button>
-
-                                            <AnimatePresence>
-                                                {isDropdownOpen && (
-                                                    <motion.div
-                                                        initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 5 }}
-                                                        className="absolute bottom-full left-0 right-0 mb-4 bg-[#0a1a12] border border-white/20 rounded-2xl p-2 z-[100] shadow-2xl"
+                                    <form onSubmit={handleFinalSubmit} className="space-y-5">
+                                        <div className="space-y-4">
+                                            <div className="space-y-2">
+                                                <label className="text-[13px] font-semibold text-white/60 ml-1">Full Name</label>
+                                                <input required type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder="Full Name" className="w-full bg-white/[0.03] border border-white/10 rounded-2xl px-6 py-4 text-sm focus:border-emerald-500/50 outline-none transition-all" />
+                                            </div>
+                                            <div className="space-y-2">
+                                                <label className="text-[13px] font-semibold text-white/60 ml-1">USN / Roll Number</label>
+                                                <input required type="text" value={usn} onChange={(e) => setUsn(e.target.value)} placeholder="4XX00XX000" className="w-full bg-white/[0.03] border border-white/10 rounded-2xl px-6 py-4 text-sm focus:border-emerald-500/50 outline-none transition-all" />
+                                            </div>
+                                            <div className="space-y-2">
+                                                <label className="text-[13px] font-semibold text-white/60 ml-1">College</label>
+                                                <div className="relative">
+                                                    <select
+                                                        required
+                                                        value={college}
+                                                        onChange={(e) => setCollege(e.target.value)}
+                                                        disabled={email.endsWith('@sode-edu.in')}
+                                                        className={`w-full bg-white/[0.03] border border-white/10 rounded-2xl px-6 py-4 text-sm focus:border-emerald-500/50 outline-none transition-all appearance-none cursor-pointer ${email.endsWith('@sode-edu.in') ? 'opacity-60 cursor-not-allowed' : ''}`}
                                                     >
-                                                        <input
-                                                            type="text" value={collegeSearch} onChange={(e) => setCollegeSearch(e.target.value)}
-                                                            className="w-full bg-white/5 rounded-lg px-4 py-2 text-xs outline-none text-white mb-2" placeholder="Search..."
-                                                        />
-                                                        <div className="max-h-[120px] overflow-y-auto custom-scrollbar">
-                                                            {filteredColleges.map(c => (
-                                                                <button key={c} type="button" onClick={() => { setCollege(c); setIsDropdownOpen(false) }} className="w-full text-left px-4 py-2 text-[10px] font-black uppercase tracking-widest hover:bg-emerald-500 rounded-lg">
-                                                                    {c}
-                                                                </button>
-                                                            ))}
-                                                        </div>
-                                                    </motion.div>
+                                                        <option value="" disabled className="bg-[#0c1420]">Select Institution</option>
+                                                        {COLLEGES.map(c => <option key={c} value={c} className="bg-[#0c1420]">{c}</option>)}
+                                                    </select>
+                                                    {!email.endsWith('@sode-edu.in') && <ChevronDown className="absolute right-5 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40 pointer-events-none" />}
+                                                </div>
+                                                {email.endsWith('@sode-edu.in') && (
+                                                    <p className="text-[10px] text-emerald-500/60 ml-1 font-medium">Verified SMVITM student domain detected.</p>
                                                 )}
-                                            </AnimatePresence>
+                                            </div>
+                                            <div className="space-y-2">
+                                                <label className="text-[13px] font-semibold text-white/60 ml-1">Phone Number</label>
+                                                <input required type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+91 XXX-XXX-XXXX" className="w-full bg-white/[0.03] border border-white/10 rounded-2xl px-6 py-4 text-sm focus:border-emerald-500/50 outline-none transition-all" />
+                                            </div>
                                         </div>
 
-                                        <button className="w-full py-4 bg-emerald-500 text-white font-black uppercase text-[10px] tracking-[0.4em] rounded-xl shadow-lg hover:bg-emerald-400 transition-all">
-                                            Establish Identity
+                                        <button
+                                            disabled={isLoading}
+                                            className="w-full h-15 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-2xl text-sm transition-all shadow-xl active:scale-[0.98] mt-4 flex items-center justify-center gap-2 disabled:opacity-50"
+                                        >
+                                            {isLoading && <div className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin" />}
+                                            Finish Setup
                                         </button>
                                     </form>
                                 </motion.div>
                             )}
                         </AnimatePresence>
-                    </div>
-                </motion.div>
+                    </motion.div>
+                </div>
             </div>
 
             <style jsx global>{`
                 .custom-scrollbar::-webkit-scrollbar { width: 4px; }
-                .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(16, 185, 129, 0.3); border-radius: 10px; }
-                
-                @keyframes spin-slow {
-                    from { transform: rotate(0deg); }
-                    to { transform: rotate(360deg); }
-                }
-                .animate-spin-slow {
-                    animation: spin-slow 8s linear infinite;
-                }
+                .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+                .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(52, 211, 153, 0.2); border-radius: 10px; }
             `}</style>
         </main>
+    )
+}
+
+function StarsBackground() {
+    const starsRef = useRef<THREE.Points>(null)
+    const [starCount] = useState(2500)
+
+    // Create random stars
+    const [positions, sizes] = useMemo(() => {
+        const pos = new Float32Array(starCount * 3)
+        const sz = new Float32Array(starCount)
+        for (let i = 0; i < starCount; i++) {
+            pos[i * 3] = (Math.random() - 0.5) * 60
+            pos[i * 3 + 1] = (Math.random() - 0.5) * 60
+            pos[i * 3 + 2] = (Math.random() - 0.5) * 30
+            sz[i] = Math.random() * 0.1 + 0.05
+        }
+        return [pos, sz]
+    }, [starCount])
+
+    useFrame((state) => {
+        if (!starsRef.current) return
+        starsRef.current.rotation.y = state.clock.getElapsedTime() * 0.02
+        starsRef.current.rotation.x = Math.sin(state.clock.getElapsedTime() * 0.1) * 0.1
+    })
+
+    return (
+        <points ref={starsRef}>
+            <bufferGeometry>
+                <bufferAttribute
+                    attach="attributes-position"
+                    args={[positions, 3]}
+                />
+            </bufferGeometry>
+            <pointsMaterial
+                size={0.15}
+                color="#ffffff"
+                transparent
+                opacity={0.6}
+                sizeAttenuation
+                blending={THREE.AdditiveBlending}
+            />
+        </points>
     )
 }

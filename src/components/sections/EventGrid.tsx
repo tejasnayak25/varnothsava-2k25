@@ -2,13 +2,14 @@
 
 import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react'
 import { motion, AnimatePresence, useScroll, useTransform } from 'framer-motion'
-import { Search, Zap, Users, ChevronDown, Trophy, X, UserPlus, CheckCircle2, Loader2, ShieldCheck, Mail, Grid, Filter } from 'lucide-react'
+import { Search, Zap, ChevronDown, Trophy, X, CheckCircle2, Loader2, ShieldCheck, Mail, Grid, Filter } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useApp } from '@/context/AppContext'
 import ProEventBackground from '@/components/ui/ProEventBackground'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { Event, MissionCard } from '@/components/ui/MissionCard'
+import { RegistrationModal } from '@/components/ui/RegistrationModal'
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -16,18 +17,15 @@ interface EventGridProps {
     missions: Event[]
 }
 
-
-
 export function EventGrid({ missions }: EventGridProps) {
-    const { userData, updateRegisteredEvents } = useApp()
+    const { userData, registerMission, isLoggedIn } = useApp()
     const router = useRouter()
     const [filter, setFilter] = useState<'All' | 'Technical' | 'Cultural' | 'Gaming'>('All')
     const [subFilter, setSubFilter] = useState<'All' | 'Hobby Club' | 'General' | 'Promotional'>('All')
     const [searchQuery, setSearchQuery] = useState('')
     const [activeThemeOverride, setActiveThemeOverride] = useState<'emerald' | 'amber' | 'cyan' | null>(null)
-
-    // Registration State
-
+    const [isRegModalOpen, setIsRegModalOpen] = useState(false)
+    const [selectedEvent, setSelectedEvent] = useState<any>(null)
 
     const gridRef = useRef<HTMLDivElement>(null)
     const techRef = useRef<HTMLDivElement>(null)
@@ -36,7 +34,7 @@ export function EventGrid({ missions }: EventGridProps) {
     const [scrolled, setScrolled] = useState(false)
     const { scrollYProgress } = useScroll()
 
-    // Smooth transform for parallax without triggering React re-renders for the whole section
+    // Smooth transform for parallax
     const headerY = useTransform(scrollYProgress, [0, 1], [0, -150])
     const techY = useTransform(scrollYProgress, [0, 1], [0, -80])
     const cultY = useTransform(scrollYProgress, [0, 1], [0, -40])
@@ -51,13 +49,21 @@ export function EventGrid({ missions }: EventGridProps) {
         return () => window.removeEventListener('scroll', handleScroll)
     }, [])
 
-    const filtered = useMemo(() => missions.filter(m => {
-        const matchesType = filter === 'All' || m.type === filter
-        const matchesSub = filter !== 'Cultural' || subFilter === 'All' || m.category === subFilter
-        const matchesSearch = m.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            m.description.toLowerCase().includes(searchQuery.toLowerCase())
-        return matchesType && matchesSub && matchesSearch
-    }), [missions, filter, subFilter, searchQuery])
+    const filtered = useMemo(() => {
+        const base = missions.filter(m => {
+            const matchesType = filter === 'All' || m.type === filter
+            const matchesSub = filter !== 'Cultural' || subFilter === 'All' || m.category === subFilter
+            const matchesSearch = m.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                m.description.toLowerCase().includes(searchQuery.toLowerCase())
+            return matchesType && matchesSub && matchesSearch
+        })
+
+        // Only limit to 3 for Cultural filter when no search is active
+        if (filter === 'Cultural' && searchQuery === '') {
+            return base.slice(0, 3)
+        }
+        return base
+    }, [missions, filter, subFilter, searchQuery])
 
     const groupedEvents = useMemo(() => ({
         technical: filtered.filter(m => m.type === 'Technical'),
@@ -125,9 +131,11 @@ export function EventGrid({ missions }: EventGridProps) {
 
         const isMobile = window.innerWidth < 768
         const cards = gridRef.current.querySelectorAll('.event-card-reveal')
+
+        gsap.killTweensOf(cards)
+
         const tl = gsap.timeline({ defaults: { ease: "power4.out" } })
 
-        // Simplified Header Animation for mobile
         tl.fromTo(".header-reveal",
             { opacity: 0, y: isMobile ? -20 : -40, filter: isMobile ? "none" : "blur(10px)" },
             { opacity: 1, y: 0, filter: "blur(0px)", duration: isMobile ? 0.8 : 1.2, stagger: isMobile ? 0.1 : 0.2 }
@@ -209,12 +217,6 @@ export function EventGrid({ missions }: EventGridProps) {
         return 'emerald'
     }
 
-    const getGlowColors = () => {
-        if (filter === 'Cultural') return { primary: 'rgba(245, 158, 11, 0.12)', secondary: 'rgba(245, 158, 11, 0.08)' }
-        if (filter === 'Gaming') return { primary: 'rgba(6, 182, 212, 0.12)', secondary: 'rgba(6, 182, 212, 0.08)' }
-        return { primary: 'rgba(16, 185, 129, 0.12)', secondary: 'rgba(16, 185, 129, 0.08)' }
-    }
-
     const getGlobalTheme = () => {
         if (filter === 'Cultural') {
             return {
@@ -231,6 +233,22 @@ export function EventGrid({ missions }: EventGridProps) {
                 searchBorder: 'group-focus-within/search:text-amber-500',
                 searchGlow: 'rgba(245,158,11,0.3)',
                 focusBg: 'group-focus-within/search:bg-amber-500/10'
+            }
+        } else if (filter === 'Gaming') {
+            return {
+                text: 'text-cyan-400',
+                textMuted: 'text-cyan-500/80',
+                bg: 'bg-cyan-500',
+                border: 'border-cyan-500/50',
+                focusBorder: 'group-focus-within/search:border-cyan-500/50',
+                focusText: 'group-focus-within/search:text-cyan-300',
+                focusPlaceholder: 'group-focus-within/search:placeholder:text-cyan-400/50',
+                glow: 'shadow-[0_0_10px_rgba(6,182,212,0.5)]',
+                dropGlow: 'drop-shadow-[0_0_8px_rgba(6,182,212,0.6)]',
+                gradient: 'from-cyan-600 via-cyan-400 to-cyan-200',
+                searchBorder: 'group-focus-within/search:text-cyan-500',
+                searchGlow: 'rgba(6,182,212,0.3)',
+                focusBg: 'group-focus-within/search:bg-cyan-500/10'
             }
         }
         return {
@@ -250,23 +268,28 @@ export function EventGrid({ missions }: EventGridProps) {
         }
     }
 
-    const glowColors = getGlowColors()
     const gTheme = getGlobalTheme()
 
-    // Registration Handlers
     const handleRegisterClick = (event: Event) => {
-        if (!userData) {
+        if (!isLoggedIn) {
             router.push('/login')
             return
         }
-        updateRegisteredEvents([{
-            id: event.id,
-            teamName: 'Solo Participation'
-        }])
-        alert(`Successfully registered for ${event.title}!`)
+        setSelectedEvent(event)
+        setIsRegModalOpen(true)
     }
 
-    // Memoize background - we'll disable its personal scroll tracking for max performance
+    const handleConfirmRegistration = async (data: { teamName: string, members: string[] }) => {
+        try {
+            const success = await registerMission(selectedEvent.id, data.teamName, data.members)
+            if (success) {
+                alert(`Successfully registered team '${data.teamName}' for ${selectedEvent.title}!`)
+            }
+        } catch (error: any) {
+            alert(`Registration failed: ${error.message}`)
+        }
+    }
+
     const backgroundComponent = useMemo(() => (
         <ProEventBackground theme={getBackgroundTheme()} scrollProgress={0} />
     ), [activeThemeOverride, filter])
@@ -276,7 +299,6 @@ export function EventGrid({ missions }: EventGridProps) {
             {backgroundComponent}
 
             <div className="container mx-auto max-w-7xl relative z-10 px-4 md:px-6">
-                {/* Deployment Status Indicator */}
                 <AnimatePresence>
                     {!scrolled && (
                         <motion.div
@@ -325,7 +347,7 @@ export function EventGrid({ missions }: EventGridProps) {
 
                     <div className="header-reveal relative w-full lg:max-w-xl group/search order-2 xl:order-2">
                         <svg className="absolute inset-0 w-full h-full pointer-events-none z-10" preserveAspectRatio="none" viewBox="0 0 400 50">
-                            <path d="M 12 0 L 400 0 L 400 38 L 388 50 L 0 50 L 0 12 Z" fill="none" stroke="currentColor" strokeWidth="2.5" className={`text-white/60 ${gTheme.searchBorder}`} style={{ filter: `drop-shadow(0 0 20px ${gTheme.searchGlow})` }} />
+                            <path d="M 12 0 L 400 0 L 400 38 L 388 50 L 0 50 L 0 12 Z" fill="none" stroke="currentColor" strokeWidth="2.5" className={`text-white/60 ${gTheme.searchBorder}`} />
                         </svg>
                         <div className={`relative flex items-center bg-white/[0.08] backdrop-blur-2xl overflow-hidden border border-white/10 ${gTheme.focusBorder} transition-all`} style={{ clipPath: 'polygon(12px 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%, 0 12px)' }}>
                             <div className={`pl-6 ${gTheme.text} flex items-center gap-2`}><Search className="w-5 h-5" /><div className={`w-[1.5px] h-5 ${gTheme.bg}/30 mx-1`} /></div>
@@ -337,7 +359,7 @@ export function EventGrid({ missions }: EventGridProps) {
                         <div className="flex flex-wrap items-center justify-center gap-1 bg-white/[0.05] p-1.5 backdrop-blur-2xl border border-white/5" style={{ clipPath: 'polygon(12px 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%, 0 12px)' }}>
                             {['All', 'Technical', 'Cultural', 'Gaming'].map((t) => (
                                 <button key={t} onClick={() => { setFilter(t as any); setSubFilter('All'); }} className={`px-4 md:px-6 py-2.5 text-[10px] md:text-[11px] font-black uppercase tracking-[0.2em] transition-all relative ${filter === t ? 'text-black z-10' : 'text-white/70 hover:text-white'}`}>
-                                    {filter === t && <motion.div layoutId="activeFilter" className={`absolute inset-0 ${t === "Cultural" ? "bg-amber-500 shadow-[0_0_40px_rgba(245,158,11,0.9)]" : "bg-white shadow-[0_0_40px_rgba(255,255,255,0.6)]"}`} style={{ clipPath: 'polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px)' }} transition={{ type: "spring", bounce: 0.2, duration: 0.6 }} />}
+                                    {filter === t && <motion.div layoutId="activeFilter" className="absolute inset-0 shadow-[0_0_40px_rgba(255,255,255,0.6)]" style={{ backgroundColor: t === "Cultural" ? "#f59e0b" : "#ffffff", clipPath: 'polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px)' }} transition={{ type: "spring", bounce: 0.2, duration: 0.6 }} />}
                                     <span className="relative z-20">{t}</span>
                                 </button>
                             ))}
@@ -351,7 +373,7 @@ export function EventGrid({ missions }: EventGridProps) {
                             {['All', 'Hobby Club', 'General', 'Promotional'].map((sf) => (
                                 <button key={sf} onClick={() => setSubFilter(sf as any)} className={`px-8 py-3 text-[10px] font-black uppercase tracking-[0.2em] transition-all relative ${subFilter === sf ? 'text-black' : 'text-white hover:text-white'}`} style={{ clipPath: 'polygon(8px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 8px)', background: subFilter === sf ? '#fbbf24' : 'rgba(255,255,255,0.02)', backdropFilter: 'blur(10px)' }}>
                                     {sf === 'Hobby Club' ? 'Club Events' : sf === 'General' ? 'General Events' : sf === 'Promotional' ? 'Media & Promo' : 'All Events'}
-                                    {subFilter === sf && <motion.div layoutId="subGlow" className="absolute inset-0 bg-amber-400 shadow-[0_0_30px_rgba(245,158,11,0.8)] blur-xl opacity-60 -z-10" />}
+                                    {subFilter === sf && <motion.div layoutId="subGlow" className="absolute inset-0 shadow-[0_0_30px_rgba(245,158,11,0.8)] blur-xl opacity-60 -z-10" style={{ backgroundColor: '#fbbf24' }} />}
                                 </button>
                             ))}
                         </motion.div>
@@ -363,10 +385,7 @@ export function EventGrid({ missions }: EventGridProps) {
                         <>
                             {groupedEvents.technical.length > 0 && (
                                 <div ref={techRef} className="space-y-12">
-                                    <motion.div
-                                        className="flex items-center gap-4 px-8 opacity-90"
-                                        style={{ y: techY }}
-                                    >
+                                    <motion.div className="flex items-center gap-4 px-8 opacity-90" style={{ y: techY }}>
                                         <div className="h-[1px] flex-1 bg-gradient-to-r from-transparent via-emerald-500/50 to-emerald-500" />
                                         <div className="flex flex-col items-center">
                                             <span className="font-mono font-black tracking-[0.3em] uppercase text-xl md:text-2xl text-emerald-500 drop-shadow-[0_0_10px_rgba(16,185,129,0.5)]">Technical Events</span>
@@ -376,17 +395,14 @@ export function EventGrid({ missions }: EventGridProps) {
                                     </motion.div>
                                     <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-8 lg:gap-10 px-4 md:px-8">
                                         {groupedEvents.technical.map((event, idx) => (
-                                            <MissionCard key={event.id} event={event} idx={idx} theme={getEventTheme(event.type)} complexClip={complexClip} isRegistered={userData?.registeredEvents?.some(re => re.id === event.id)} onRegister={handleRegisterClick} className="will-change-gpu" />
+                                            <MissionCard key={event.id} event={event} idx={idx} theme={getEventTheme(event.type)} complexClip={complexClip} isRegistered={userData?.registeredEvents?.some(re => re.id === event.id)} isLoggedIn={isLoggedIn} onRegister={handleRegisterClick} className="will-change-gpu" />
                                         ))}
                                     </div>
                                 </div>
                             )}
                             {groupedEvents.cultural.length > 0 && (
                                 <div ref={cultRef} className="space-y-16 mt-12">
-                                    <motion.div
-                                        className="flex items-center gap-4 px-8 opacity-90"
-                                        style={{ y: cultY }}
-                                    >
+                                    <motion.div className="flex items-center gap-4 px-8 opacity-90" style={{ y: cultY }}>
                                         <div className="h-[1px] flex-1 bg-gradient-to-r from-transparent via-amber-500/50 to-amber-500" />
                                         <div className="flex flex-col items-center">
                                             <span className="font-mono font-black tracking-[0.3em] uppercase text-xl md:text-3xl text-amber-500 drop-shadow-[0_0_15px_rgba(245,158,11,0.5)]">Cultural Events</span>
@@ -395,19 +411,16 @@ export function EventGrid({ missions }: EventGridProps) {
                                         </div>
                                         <div className="h-[1px] flex-1 bg-gradient-to-l from-transparent via-amber-500/50 to-amber-500" />
                                     </motion.div>
-                                    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-10 md:gap-16 xl:gap-24 px-4 md:px-8">
+                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10 md:gap-16 xl:gap-24 px-4 md:px-8">
                                         {groupedEvents.cultural.map((event, idx) => (
-                                            <MissionCard key={event.id} event={event} idx={idx} theme={getEventTheme(event.type)} complexClip={complexClip} isRegistered={userData?.registeredEvents?.some(re => re.id === event.id)} onRegister={handleRegisterClick} className="will-change-gpu" />
+                                            <MissionCard key={event.id} event={event} idx={idx} theme={getEventTheme(event.type)} complexClip={complexClip} isRegistered={userData?.registeredEvents?.some(re => re.id === event.id)} isLoggedIn={isLoggedIn} onRegister={handleRegisterClick} className="will-change-gpu" />
                                         ))}
                                     </div>
                                 </div>
                             )}
                             {groupedEvents.gaming.length > 0 && (
                                 <div ref={gameRef} className="space-y-12 mt-12">
-                                    <motion.div
-                                        className="flex items-center gap-4 px-8 opacity-90"
-                                        style={{ y: gameY }}
-                                    >
+                                    <motion.div className="flex items-center gap-4 px-8 opacity-90" style={{ y: gameY }}>
                                         <div className="h-[1px] flex-1 bg-gradient-to-r from-transparent via-cyan-500/50 to-cyan-500" />
                                         <div className="flex flex-col items-center">
                                             <span className="font-mono font-black tracking-[0.3em] uppercase text-xl md:text-2xl text-cyan-500 drop-shadow-[0_0_10px_rgba(6,182,212,0.5)]">Gaming Arena</span>
@@ -417,23 +430,31 @@ export function EventGrid({ missions }: EventGridProps) {
                                     </motion.div>
                                     <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-8 lg:gap-10 px-4 md:px-8">
                                         {groupedEvents.gaming.map((event, idx) => (
-                                            <MissionCard key={event.id} event={event} idx={idx} theme={getEventTheme(event.type)} complexClip={complexClip} isRegistered={userData?.registeredEvents?.some(re => re.id === event.id)} onRegister={handleRegisterClick} className="will-change-gpu" />
+                                            <MissionCard key={event.id} event={event} idx={idx} theme={getEventTheme(event.type)} complexClip={complexClip} isRegistered={userData?.registeredEvents?.some(re => re.id === event.id)} isLoggedIn={isLoggedIn} onRegister={handleRegisterClick} className="will-change-gpu" />
                                         ))}
                                     </div>
                                 </div>
                             )}
                         </>
                     ) : (
-                        <div className={`grid grid-cols-1 md:grid-cols-2 ${filter === 'Cultural' ? 'xl:grid-cols-3 gap-10 md:gap-16 xl:gap-24' : 'xl:grid-cols-4 gap-8 lg:gap-10'} px-4 md:px-8`}>
+                        <div className={`grid grid-cols-1 md:grid-cols-2 ${filter === 'Cultural' ? 'lg:grid-cols-3 gap-10 md:gap-16 xl:gap-24' : 'xl:grid-cols-3 2xl:grid-cols-4 gap-8 lg:gap-10'} px-4 md:px-8`}>
                             {filtered.map((event, idx) => (
-                                <MissionCard key={event.id} event={event} idx={idx} theme={getEventTheme(event.type)} complexClip={complexClip} isRegistered={userData?.registeredEvents?.some(re => re.id === event.id)} onRegister={handleRegisterClick} className="will-change-gpu" />
+                                <MissionCard key={event.id} event={event} idx={idx} theme={getEventTheme(event.type)} complexClip={complexClip} isRegistered={userData?.registeredEvents?.some(re => re.id === event.id)} isLoggedIn={isLoggedIn} onRegister={handleRegisterClick} className="will-change-gpu" />
                             ))}
                         </div>
                     )}
                 </div>
             </div>
 
-
+            {userData && (
+                <RegistrationModal
+                    isOpen={isRegModalOpen}
+                    onClose={() => setIsRegModalOpen(false)}
+                    event={selectedEvent}
+                    userData={userData}
+                    onConfirm={handleConfirmRegistration}
+                />
+            )}
         </section>
     )
 }

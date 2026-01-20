@@ -1,11 +1,5 @@
-'use client'
-
-import { CosmicGallery } from "@/components/sections/CosmicGallery"
+import { CosmicJoystickGallery } from '@/components/sections/CosmicJoystickGallery';
 
 export default function GalleryPage() {
-    return (
-        <main className="min-h-screen">
-            <CosmicGallery />
-        </main>
-    )
+    return <CosmicJoystickGallery />;
 }

@@ -16,6 +16,8 @@ export interface Event {
     tags: string[]
     videoUrl?: string
     brochureUrl?: string
+    minTeamSize: number
+    maxTeamSize: number
 }
 
 export const missions: Event[] = [
@@ -46,7 +48,9 @@ export const missions: Event[] = [
         date: '11 MAR',
         tags: ['ML', 'Coding', 'Python'],
         videoUrl: 'https://cdn.pixabay.com/video/2019/10/05/27538-364402636_tiny.mp4',
-        brochureUrl: '/brochures/algorithm_roulette.pdf'
+        brochureUrl: '/brochures/algorithm_roulette.pdf',
+        minTeamSize: 2,
+        maxTeamSize: 2
     },
     {
         id: 't-hunt',
@@ -71,7 +75,9 @@ export const missions: Event[] = [
         visual: 'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=1200&q=80',
         date: '12 MAR',
         tags: ['Cyber', 'Logic', 'Coding'],
-        videoUrl: 'https://cdn.pixabay.com/video/2023/11/04/187747-880905973_tiny.mp4'
+        videoUrl: 'https://cdn.pixabay.com/video/2023/11/04/187747-880905973_tiny.mp4',
+        minTeamSize: 1,
+        maxTeamSize: 1
     },
     {
         id: 't-prompt',
@@ -84,7 +90,9 @@ export const missions: Event[] = [
         fee: 200,
         visual: 'https://images.unsplash.com/photo-1677442136019-21780ecad995?w=1200&q=80',
         date: '21 MAR',
-        tags: ['AI', 'Product', 'Gen-AI']
+        tags: ['AI', 'Product', 'Gen-AI'],
+        minTeamSize: 1,
+        maxTeamSize: 2
     },
     {
         id: 't-line',
@@ -97,7 +105,9 @@ export const missions: Event[] = [
         fee: 200,
         visual: 'https://images.unsplash.com/photo-1485827404703-89b55fcc595e?w=1200&q=80',
         date: '20 MAR',
-        tags: ['Robotics', 'Hardware', 'Sensors']
+        tags: ['Robotics', 'Hardware', 'Sensors'],
+        minTeamSize: 1,
+        maxTeamSize: 2
     },
     {
         id: 't-soccer',
@@ -110,7 +120,9 @@ export const missions: Event[] = [
         fee: 200,
         visual: 'https://images.unsplash.com/photo-1561557944-6e7860d1a7eb?w=1200&q=80',
         date: '21 MAR',
-        tags: ['Robotics', 'Sports', 'Mechanics']
+        tags: ['Robotics', 'Sports', 'Mechanics'],
+        minTeamSize: 2,
+        maxTeamSize: 3
     },
     {
         id: 't-wright',
@@ -123,7 +135,9 @@ export const missions: Event[] = [
         fee: 200,
         visual: 'https://images.unsplash.com/photo-1517976487492-5750f3195933?w=1200&q=80',
         date: '21 MAR',
-        tags: ['Aero', 'Design', 'Physics']
+        tags: ['Aero', 'Design', 'Physics'],
+        minTeamSize: 1,
+        maxTeamSize: 1
     },
     {
         id: 't-electro',
@@ -136,7 +150,9 @@ export const missions: Event[] = [
         fee: 200,
         visual: 'https://images.unsplash.com/photo-1518770660439-4636190af475?w=1200&q=80',
         date: '20 MAR',
-        tags: ['Electronics', 'Circuit', 'Logic']
+        tags: ['Electronics', 'Circuit', 'Logic'],
+        minTeamSize: 1,
+        maxTeamSize: 1
     },
     {
         id: 't-route',
@@ -149,7 +165,9 @@ export const missions: Event[] = [
         fee: 200,
         visual: 'https://images.unsplash.com/photo-1502139214982-d0ad755818d8?w=1200&q=80',
         date: '21 MAR',
-        tags: ['Robotics', 'Maze', 'Coding']
+        tags: ['Robotics', 'Maze', 'Coding'],
+        minTeamSize: 1,
+        maxTeamSize: 2
     },
     {
         id: 't-pitch',
@@ -162,7 +180,9 @@ export const missions: Event[] = [
         fee: 200,
         visual: 'https://images.unsplash.com/photo-1552664730-d307ca884978?w=1200&q=80',
         date: '12 MAR',
-        tags: ['Startup', 'Business', 'Idea']
+        tags: ['Startup', 'Business', 'Idea'],
+        minTeamSize: 1,
+        maxTeamSize: 4
     },
 
     // --- GAMING EVENTS ---
@@ -177,7 +197,9 @@ export const missions: Event[] = [
         fee: 500,
         visual: 'https://images.unsplash.com/photo-1542751371-adc38448a05e?w=1200&q=80',
         date: 'MAR 24-25',
-        tags: ['5v5', 'FPS', 'Valorant']
+        tags: ['5v5', 'FPS', 'Valorant'],
+        minTeamSize: 5,
+        maxTeamSize: 5
     },
     {
         id: 'g-bgmi',
@@ -190,7 +212,9 @@ export const missions: Event[] = [
         fee: 400,
         visual: 'https://images.unsplash.com/photo-1542751110-97427bbecf20?w=1200&q=80',
         date: 'MAR 24-25',
-        tags: ['Squad', 'Mobile', 'BGMI']
+        tags: ['Squad', 'Mobile', 'BGMI'],
+        minTeamSize: 4,
+        maxTeamSize: 4
     },
 
     // --- CULTURAL EVENTS ---
@@ -206,7 +230,9 @@ export const missions: Event[] = [
         fee: 150,
         visual: 'https://images.unsplash.com/photo-1516280440614-37939bbacd81?w=1200&q=80',
         date: '21 MAR',
-        tags: ['Singing', 'Music', 'Live']
+        tags: ['Singing', 'Music', 'Live'],
+        minTeamSize: 1,
+        maxTeamSize: 3
     },
     {
         id: 'cd-groove',
@@ -221,7 +247,9 @@ export const missions: Event[] = [
         visual: 'https://images.unsplash.com/photo-1503095396549-807759245b35?w=1200&q=80',
         date: '22 MAR',
         tags: ['Dance', 'Solo', 'Grooxe'],
-        videoUrl: 'https://cdn.pixabay.com/video/2021/08/04/83949-584736183_tiny.mp4'
+        videoUrl: 'https://cdn.pixabay.com/video/2021/08/04/83949-584736183_tiny.mp4',
+        minTeamSize: 1,
+        maxTeamSize: 1
     },
     {
         id: 'cd-mime',
@@ -235,7 +263,9 @@ export const missions: Event[] = [
         fee: 150,
         visual: 'https://images.unsplash.com/photo-1503095396549-807759245b35?w=1200&q=80',
         date: '21 MAR',
-        tags: ['Drama', 'Silent', 'Acting']
+        tags: ['Drama', 'Silent', 'Acting'],
+        minTeamSize: 4,
+        maxTeamSize: 8
     },
     {
         id: 'cf-3d',
@@ -249,7 +279,9 @@ export const missions: Event[] = [
         fee: 150,
         visual: 'https://images.unsplash.com/photo-1513364776144-60967b0f800f?w=1200&q=80',
         date: '20 MAR',
-        tags: ['Sketching', '3D Art', 'Creative']
+        tags: ['Sketching', '3D Art', 'Creative'],
+        minTeamSize: 1,
+        maxTeamSize: 1
     },
     {
         id: 'cm-pixel',
@@ -263,7 +295,9 @@ export const missions: Event[] = [
         fee: 150,
         visual: 'https://images.unsplash.com/photo-1452784444945-3f422708fe5e?w=1200&q=80',
         date: 'Festival Duration',
-        tags: ['Photo', 'Camera', 'Capture']
+        tags: ['Photo', 'Camera', 'Capture'],
+        minTeamSize: 1,
+        maxTeamSize: 1
     },
     {
         id: 'cm-reels',
@@ -277,7 +311,9 @@ export const missions: Event[] = [
         fee: 150,
         visual: 'https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?w=1200&q=80',
         date: 'Festival Duration',
-        tags: ['Video', 'Reels', 'Social']
+        tags: ['Video', 'Reels', 'Social'],
+        minTeamSize: 1,
+        maxTeamSize: 1
     },
     {
         id: 'cg-anime',
@@ -291,7 +327,9 @@ export const missions: Event[] = [
         fee: 100,
         visual: 'https://images.unsplash.com/photo-1578632292335-df3abbb0d586?w=1200&q=80',
         date: '22 MAR',
-        tags: ['Anime', 'Quiz', 'Trivia']
+        tags: ['Anime', 'Quiz', 'Trivia'],
+        minTeamSize: 2,
+        maxTeamSize: 2
     },
     {
         id: 'cg-ink',
@@ -305,7 +343,9 @@ export const missions: Event[] = [
         fee: 100,
         visual: 'https://images.unsplash.com/photo-1455390582262-044cdead277a?w=1200&q=80',
         date: '21 MAR',
-        tags: ['Writing', 'Poetry', 'Words']
+        tags: ['Writing', 'Poetry', 'Words'],
+        minTeamSize: 1,
+        maxTeamSize: 1
     },
     {
         id: 'cg-mehandi',
@@ -319,6 +359,8 @@ export const missions: Event[] = [
         fee: 100,
         visual: 'https://images.unsplash.com/photo-1473448912268-2022ce9509d8?w=1200&q=80',
         date: '20 MAR',
-        tags: ['Art', 'Design', 'Henna']
+        tags: ['Art', 'Design', 'Henna'],
+        minTeamSize: 1,
+        maxTeamSize: 1
     }
 ]

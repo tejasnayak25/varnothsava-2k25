@@ -30,12 +30,81 @@ yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
-# env files (can opt-in for committing if needed)
-.env*
+# ========================================
+# 🔴 CRITICAL: NEVER COMMIT THESE FILES
+# ========================================
 
-# vercel
+# Environment variables (contain secrets)
+.env*
+!.env.local.example
+
+# Firebase service accounts (contain private keys)
+service-account.json
+**/service-account*.json
+firebase-adminsdk*.json
+**/firebase-adminsdk*.json
+
+# Firebase config (if you have it)
+firebase-config.json
+firebaseConfig.json
+
+# Any JSON files in lib folder (safety net)
+src/lib/*.json
+!src/lib/package.json
+
+# Backup files
+*.backup
+*.bak
+*.old
+
+# ========================================
+# Vercel
+# ========================================
 .vercel
 
-# typescript
+# ========================================
+# TypeScript
+# ========================================
 *.tsbuildinfo
 next-env.d.ts
+
+# ========================================
+# Sentry
+# ========================================
+.sentryclirc
+sentry.properties
+
+# ========================================
+# IDE / Editor
+# ========================================
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+.idea
+*.swp
+*.swo
+*~
+
+# ========================================
+# OS
+# ========================================
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# ========================================
+# Logs
+# ========================================
+*.log
+logs/
+*.log.*
+
+# ========================================
+# Temporary files
+# ========================================
+tmp/
+temp/
+*.tmp
+.cache/

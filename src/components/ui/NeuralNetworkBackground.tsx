@@ -4,7 +4,7 @@ import React, { useRef, useMemo } from 'react'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import * as THREE from 'three'
 
-function NetworkPoints() {
+export function NetworkPoints() {
     const count = 60
     const meshRef = useRef<THREE.Points>(null)
     const lineRef = useRef<THREE.LineSegments>(null)

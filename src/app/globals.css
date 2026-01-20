@@ -1,129 +1,63 @@
 @import url('https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Metamorphous&family=Rajdhani:wght@300;400;500;600;700&display=swap');
 @import "tailwindcss";
 
-/* --- CLEAN ADVENTURE DESIGN SYSTEM --- */
+/* --- THEME COLORS --- */
 :root {
-    --adventure-paper: #f2e8cf;
-    --adventure-ink: #3d3220;
-    --adventure-border: #8b7355;
-    --adventure-accent: #5a7d2e;
-}
-
-/* --- THE ADVENTURE PAGE ENGINE --- */
-
-.adventure-card-container {
-    background-color: var(--adventure-paper) !important;
-    background-image: url("https://www.transparenttextures.com/patterns/natural-paper.png") !important;
-    border: 3px solid var(--adventure-border) !important;
-    border-radius: 4px !important;
-    box-shadow:
-        0 10px 30px rgba(0, 0, 0, 0.3),
-        inset 0 0 40px rgba(139, 115, 85, 0.1) !important;
-    position: relative !important;
-}
-
-.adventure-banner {
-    background-color: var(--adventure-border) !important;
-    color: #f2e8cf !important;
-    padding: 6px 40px !important;
-    border-radius: 2px !important;
-    font-family: 'Metamorphous', serif !important;
-    text-transform: uppercase !important;
-    letter-spacing: 2px !important;
-    font-weight: bold !important;
-    position: absolute !important;
-    top: -18px !important;
-    left: 50% !important;
-    transform: translateX(-50%) !important;
-    z-index: 10 !important;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2) !important;
-    white-space: nowrap !important;
-}
-
-.adventure-input-row {
-    display: grid !important;
-    grid-template-cols: 140px 1fr !important;
-    gap: 10px !important;
-    margin-bottom: 12px !important;
-    align-items: center !important;
-}
-
-.adventure-label {
-    background-color: #8b8b83 !important;
-    color: #f2e8cf !important;
-    padding: 6px 12px !important;
-    border-radius: 4px !important;
-    font-family: 'Metamorphous', serif !important;
-    font-size: 11px !important;
-    text-align: right !important;
-    text-transform: uppercase !important;
-    letter-spacing: 1px !important;
-}
-
-.adventure-value-box {
-    background: transparent !important;
-    border-bottom: 2px solid var(--adventure-border) !important;
-    padding: 6px 12px !important;
-    color: var(--adventure-ink) !important;
-    font-family: 'Libre Baskerville', serif !important;
-    font-size: 14px !important;
-    font-weight: bold !important;
-}
-
-.adventure-button-primary {
-    background-color: #8b8b83 !important;
-    color: #f2e8cf !important;
-    padding: 10px 30px !important;
-    border: none !important;
-    border-radius: 20px !important;
-    font-family: 'Metamorphous', serif !important;
-    font-size: 12px !important;
-    text-transform: uppercase !important;
-    letter-spacing: 1.5px !important;
-    font-weight: bold !important;
-    transition: all 0.2s ease !important;
-}
-
-.adventure-button-primary:hover {
-    background-color: #9c9c94 !important;
-    transform: translateY(-2px) !important;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2) !important;
-}
-
-@keyframes flicker-subtle {
-
-    0%,
-    100% {
-        opacity: 1;
-        transform: scale(1);
-    }
-
-    50% {
-        opacity: 0.8;
-        transform: scale(0.95);
-    }
-}
-
-.torch-flame-subtle {
-    animation: flicker-subtle 0.6s infinite alternate !important;
+    --terminal-emerald: #10b981;
+    --terminal-dim: #064e3b;
+    --terminal-text: #ecfdf5;
 }
 
 /* Scrollbar */
 ::-webkit-scrollbar {
-    width: 10px;
+    width: 8px;
 }
 
 ::-webkit-scrollbar-track {
-    background: transparent;
+    background: #000;
 }
 
 ::-webkit-scrollbar-thumb {
-    background: var(--adventure-border);
-    border-radius: 0px;
+    background: #064e3b;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #10b981;
 }
 
 @theme {
-    --font-display: "Metamorphous", serif;
-    --font-body: "Libre Baskerville", serif;
     --font-sans: "Rajdhani", sans-serif;
+    --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+}
+
+@keyframes shimmer {
+    0% {
+        transform: translateX(-100%);
+    }
+
+    100% {
+        transform: translateX(100%);
+    }
+}
+
+.animate-shimmer {
+    animation: shimmer 3s infinite linear;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+    width: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background: rgba(52, 211, 153, 0.2);
+    border-radius: 10px;
+}
+
+.ease-expo {
+    transition-timing-function: cubic-bezier(0.87, 0, 0.13, 1);
 }

@@ -97,15 +97,24 @@ const TypewriterText = ({ text }: { text: string }) => {
 
 export default function HolographicAvatar({ currentSeed, onUpdate }: { currentSeed: string, onUpdate: (seed: string) => void }) {
     // Generates a random seed for next/prev
-    const rotateAvatar = (dir: 'next' | 'prev') => {
-        const newSeed = Math.random().toString(36).substring(7)
-        onUpdate(newSeed)
+    const rotateAvatar = async (dir: 'next' | 'prev') => {
+        try {
+            const res = await fetch('https://nekos.best/api/v2/pfp?amount=1')
+            const data = await res.json()
+            if (data.results && data.results[0].url) {
+                const refreshedUrl = `${data.results[0].url}?t=${Date.now()}`
+                onUpdate(refreshedUrl)
+            }
+        } catch (error) {
+            const newSeed = Math.random().toString(36).substring(10)
+            onUpdate(`https://api.dicebear.com/7.x/adventurer/png?seed=${newSeed}&t=${Date.now()}`)
+        }
     }
 
-    const url = `https://api.dicebear.com/7.x/avataaars/png?seed=${currentSeed}&backgroundColor=transparent`
+    const url = currentSeed.startsWith('http') ? currentSeed : `https://api.dicebear.com/7.x/adventurer/png?seed=${currentSeed}`
 
     return (
-        <div className="w-full h-[400px] relative rounded-[2rem] overflow-hidden bg-[#050905] border border-emerald-500/30 shadow-[0_0_50px_rgba(16,185,129,0.1)]">
+        <div className="w-full h-[400px] relative rounded-[2rem] overflow-hidden bg-[#0a0a15] border border-indigo-500/30 shadow-[0_0_50px_rgba(99,102,241,0.1)]">
             <div className="absolute top-4 left-6 z-10 w-full pr-12">
                 <div className="flex justify-between items-center w-full">
                     <h3 className="text-emerald-400 font-black uppercase tracking-widest text-xs flex items-center gap-2">

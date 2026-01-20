@@ -25,6 +25,8 @@ export interface Event {
     tags: string[]
     videoUrl?: string
     brochureUrl?: string
+    minTeamSize: number
+    maxTeamSize: number
 }
 
 export interface ThemeConfig {
@@ -49,6 +51,7 @@ interface EventCardProps {
     theme: ThemeConfig
     complexClip: string
     isRegistered?: boolean
+    isLoggedIn?: boolean
     onRegister: (event: Event) => void
     className?: string
 }
@@ -61,6 +64,7 @@ export const MissionCard = memo(({
     theme,
     complexClip,
     isRegistered,
+    isLoggedIn = false,
     onRegister,
     className = ""
 }: EventCardProps) => {
@@ -348,9 +352,9 @@ export const MissionCard = memo(({
                             </div>
 
                             <div className={`flex flex-col gap-0.5 ${event.type === 'Technical' ? 'items-center border-r border-white/5 px-2' : 'items-center'}`}>
-                                <span className={`text-[7px] font-black ${event.type === 'Cultural' ? 'text-amber-500/80' : 'text-emerald-500/60'} uppercase tracking-widest`}>TYPE</span>
+                                <span className={`text-[7px] font-black ${event.type === 'Cultural' ? 'text-amber-500/80' : 'text-emerald-500/60'} uppercase tracking-widest`}>UNITS</span>
                                 <span className="text-[10px] font-bold text-white/90 font-mono uppercase truncate w-full text-center">
-                                    {event.rules[0]?.split(' ')[0] || 'OPEN'}
+                                    {event.maxTeamSize > 1 ? `TEAM ${event.minTeamSize}-${event.maxTeamSize}` : 'SOLO UNIT'}
                                 </span>
                             </div>
 
@@ -377,7 +381,7 @@ export const MissionCard = memo(({
                                     style={{ clipPath: 'polygon(12px 0, 100% 0, 100% 100%, 0 100%, 0 12px)' }}
                                 >
                                     <UserPlus className="w-3.5 h-3.5" />
-                                    REGISTER
+                                    {isLoggedIn ? 'REGISTER' : 'LOGIN'}
                                 </button>
 
                                 <button

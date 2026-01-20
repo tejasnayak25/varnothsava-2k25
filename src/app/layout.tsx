@@ -2,9 +2,10 @@ import type { Metadata } from "next";
 import { Outfit } from "next/font/google";
 import "./globals.css";
 import { AppProvider } from "@/context/AppContext";
-import { Navbar } from "@/components/layout/Navbar";
+import { InnovativeNavbar } from "@/components/layout/InnovativeNavbar";
 import { LoadingScreen } from "@/components/layout/LoadingScreen";
-import { SmoothScroll } from "@/components/ui/SmoothScroll";
+import { SmoothScroll } from "../components/ui/SmoothScroll";
+
 import { CustomCursor } from "@/components/layout/CustomCursor";
 
 const outfit = Outfit({ subsets: ["latin"] });
@@ -40,7 +41,7 @@ export default function RootLayout({
                     </div>
 
                     <SmoothScroll>
-                        <Navbar />
+                        <InnovativeNavbar />
                         {children}
                     </SmoothScroll>
                 </AppProvider>
@@ -48,3 +49,4 @@ export default function RootLayout({
         </html>
     );
 }
+

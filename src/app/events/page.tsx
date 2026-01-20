@@ -1,7 +1,4 @@
 import { EventGrid } from "@/components/sections/EventGrid"
-import { SmoothScroll } from "../../components/ui/SmoothScroll"
-import MatterPhysics from "../../components/ui/MatterPhysics"
-import { CosmicBackground } from "../../components/ui/CosmicBackground"
 import { missions } from "@/data/missions"
 
 export default function EventsPage() {
