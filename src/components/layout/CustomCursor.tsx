@@ -97,6 +97,7 @@ export function CustomCursor() {
                                 y: springY,
                                 translateX: '-50%',
                                 translateY: '-50%',
+                                willChange: 'transform, border-color'
                             }}
                             animate={{
                                 scale: isHovering ? 1.5 : 1,
@@ -128,6 +129,7 @@ export function CustomCursor() {
                                 y: springY,
                                 translateX: '-50%',
                                 translateY: '-50%',
+                                willChange: 'transform'
                             }}
                         />
 

@@ -97,7 +97,8 @@ export function CosmicJoystickGallery() {
                 duration: durationOverride,
                 ease: easeOverride,
                 overwrite: 'auto',
-                force3D: true
+                force3D: true,
+                willChange: 'transform, opacity'
             });
         });
     }, [currentIndex]);
@@ -222,8 +223,8 @@ export function CosmicJoystickGallery() {
     // --- INITIALIZE GSAP STATES ---
     React.useLayoutEffect(() => {
         if (outerRingRef.current && innerPadRef.current) {
-            gsap.set(outerRingRef.current, { clipPath: "circle(50% at 50% 50%)" });
-            gsap.set(innerPadRef.current, { clipPath: "circle(40% at 50% 50%)" });
+            gsap.set(outerRingRef.current, { borderRadius: "100%" });
+            gsap.set(innerPadRef.current, { borderRadius: "100%" });
         }
         if (modalRef.current) {
             // Strictly hide modal initially
@@ -259,19 +260,20 @@ export function CosmicJoystickGallery() {
 
         const tl = gsap.timeline({
             onComplete: () => setIsAnimating(false),
-            defaults: { ease: "power3.inOut", force3D: true }
+            defaults: { ease: "power3.inOut", force3D: true, willChange: 'transform, opacity' }
         });
 
         // ANIMATE CONTROLLER
         if (outerRingRef.current && innerPadRef.current) {
             gsap.to(outerRingRef.current, {
-                clipPath: opening ? "circle(0% at 50% 50%)" : "circle(50% at 50% 50%)",
+                scale: opening ? 0 : 1,
+                opacity: opening ? 0 : 1,
                 duration: 0.75,
                 ease: "power3.inOut",
                 force3D: true
             });
             gsap.to(innerPadRef.current, {
-                clipPath: opening ? "circle(50% at 50% 50%)" : "circle(40% at 50% 50%)",
+                scale: opening ? 1.5 : 1,
                 duration: 0.75,
                 ease: "power3.inOut",
                 force3D: true
@@ -384,7 +386,7 @@ export function CosmicJoystickGallery() {
     };
 
     return (
-        <div className="fixed inset-0 w-full h-full bg-neutral-950 overflow-hidden flex flex-col items-center justify-center font-sans tracking-tight z-[2000]">
+        <div className="fixed inset-0 w-full h-[100dvh] bg-[#020503] overflow-hidden flex flex-col items-center justify-center font-sans tracking-tight z-0 root-container">
             {/* CINEMATIC BACKGROUND BANNER */}
             <div
                 ref={bannerRef}
@@ -403,34 +405,34 @@ export function CosmicJoystickGallery() {
 
             {/* --- CYBER BACKGROUND DESIGN (OVERLAY) --- */}
             {/* Glows */}
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,#10b98130,transparent_50%),radial-gradient(circle_at_bottom_right,#3b82f630,transparent_50%)] z-0 pointer-events-none mix-blend-screen" />
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,#10b98115,transparent_60%),radial-gradient(circle_at_bottom_left,#3b82f615,transparent_60%)] z-0 pointer-events-none mix-blend-lighten" />
             {/* Grid */}
-            <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.07)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.07)_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_80%_80%_at_50%_50%,#000_70%,transparent_100%)] z-0 pointer-events-none" />
+            <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:5rem_5rem] [mask-image:radial-gradient(ellipse_80%_80%_at_50%_50%,#000_70%,transparent_100%)] z-0 pointer-events-none" />
 
             {/* TOP HUD */}
             <div
                 ref={topHudRef}
                 className="absolute top-8 left-8 right-8 md:top-12 md:left-12 md:right-12 z-[100] flex justify-between items-start pointer-events-none scale-75 md:scale-100 origin-top"
             >
-                <div className="flex flex-col gap-2">
-                    <div className="flex items-center gap-3">
-                        <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_12px_rgba(16,185,129,0.8)]" />
-                        <span className="text-[10px] md:text-[11px] font-mono tracking-[0.3em] md:tracking-[0.5em] text-emerald-500 font-bold uppercase">
-                            OFFICIAL_GALLERY_MODE
+                <div className="flex flex-col gap-1 md:gap-2">
+                    <div className="flex items-center gap-2 md:gap-3">
+                        <div className="w-2 md:w-2.5 h-2 md:h-2.5 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_12px_rgba(16,185,129,0.8)]" />
+                        <span className="text-[10px] md:text-xs font-mono tracking-[0.4em] text-emerald-400 font-bold uppercase">
+                            OFFICIAL_GALLERY
                         </span>
                     </div>
-                    <h2 className="text-white text-3xl md:text-5xl font-black tracking-tighter italic leading-tight">
-                        VARNOTHSAVA 2K26<br />
-                        <span className="text-emerald-500">MEMORY ARCHIVE</span>
+                    <h2 className="text-white text-xl md:text-5xl font-black tracking-tighter italic leading-tight">
+                        FEST GALLERY // 2026<br />
+                        <span className="text-emerald-500 font-bold uppercase tracking-[0.2em] text-sm md:text-2xl not-italic">Event_Memories</span>
                     </h2>
                 </div>
                 <div className="text-right">
-                    <span className="text-[9px] md:text-[10px] font-mono tracking-[0.3em] md:tracking-[0.4em] text-emerald-500/40 uppercase mb-2 md:mb-4 block">
-                        MEMORY_ID: {currentIndex + 1}
+                    <span className="text-[10px] font-mono tracking-[0.3em] text-emerald-500/60 uppercase mb-1 md:mb-4 block">
+                        PHOTO_ID: {currentIndex + 1}
                     </span>
-                    <div className="text-white font-black text-4xl md:text-6xl tracking-tighter flex items-baseline gap-2">
+                    <div className="text-white font-black text-2xl md:text-6xl tracking-tighter flex items-baseline gap-1 md:gap-2">
                         {String(currentIndex + 1).padStart(2, '0')}
-                        <span className="text-white/10 text-xl md:text-2xl font-light">/ {PRODUCTS.length}</span>
+                        <span className="text-white/10 text-lg md:text-2xl font-light">/ {PRODUCTS.length}</span>
                     </div>
                 </div>
             </div>
@@ -453,14 +455,35 @@ export function CosmicJoystickGallery() {
                             willChange: 'transform, opacity', // Updated Performance Hint
                         }}
                     >
-                        <div className="relative w-full h-full max-w-full max-h-full bg-neutral-900 rounded-[2rem] md:rounded-[3rem] overflow-hidden border-[6px] border-white bg-white shadow-[0_20px_60px_rgba(0,0,0,0.8)]">
+                        <div className="relative w-full h-full max-w-full max-h-full bg-neutral-950 rounded-[2rem] md:rounded-[3rem] overflow-hidden border-[1px] border-white/10 shadow-[0_40px_100px_rgba(0,0,0,0.9)] gpu-accel ring-1 ring-white/5">
+                            {/* SCANNING LINES OVERLAY */}
+                            <div className="absolute inset-0 z-10 opacity-10 pointer-events-none bg-[linear-gradient(transparent_50%,rgba(0,0,0,0.5)_50%)] bg-[size:100%_4px]" />
+
+                            {/* CORNER TECH ACCENTS */}
+                            <div className="absolute top-6 left-6 w-8 h-8 border-t-2 border-l-2 border-emerald-500/40 z-20 rounded-tl-xl" />
+                            <div className="absolute top-6 right-6 w-8 h-8 border-t-2 border-r-2 border-cyan-500/40 z-20 rounded-tr-xl" />
+                            <div className="absolute bottom-6 left-6 w-8 h-8 border-b-2 border-l-2 border-cyan-500/40 z-20 rounded-bl-xl" />
+                            <div className="absolute bottom-6 right-6 w-8 h-8 border-b-2 border-r-2 border-emerald-500/40 z-20 rounded-br-xl" />
+
+                            {/* BRAND TAG */}
+                            <div className="absolute top-8 left-1/2 -translate-x-1/2 z-20 px-3 py-1 bg-black/60 backdrop-blur-md rounded-full border border-white/10 opacity-60 group-hover:opacity-100 transition-opacity">
+                                <p className="text-[8px] font-black text-white tracking-[0.3em] uppercase">VARNOTHSAVA 2026</p>
+                            </div>
+
                             {/* eslint-disable-next-line @next/next/no-img-element */}
                             <img
                                 src={p.src}
                                 alt={p.title}
-                                className="absolute inset-0 w-full h-full object-cover"
+                                className="absolute inset-0 w-full h-full object-cover opacity-90 group-hover:opacity-100 transition-all duration-[2000ms] group-hover:scale-105"
                             />
-                            {/* Text and Gradient Removed for clean 4K View */}
+
+                            {/* BOTTOM GLOW */}
+                            <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-black via-black/40 to-transparent z-10" />
+
+                            <div className="absolute bottom-8 left-10 right-10 z-20">
+                                <h4 className="text-white font-black text-sm md:text-xl tracking-tight uppercase leading-none mb-1 drop-shadow-2xl">{p.title}</h4>
+                                <p className="text-emerald-400 font-mono text-[8px] md:text-[10px] tracking-widest opacity-60">VARNOTHSAVA 2026</p>
+                            </div>
                         </div>
                     </div>
                 ))}
@@ -491,15 +514,15 @@ export function CosmicJoystickGallery() {
             </div>
             {/* JOYSTICK CONTROLLER */}
             <div
-                className="fixed z-[5000] flex flex-col items-center gap-1 transition-all duration-300 md:gap-6 md:right-12 md:top-1/2 md:-translate-y-1/2 md:scale-[0.8] left-1/2 -translate-x-1/2 scale-[0.6]"
-                style={{ zIndex: 5000, bottom: '160px' }}
+                className="fixed z-[5000] flex flex-col items-center gap-2 transition-all duration-300 md:gap-6 md:right-12 md:top-1/2 md:-translate-y-1/2 md:scale-[0.8] left-1/2 -translate-x-1/2 scale-[1.15]"
+                style={{ zIndex: 5000, bottom: 'clamp(140px, 18dvh, 220px)' }}
             >
                 {/* Label */}
                 <div
                     ref={menuLabelRef}
-                    className="text-[10px] md:text-[12px] font-mono tracking-[1em] md:tracking-[1.5em] text-emerald-400 font-black uppercase drop-shadow-[0_0_15px_rgba(16,185,129,0.8)]"
+                    className="text-[10px] md:text-[12px] font-mono tracking-[0.8em] md:tracking-[1.5em] text-emerald-400 font-bold uppercase drop-shadow-[0_0_15px_rgba(16,185,129,0.8)] mb-2"
                 >
-                    DRAG_NAV
+                    SWIPE TO BROWSE
                 </div>
 
                 {/* Controller Base */}
@@ -528,8 +551,8 @@ export function CosmicJoystickGallery() {
                     {/* Outer Ring - Made Stronger & Interactive Safe */}
                     <div
                         ref={outerRingRef}
-                        className="absolute inset-0 rounded-full border-2 border-white/30 bg-black/70 shadow-[0_40px_100px_rgba(0,0,0,0.9)] backdrop-blur-3xl pointer-events-none"
-                        style={{ willChange: 'clip-path, transform' }} // Performance Hint
+                        className="absolute inset-0 rounded-full border-2 border-white/10 bg-black/40 shadow-[0_40px_100px_rgba(0,0,0,0.8)] backdrop-blur-2xl pointer-events-none"
+                        style={{ willChange: 'transform, opacity' }} // Performance Hint
                     />
 
                     {/* Central Pad - DRAGGABLE */}
@@ -540,10 +563,10 @@ export function CosmicJoystickGallery() {
                             onPointerMove={handlePointerMove}
                             onPointerUp={handlePointerUp}
                             onPointerLeave={handlePointerUp}
-                            className="relative rounded-full bg-emerald-500/5 border-2 border-emerald-500/40 shadow-[0_0_80px_rgba(16,185,129,0.2)] flex items-center justify-center group cursor-grab active:cursor-grabbing"
+                            className="relative rounded-full bg-emerald-500/10 border-2 border-emerald-500/50 shadow-[0_0_80px_rgba(16,185,129,0.3)] flex items-center justify-center group cursor-grab active:cursor-grabbing"
                             style={{
-                                width: '60px',
-                                height: '60px',
+                                width: '72px',
+                                height: '72px',
                                 willChange: 'transform',
                                 touchAction: 'none' // Critical for drag interactions
                             }}
@@ -577,8 +600,7 @@ export function CosmicJoystickGallery() {
                 {/* Global Styles */}
                 <style jsx global>{`
                 body { 
-                    background: #050805 !important; 
-                    overflow: hidden !important; 
+                    background: #020503 !important; 
                 }
             `}</style>
             </div>

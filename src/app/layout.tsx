@@ -4,6 +4,8 @@ import "./globals.css";
 import { AppProvider } from "@/context/AppContext";
 import { InnovativeNavbar } from "@/components/layout/InnovativeNavbar";
 import { LoadingScreen } from "@/components/layout/LoadingScreen";
+import { PageTransition } from "@/components/layout/PageTransition";
+import { PageTransitionBar } from "@/components/layout/PageTransitionBar";
 import { SmoothScroll } from "../components/ui/SmoothScroll";
 
 import { CustomCursor } from "@/components/layout/CustomCursor";
@@ -25,24 +27,15 @@ export default function RootLayout({
             <body className={`${outfit.className} bg-[#050805] text-white antialiased`}>
                 <AppProvider>
                     <LoadingScreen />
+                    <PageTransitionBar />
                     <CustomCursor />
 
-                    {/* Global Framework HUD */}
-                    <div className="cam-hud">
-                        <div className="cam-bracket bracket-tl" />
-                        <div className="cam-bracket bracket-tr" />
-                        <div className="cam-bracket bracket-bl" />
-                        <div className="cam-bracket bracket-br" />
-                    </div>
-
-                    <div className="rec-indicator">
-                        <div className="rec-dot" />
-                        <span>Varnothsava // Live Now</span>
-                    </div>
 
                     <SmoothScroll>
                         <InnovativeNavbar />
-                        {children}
+                        <PageTransition>
+                            {children}
+                        </PageTransition>
                     </SmoothScroll>
                 </AppProvider>
             </body>

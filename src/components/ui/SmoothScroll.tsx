@@ -18,22 +18,22 @@ export const SmoothScroll = ({ children }: SmoothScrollProps) => {
             orientation: "vertical",
             gestureOrientation: "vertical",
             smoothWheel: true,
-            wheelMultiplier: 1,
-            touchMultiplier: 2,
+            wheelMultiplier: 1.1,
+            touchMultiplier: 1.5,
+            infinite: false,
         });
 
         lenisRef.current = lenis;
 
-        // Animation loop
         function raf(time: number) {
             lenis.raf(time);
             requestAnimationFrame(raf);
         }
 
-        requestAnimationFrame(raf);
+        const rafId = requestAnimationFrame(raf);
 
-        // Clean up on unmount
         return () => {
+            cancelAnimationFrame(rafId);
             lenis.destroy();
         };
     }, []);

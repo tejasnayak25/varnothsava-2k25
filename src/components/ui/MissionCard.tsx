@@ -89,7 +89,7 @@ export const MissionCard = memo(({
                     perspective={2000}
                     transitionSpeed={2000}
                     tiltEnable={!isMobile}
-                    className="w-full group h-[520px]"
+                    className="w-full group h-[520px] gpu-accel"
                 >
                     <EventCard
                         gameName={event.category || 'GAMING'}
@@ -117,7 +117,7 @@ export const MissionCard = memo(({
                 perspective={2000}
                 transitionSpeed={2000}
                 tiltEnable={!isMobile}
-                className={`w-full group ${event.type === 'Cultural' ? (isMobile ? 'h-[460px]' : 'h-[500px]') : (isMobile ? 'h-[400px]' : 'h-[440px]')}`}
+                className={`w-full group ${event.type === 'Cultural' ? (isMobile ? 'h-[460px]' : 'h-[500px]') : (isMobile ? 'h-[400px]' : 'h-[440px]')} gpu-accel`}
             >
                 <div className="w-full h-full relative" onClick={() => router.push(`/events/${event.id}`)}>
                     {/* GLOW BACKDROP - Reduced blur on mobile for performance */}
@@ -131,9 +131,9 @@ export const MissionCard = memo(({
 
                     {/* GEOMETRIC BORDER SYSTEM */}
                     <svg
-                        className={`absolute ${event.type === 'Cultural' ? 'inset-[-45px] w-[calc(100%+90px)] h-[calc(100%+90px)]' : 'inset-0 w-full h-full'} pointer-events-none z-10 overflow-visible`}
+                        className={`absolute ${event.type === 'Cultural' ? (isMobile ? 'inset-[-20px] w-[calc(100%+40px)] h-[calc(100%+40px)]' : 'inset-[-45px] w-[calc(100%+90px)] h-[calc(100%+90px)]') : 'inset-0 w-full h-full'} pointer-events-none z-10 overflow-visible`}
                         preserveAspectRatio="none"
-                        viewBox={event.type === 'Cultural' ? "-45 -45 390 530" : "0 0 300 440"}
+                        viewBox={event.type === 'Cultural' ? (isMobile ? "-20 -20 340 500" : "-45 -45 390 530") : "0 0 300 440"}
                     >
                         <defs>
                             <filter id={`glow-${event.type}-${idx}`} x="-20%" y="-20%" width="140%" height="140%">
@@ -314,12 +314,12 @@ export const MissionCard = memo(({
 
                         <div className="pt-8 px-5 text-center z-20 relative">
                             <div className="flex items-center justify-between mb-3 px-1">
-                                <div className={`text-[9px] font-black ${theme.text} tracking-[0.2em] transition-colors uppercase`}>EVENT ID: {event.id}</div>
+                                <div className={`text-[9px] font-bold ${theme.text} tracking-[0.2em] transition-colors uppercase`}>EVENT ID: {event.id}</div>
                                 <div className={`text-[9px] font-black text-white/50 tracking-[0.1em] px-2 py-0.5 border border-white/10 rounded-full uppercase ${theme.borderHover.replace('border-', 'group-hover:border-')} transition-all`}>
                                     {event.type}
                                 </div>
                             </div>
-                            <h3 className={`${event.type === 'Cultural' ? 'text-[17px] md:text-[18px] italic' : 'text-[15px] md:text-[16px]'} font-black uppercase text-white tracking-[0.02em] break-words transition-all leading-snug drop-shadow-[0_2px_10px_rgba(0,0,0,1)] mb-1 min-h-[3rem] flex items-center justify-center`}>
+                            <h3 className={`${event.type === 'Cultural' ? 'text-[17px] md:text-[18px] italic' : 'text-[15px] md:text-[16px]'} font-bold uppercase text-white tracking-[0.02em] break-words transition-all leading-snug drop-shadow-[0_2px_10px_rgba(0,0,0,1)] mb-1 min-h-[3rem] flex items-center justify-center`}>
                                 {event.title}
                             </h3>
                         </div>
@@ -347,25 +347,25 @@ export const MissionCard = memo(({
 
                         <div className={`px-6 z-10 w-full mt-auto mb-4 ${event.type === 'Technical' ? 'grid grid-cols-3 gap-2 border-y border-white/5 py-3 bg-white/[0.02]' : 'flex justify-between items-center'}`}>
                             <div className={`flex flex-col gap-0.5 ${event.type === 'Technical' ? 'items-start border-r border-white/5 pr-2' : 'items-start'}`}>
-                                <span className={`text-[7px] font-black ${event.type === 'Cultural' ? 'text-amber-500/80' : 'text-emerald-500/60'} uppercase tracking-widest`}>DATE</span>
-                                <span className="text-[10px] font-bold text-white/90 font-mono">{event.date}</span>
+                                <span className={`text-[9px] font-bold ${event.type === 'Cultural' ? 'text-amber-500/80' : 'text-emerald-500/80'} uppercase tracking-[0.2em]`}>DATE</span>
+                                <span className="text-[12px] font-extrabold text-white tracking-wide">{event.date}</span>
                             </div>
 
                             <div className={`flex flex-col gap-0.5 ${event.type === 'Technical' ? 'items-center border-r border-white/5 px-2' : 'items-center'}`}>
-                                <span className={`text-[7px] font-black ${event.type === 'Cultural' ? 'text-amber-500/80' : 'text-emerald-500/60'} uppercase tracking-widest`}>UNITS</span>
-                                <span className="text-[10px] font-bold text-white/90 font-mono uppercase truncate w-full text-center">
-                                    {event.maxTeamSize > 1 ? `TEAM ${event.minTeamSize}-${event.maxTeamSize}` : 'SOLO UNIT'}
+                                <span className={`text-[9px] font-bold ${event.type === 'Cultural' ? 'text-amber-500/80' : 'text-emerald-500/80'} uppercase tracking-[0.2em]`}>STUDENT GROUP</span>
+                                <span className="text-[11px] font-extrabold text-white uppercase truncate w-full text-center tracking-tight">
+                                    {event.maxTeamSize > 1 ? `${event.minTeamSize}-${event.maxTeamSize} MEMBERS` : 'SOLO ENTRY'}
                                 </span>
                             </div>
 
                             <div className={`flex flex-col ${event.type === 'Technical' ? 'items-end pl-2' : 'items-end gap-0.5'}`}>
-                                <span className={`text-[7px] font-black ${event.type === 'Cultural' ? 'text-amber-500/80' : 'text-emerald-500/60'} uppercase tracking-widest`}>PRIZE</span>
-                                <span className="text-[11px] font-mono text-white font-bold">{event.prizePool}</span>
+                                <span className={`text-[9px] font-bold ${event.type === 'Cultural' ? 'text-amber-500/80' : 'text-emerald-500/80'} uppercase tracking-[0.2em]`}>PRIZE POOL</span>
+                                <span className="text-[13px] text-white font-black italic tracking-tighter">{event.prizePool}</span>
                             </div>
                         </div>
 
                         <div className="px-6 pb-2 text-center z-20">
-                            <p className="text-[9px] text-white/60 font-medium font-mono uppercase tracking-tight line-clamp-2 leading-relaxed group-hover:text-white transition-colors">
+                            <p className="text-[11px] md:text-[12px] text-white/80 font-semibold uppercase tracking-tight line-clamp-2 leading-snug group-hover:text-white transition-colors">
                                 {event.description}
                             </p>
                         </div>
@@ -377,10 +377,10 @@ export const MissionCard = memo(({
                                         e.stopPropagation()
                                         onRegister(event)
                                     }}
-                                    className={`relative py-3 text-[10px] font-black uppercase tracking-widest transition-all duration-300 overflow-hidden group/btn border-2 ${event.type === 'Cultural' ? 'border-amber-500 bg-amber-500 hover:bg-amber-400 text-black' : 'border-emerald-500 bg-emerald-500 hover:bg-emerald-400 text-black'} shadow-[0_0_20px_rgba(0,0,0,0.4)] hover:shadow-[0_0_30px_rgba(255,255,255,0.2)] active:scale-95 flex items-center justify-center gap-2`}
+                                    className={`relative py-4 md:py-3 text-[10px] font-black uppercase tracking-widest transition-all duration-300 overflow-hidden group/btn border-2 ${event.type === 'Cultural' ? 'border-amber-500 bg-amber-500 hover:bg-amber-400 text-black' : 'border-emerald-500 bg-emerald-500 hover:bg-emerald-400 text-black'} shadow-[0_0_20px_rgba(0,0,0,0.4)] hover:shadow-[0_0_30px_rgba(255,255,255,0.2)] active:scale-95 flex items-center justify-center gap-2 touch-manipulation min-h-[48px]`}
                                     style={{ clipPath: 'polygon(12px 0, 100% 0, 100% 100%, 0 100%, 0 12px)' }}
                                 >
-                                    <UserPlus className="w-3.5 h-3.5" />
+                                    <UserPlus className="w-4 h-4" />
                                     {isLoggedIn ? 'REGISTER' : 'LOGIN'}
                                 </button>
 
@@ -389,7 +389,7 @@ export const MissionCard = memo(({
                                         e.stopPropagation()
                                         router.push(`/events/${event.id}`)
                                     }}
-                                    className={`relative py-3 text-[10px] font-black uppercase tracking-widest transition-all duration-300 overflow-hidden group/btn border-2 ${event.type === 'Cultural' ? 'border-amber-500 bg-black/40 hover:bg-amber-500/10 text-amber-500' : 'border-emerald-500 bg-black/40 hover:bg-emerald-500/10 text-emerald-500'} shadow-[0_0_15px_rgba(0,0,0,0.4)] hover:shadow-[0_0_20px_rgba(255,255,255,0.1)] active:scale-95 flex items-center justify-center gap-2`}
+                                    className={`relative py-4 md:py-3 text-[10px] font-black uppercase tracking-widest transition-all duration-300 overflow-hidden group/btn border-2 ${event.type === 'Cultural' ? 'border-amber-500 bg-black/40 hover:bg-amber-500/10 text-amber-500' : 'border-emerald-500 bg-black/40 hover:bg-emerald-500/10 text-emerald-500'} shadow-[0_0_15px_rgba(0,0,0,0.4)] hover:shadow-[0_0_20px_rgba(255,255,255,0.1)] active:scale-95 flex items-center justify-center gap-2 touch-manipulation min-h-[48px]`}
                                     style={{ clipPath: 'polygon(12px 0, 100% 0, 100% 100%, 0 100%, 0 12px)' }}
                                 >
                                     DETAILS

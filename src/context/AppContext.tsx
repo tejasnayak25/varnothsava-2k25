@@ -41,10 +41,11 @@ interface AppContextType {
     userData: UserData | null
     login: (email: string, password: string) => void
     logout: () => void
-    registerUser: (data: Omit<UserData, 'id' | 'profileCode' | 'hasPaid' | 'registeredEvents' | 'avatar' | 'studentType'>) => void
+    registerUser: (data: Omit<UserData, 'id' | 'email' | 'profileCode' | 'hasPaid' | 'registeredEvents' | 'avatar' | 'studentType'>) => void
     markAsPaid: () => void
     registerMission: (eventId: string, teamName: string, members: string[]) => Promise<boolean>
     updateAvatar: (avatarUrl: string) => void,
+    updateProfile: (data: { name: string, usn: string, phone: string, collegeName: string }) => Promise<boolean>,
     mountUser: () => Promise<void>
 }
 
@@ -316,6 +317,35 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         return false;
     }
 
+    const updateProfile = async (data: { name: string, usn: string, phone: string, collegeName: string }) => {
+        if (userData) {
+            try {
+                const token = await getAuthToken();
+                const response = await fetch('/api/update-profile', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify(data),
+                });
+
+                if (response.ok) {
+                    const resData = await response.json();
+                    setUserData(resData.user);
+                    return true;
+                } else {
+                    const err = await response.json();
+                    throw new Error(err.message || 'Profile update failed');
+                }
+            } catch (error: any) {
+                console.error('Failed to update profile:', error);
+                alert(error.message);
+            }
+        }
+        return false;
+    }
+
     return (
         <AppContext.Provider value={{
             cart,
@@ -333,6 +363,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
             registerMission,
             markAsPaid,
             updateAvatar,
+            updateProfile,
             mountUser
         }}>
             {children}

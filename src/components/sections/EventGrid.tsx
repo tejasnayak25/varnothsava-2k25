@@ -23,7 +23,7 @@ export function EventGrid({ missions }: EventGridProps) {
     const [filter, setFilter] = useState<'All' | 'Technical' | 'Cultural' | 'Gaming'>('All')
     const [subFilter, setSubFilter] = useState<'All' | 'Hobby Club' | 'General' | 'Promotional'>('All')
     const [searchQuery, setSearchQuery] = useState('')
-    const [activeThemeOverride, setActiveThemeOverride] = useState<'emerald' | 'amber' | 'cyan' | null>(null)
+    const [activeThemeOverride, setActiveThemeOverride] = useState<'emerald' | 'amber' | 'cyan' | 'gaming' | null>(null)
     const [isRegModalOpen, setIsRegModalOpen] = useState(false)
     const [selectedEvent, setSelectedEvent] = useState<any>(null)
 
@@ -92,19 +92,19 @@ export function EventGrid({ missions }: EventGridProps) {
 
         if (type === 'Gaming') {
             return {
-                primary: 'red-600',
-                secondary: 'orange-500',
-                glow: 'rgba(220, 38, 38, 0.6)',
-                border: 'text-red-600/60 group-hover:text-red-500',
-                borderHover: 'border-red-600/50',
-                text: 'text-red-500',
-                textHover: 'group-hover:text-red-400',
-                bg: 'bg-red-600',
-                bgHover: 'hover:bg-red-600',
-                shadow: 'shadow-[0_0_20px_rgba(220, 38, 38, 0.4)]',
-                gradient: 'from-red-600 via-red-500 to-orange-400',
-                pulse: 'bg-red-600/5 group-hover:bg-red-600/20',
-                radarColor: 'rgba(220, 38, 38, 0.15)'
+                primary: 'violet-600',
+                secondary: 'cyan-500',
+                glow: 'rgba(139, 92, 246, 0.6)',
+                border: 'text-violet-600/60 group-hover:text-violet-500',
+                borderHover: 'border-violet-600/50',
+                text: 'text-violet-500',
+                textHover: 'group-hover:text-violet-400',
+                bg: 'bg-violet-600',
+                bgHover: 'hover:bg-violet-600',
+                shadow: 'shadow-[0_0_20px_rgba(139, 92, 246, 0.4)]',
+                gradient: 'from-violet-600 via-violet-500 to-cyan-400',
+                pulse: 'bg-violet-600/5 group-hover:bg-violet-600/20',
+                radarColor: 'rgba(139, 92, 246, 0.15)'
             }
         }
 
@@ -187,7 +187,7 @@ export function EventGrid({ missions }: EventGridProps) {
         const sections = [
             { ref: techRef, theme: 'emerald' as const },
             { ref: cultRef, theme: 'amber' as const },
-            { ref: gameRef, theme: 'cyan' as const }
+            { ref: gameRef, theme: 'gaming' as const }
         ]
 
         sections.forEach(({ ref, theme }) => {
@@ -196,8 +196,16 @@ export function EventGrid({ missions }: EventGridProps) {
                 trigger: ref.current,
                 start: "top 60%",
                 end: "bottom 40%",
-                onEnter: () => setActiveThemeOverride(theme),
-                onEnterBack: () => setActiveThemeOverride(theme),
+                onEnter: () => {
+                    const themeValue = theme as string
+                    setActiveThemeOverride(theme)
+                    document.documentElement.style.setProperty('--nav-current-theme', themeValue === 'amber' ? '245, 158, 11' : themeValue === 'cyan' ? '6, 182, 212' : themeValue === 'gaming' ? '139, 92, 246' : '16, 185, 129')
+                },
+                onEnterBack: () => {
+                    const themeValue = theme as string
+                    setActiveThemeOverride(theme)
+                    document.documentElement.style.setProperty('--nav-current-theme', themeValue === 'amber' ? '245, 158, 11' : themeValue === 'cyan' ? '6, 182, 212' : themeValue === 'gaming' ? '139, 92, 246' : '16, 185, 129')
+                },
             })
         })
 
@@ -236,19 +244,19 @@ export function EventGrid({ missions }: EventGridProps) {
             }
         } else if (filter === 'Gaming') {
             return {
-                text: 'text-cyan-400',
-                textMuted: 'text-cyan-500/80',
-                bg: 'bg-cyan-500',
-                border: 'border-cyan-500/50',
-                focusBorder: 'group-focus-within/search:border-cyan-500/50',
-                focusText: 'group-focus-within/search:text-cyan-300',
-                focusPlaceholder: 'group-focus-within/search:placeholder:text-cyan-400/50',
-                glow: 'shadow-[0_0_10px_rgba(6,182,212,0.5)]',
-                dropGlow: 'drop-shadow-[0_0_8px_rgba(6,182,212,0.6)]',
-                gradient: 'from-cyan-600 via-cyan-400 to-cyan-200',
-                searchBorder: 'group-focus-within/search:text-cyan-500',
-                searchGlow: 'rgba(6,182,212,0.3)',
-                focusBg: 'group-focus-within/search:bg-cyan-500/10'
+                text: 'text-violet-400',
+                textMuted: 'text-violet-500/80',
+                bg: 'bg-violet-500',
+                border: 'border-violet-500/50',
+                focusBorder: 'group-focus-within/search:border-violet-500/50',
+                focusText: 'group-focus-within/search:text-violet-300',
+                focusPlaceholder: 'group-focus-within/search:placeholder:text-violet-400/50',
+                glow: 'shadow-[0_0_10px_rgba(139, 92, 246, 0.5)]',
+                dropGlow: 'drop-shadow-[0_0_8px_rgba(139, 92, 246, 0.6)]',
+                gradient: 'from-violet-600 via-violet-400 to-cyan-200',
+                searchBorder: 'group-focus-within/search:text-violet-500',
+                searchGlow: 'rgba(139, 92, 246, 0.3)',
+                focusBg: 'group-focus-within/search:bg-violet-500/10'
             }
         }
         return {
@@ -295,7 +303,7 @@ export function EventGrid({ missions }: EventGridProps) {
     ), [activeThemeOverride, filter])
 
     return (
-        <section className="relative min-h-screen pt-20 pb-24 px-6 bg-[#020603] overflow-hidden">
+        <section className="relative min-h-[100dvh] pt-20 pb-24 px-4 md:px-6 bg-[#020206] overflow-hidden root-container">
             {backgroundComponent}
 
             <div className="container mx-auto max-w-7xl relative z-10 px-4 md:px-6">
@@ -309,8 +317,8 @@ export function EventGrid({ missions }: EventGridProps) {
                         >
                             <div className="flex items-center gap-3">
                                 <div className="h-[1px] w-12 bg-emerald-500/50" />
-                                <span className="text-[10px] font-black text-emerald-500 tracking-[0.5em] uppercase italic animate-pulse">
-                                    [ SCROLL_TO_INITIALIZE_MISSIONS ]
+                                <span className="text-[10px] font-bold text-emerald-500 tracking-[0.5em] uppercase italic animate-pulse">
+                                    [ SCROLL TO EXPLORE EVENTS ]
                                 </span>
                                 <div className="h-[1px] w-12 bg-emerald-500/50" />
                             </div>
@@ -335,12 +343,12 @@ export function EventGrid({ missions }: EventGridProps) {
                             className={`flex items-center justify-center xl:justify-start gap-3 ${gTheme.text} font-mono text-[8px] md:text-[9px] uppercase tracking-[0.4em] font-black mb-2 md:mb-4`}
                         >
                             <div className={`w-1.5 h-1.5 md:w-2 md:h-2 ${gTheme.bg} rounded-full animate-pulse ${gTheme.glow}`} />
-                            <span>Varnothsava 2026 // Explore Events</span>
+                            <span>Varnothsava 2026 // Fest Events</span>
                         </motion.div>
-                        <h2 className="text-4xl md:text-7xl lg:text-8xl font-black text-white italic tracking-tighter uppercase leading-[0.8] drop-shadow-[0_0_50px_rgba(16,185,129,0.4)]">
+                        <h2 className="text-h2 font-black text-white italic tracking-tighter uppercase leading-[0.8] drop-shadow-[0_0_50px_rgba(16,185,129,0.4)] gpu-accel">
                             FESTIVAL<br />
                             <span className={`text-transparent bg-clip-text bg-gradient-to-r ${gTheme.gradient} not-italic drop-shadow-[0_0_30px_rgba(16,185,129,0.3)]`}>
-                                .EVENTS_
+                                EXPLORE EVENTS
                             </span>
                         </h2>
                     </motion.div>
@@ -358,7 +366,7 @@ export function EventGrid({ missions }: EventGridProps) {
                     <div className="header-reveal relative p-1 group/filter order-3 xl:order-3 w-full lg:w-auto mt-4 xl:mt-0">
                         <div className="flex flex-wrap items-center justify-center gap-1 bg-white/[0.05] p-1.5 backdrop-blur-2xl border border-white/5" style={{ clipPath: 'polygon(12px 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%, 0 12px)' }}>
                             {['All', 'Technical', 'Cultural', 'Gaming'].map((t) => (
-                                <button key={t} onClick={() => { setFilter(t as any); setSubFilter('All'); }} className={`px-4 md:px-6 py-2.5 text-[10px] md:text-[11px] font-black uppercase tracking-[0.2em] transition-all relative ${filter === t ? 'text-black z-10' : 'text-white/70 hover:text-white'}`}>
+                                <button key={t} onClick={() => { setFilter(t as any); setSubFilter('All'); }} className={`px-4 md:px-6 py-3 md:py-2.5 text-[10px] md:text-[11px] font-black uppercase tracking-[0.2em] transition-all relative min-h-[48px] md:min-h-0 ${filter === t ? 'text-black z-10' : 'text-white/70 hover:text-white'}`}>
                                     {filter === t && <motion.div layoutId="activeFilter" className="absolute inset-0 shadow-[0_0_40px_rgba(255,255,255,0.6)]" style={{ backgroundColor: t === "Cultural" ? "#f59e0b" : "#ffffff", clipPath: 'polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px)' }} transition={{ type: "spring", bounce: 0.2, duration: 0.6 }} />}
                                     <span className="relative z-20">{t}</span>
                                 </button>
@@ -388,7 +396,7 @@ export function EventGrid({ missions }: EventGridProps) {
                                     <motion.div className="flex items-center gap-4 px-8 opacity-90" style={{ y: techY }}>
                                         <div className="h-[1px] flex-1 bg-gradient-to-r from-transparent via-emerald-500/50 to-emerald-500" />
                                         <div className="flex flex-col items-center">
-                                            <span className="font-mono font-black tracking-[0.3em] uppercase text-xl md:text-2xl text-emerald-500 drop-shadow-[0_0_10px_rgba(16,185,129,0.5)]">Technical Events</span>
+                                            <span className="font-bold tracking-[0.3em] uppercase text-xl md:text-2xl text-emerald-500 drop-shadow-[0_0_10px_rgba(16,185,129,0.5)]">Technical Events</span>
                                             <div className="h-0.5 w-1/2 bg-emerald-500 mt-2 shadow-[0_0_10px_rgba(16,185,129,1)]" />
                                         </div>
                                         <div className="h-[1px] flex-1 bg-gradient-to-l from-transparent via-emerald-500/50 to-emerald-500" />
@@ -405,13 +413,13 @@ export function EventGrid({ missions }: EventGridProps) {
                                     <motion.div className="flex items-center gap-4 px-8 opacity-90" style={{ y: cultY }}>
                                         <div className="h-[1px] flex-1 bg-gradient-to-r from-transparent via-amber-500/50 to-amber-500" />
                                         <div className="flex flex-col items-center">
-                                            <span className="font-mono font-black tracking-[0.3em] uppercase text-xl md:text-3xl text-amber-500 drop-shadow-[0_0_15px_rgba(245,158,11,0.5)]">Cultural Events</span>
-                                            <span className="text-[10px] tracking-[0.5em] text-amber-500/60 uppercase mt-2">Arts // Music // Dance</span>
-                                            <div className="h-0.5 w-full bg-amber-500 mt-3 shadow-[0_0_15px_rgba(245,158,11,1)]" />
+                                            <span className="font-bold tracking-[0.3em] uppercase text-xl md:text-3xl text-amber-500 drop-shadow-[0_0_15px_rgba(245,158,11,0.5)]">Cultural Events</span>
+                                            <span className="text-[10px] tracking-[0.5em] text-amber-500/80 uppercase mt-2">Arts // Music // Dance</span>
+                                            <div className="h-0.5 w-full bg-amber-500 mt-3 shadow-[0_0_10px_rgba(245,158,11,1)]" />
                                         </div>
                                         <div className="h-[1px] flex-1 bg-gradient-to-l from-transparent via-amber-500/50 to-amber-500" />
                                     </motion.div>
-                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10 md:gap-16 xl:gap-24 px-4 md:px-8">
+                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10 md:gap-16 xl:gap-24 px-8 md:px-12">
                                         {groupedEvents.cultural.map((event, idx) => (
                                             <MissionCard key={event.id} event={event} idx={idx} theme={getEventTheme(event.type)} complexClip={complexClip} isRegistered={userData?.registeredEvents?.some(re => re.id === event.id)} isLoggedIn={isLoggedIn} onRegister={handleRegisterClick} className="will-change-gpu" />
                                         ))}
@@ -420,15 +428,7 @@ export function EventGrid({ missions }: EventGridProps) {
                             )}
                             {groupedEvents.gaming.length > 0 && (
                                 <div ref={gameRef} className="space-y-12 mt-12">
-                                    <motion.div className="flex items-center gap-4 px-8 opacity-90" style={{ y: gameY }}>
-                                        <div className="h-[1px] flex-1 bg-gradient-to-r from-transparent via-cyan-500/50 to-cyan-500" />
-                                        <div className="flex flex-col items-center">
-                                            <span className="font-mono font-black tracking-[0.3em] uppercase text-xl md:text-2xl text-cyan-500 drop-shadow-[0_0_10px_rgba(6,182,212,0.5)]">Gaming Arena</span>
-                                            <div className="h-0.5 w-1/2 bg-cyan-500 mt-2 shadow-[0_0_10px_rgba(6,182,212,1)]" />
-                                        </div>
-                                        <div className="h-[1px] flex-1 bg-gradient-to-l from-transparent via-cyan-500/50 to-cyan-500" />
-                                    </motion.div>
-                                    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-8 lg:gap-10 px-4 md:px-8">
+                                    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-8 lg:gap-10 px-4 md:px-8 pt-12">
                                         {groupedEvents.gaming.map((event, idx) => (
                                             <MissionCard key={event.id} event={event} idx={idx} theme={getEventTheme(event.type)} complexClip={complexClip} isRegistered={userData?.registeredEvents?.some(re => re.id === event.id)} isLoggedIn={isLoggedIn} onRegister={handleRegisterClick} className="will-change-gpu" />
                                         ))}
@@ -437,7 +437,7 @@ export function EventGrid({ missions }: EventGridProps) {
                             )}
                         </>
                     ) : (
-                        <div className={`grid grid-cols-1 md:grid-cols-2 ${filter === 'Cultural' ? 'lg:grid-cols-3 gap-10 md:gap-16 xl:gap-24' : 'xl:grid-cols-3 2xl:grid-cols-4 gap-8 lg:gap-10'} px-4 md:px-8`}>
+                        <div className={`grid grid-cols-1 md:grid-cols-2 ${filter === 'Cultural' ? 'lg:grid-cols-3 gap-10 md:gap-16 xl:gap-24 px-8 md:px-12' : 'xl:grid-cols-3 2xl:grid-cols-4 gap-8 lg:gap-10 px-4 md:px-8'}`}>
                             {filtered.map((event, idx) => (
                                 <MissionCard key={event.id} event={event} idx={idx} theme={getEventTheme(event.type)} complexClip={complexClip} isRegistered={userData?.registeredEvents?.some(re => re.id === event.id)} isLoggedIn={isLoggedIn} onRegister={handleRegisterClick} className="will-change-gpu" />
                             ))}

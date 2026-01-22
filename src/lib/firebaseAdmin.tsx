@@ -67,4 +67,4 @@ export async function verifyAuthToken(token: string): Promise<admin.auth.Decoded
     return auth.verifyIdToken(token);
 }
 
-export { firebaseAdminApp, db, usersCollection };
+export { firebaseAdminApp, db, usersCollection, auth as adminAuth, db as adminDb };

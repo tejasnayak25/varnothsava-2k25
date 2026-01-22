@@ -252,14 +252,14 @@ export default function LoginPage() {
                 <GridScan />
                 <div className="relative z-10 flex flex-col items-center gap-6">
                     <div className="w-16 h-16 border-2 border-emerald-500/20 border-t-emerald-500 rounded-full animate-spin" />
-                    <p className="text-emerald-500/60 font-mono text-xs tracking-widest uppercase animate-pulse">Synchronizing Portal</p>
+                    <p className="text-emerald-500 font-medium text-sm tracking-widest uppercase animate-pulse">Setting things up...</p>
                 </div>
             </div>
         )
     }
 
     return (
-        <main className="h-screen w-full bg-[#050b14] text-white relative flex items-center justify-center overflow-hidden">
+        <main className="h-[100dvh] w-full bg-[#050b14] text-white relative flex items-center justify-center overflow-hidden root-container">
             {/* LIVELY STARFIELD BACKGROUND */}
             <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
                 <div className="absolute inset-0 bg-[#050b14]" />
@@ -283,7 +283,7 @@ export default function LoginPage() {
                 />
             </div>
 
-            <div className="relative z-10 w-full max-w-6xl px-8 flex flex-col lg:flex-row items-center justify-between gap-12 xl:gap-20">
+            <div className="relative z-10 w-full max-w-6xl px-6 md:px-8 flex flex-col lg:flex-row items-center justify-between gap-8 xl:gap-20">
 
                 {/* LEFT CONTENT: Friendly Branding */}
                 <div className="lg:w-[45%] space-y-10 hidden lg:block">
@@ -293,7 +293,7 @@ export default function LoginPage() {
                         transition={{ duration: 0.8 }}
                     >
                         {/* 3D Visual - Softer Sphere */}
-                        <div className="w-[380px] h-[380px] relative mb-12">
+                        <div className="w-[300px] h-[300px] xl:w-[380px] xl:h-[380px] relative mb-12">
                             <Canvas camera={{ position: [0, 0, 10], fov: 45 }}>
                                 <ambientLight intensity={1.5} />
                                 <pointLight position={[10, 10, 10]} intensity={2} color="#10b981" />
@@ -302,13 +302,13 @@ export default function LoginPage() {
                             <div className="absolute inset-0 bg-emerald-500/5 blur-[80px] rounded-full -z-10" />
                         </div>
 
-                        <h1 className="text-6xl xl:text-7xl font-bold tracking-tight leading-tight">
+                        <h1 className="text-display font-bold tracking-tight leading-tight gpu-accel">
                             Varnothsava<br />
-                            <span className="text-emerald-500">Student Portal.</span>
+                            <span className="text-emerald-500 font-extrabold italic">Fest Hub.</span>
                         </h1>
-                        <p className="mt-6 text-xl text-white/40 font-medium leading-relaxed max-w-sm">
-                            Join your fellow students at the official college fest portal.
-                            Manage events and stay updated with ease.
+                        <p className="mt-6 text-lg xl:text-xl text-white/70 font-medium leading-relaxed max-w-sm">
+                            Join the celebration at the official college fest hub.
+                            Stay updated and manage your events easily.
                         </p>
                     </motion.div>
 
@@ -318,16 +318,16 @@ export default function LoginPage() {
                                 <div key={i} className="w-11 h-11 rounded-full border-2 border-[#050b14] bg-emerald-900/30 backdrop-blur-md" />
                             ))}
                         </div>
-                        <p className="text-sm text-white/30 font-semibold tracking-wide uppercase">Join 2,500+ active students</p>
+                        <p className="text-sm text-white/70 font-semibold tracking-wide uppercase">Join 2,500+ attendees</p>
                     </div>
                 </div>
 
                 {/* RIGHT CONTENT: Professional Card */}
-                <div className="w-full lg:w-[48%] max-w-[480px]">
+                <div className="w-full lg:w-[48%] max-w-[480px] gpu-accel">
                     <motion.div
                         initial={{ opacity: 0, scale: 0.98 }}
                         animate={{ opacity: 1, scale: 1 }}
-                        className="bg-[#0c1420]/60 backdrop-blur-3xl border border-white/10 rounded-[2.5rem] p-10 xl:p-14 shadow-2xl relative"
+                        className="bg-[#0c1420]/60 backdrop-blur-3xl border border-white/10 rounded-[2rem] md:rounded-[2.5rem] p-8 md:p-10 xl:p-14 shadow-2xl relative"
                     >
                         <AnimatePresence mode="wait">
                             {step === 1 ? (
@@ -342,15 +342,15 @@ export default function LoginPage() {
                                         <h2 className="text-4xl font-bold tracking-tight">
                                             {isRegister ? 'Sign Up' : 'Welcome Back'}
                                         </h2>
-                                        <p className="text-white/40 font-medium text-sm">
-                                            {isRegister ? 'Create your student account today.' : 'Login to your student workspace.'}
+                                        <p className="text-white/75 font-medium text-sm">
+                                            {isRegister ? 'Join the fest today.' : 'Login to your fest dashboard.'}
                                         </p>
                                     </div>
 
                                     <button
                                         onClick={handleGoogleLoginStep1}
                                         disabled={isLoading}
-                                        className="w-full h-15 flex items-center justify-center gap-3 bg-white text-black hover:bg-white/90 rounded-2xl text-[13px] font-bold transition-all shadow-lg active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
+                                        className="w-full min-h-[56px] flex items-center justify-center gap-3 bg-white text-black hover:bg-white/90 rounded-2xl text-[13px] font-bold transition-all shadow-lg active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed hover-effect"
                                     >
                                         {isLoading ? (
                                             <div className="flex items-center gap-2">
@@ -367,31 +367,31 @@ export default function LoginPage() {
 
                                     <div className="flex items-center gap-4">
                                         <div className="h-[1px] flex-1 bg-white/5" />
-                                        <span className="text-[10px] font-bold text-white/20 uppercase tracking-[0.2em]">or Email</span>
+                                        <span className="text-[10px] font-bold text-white/70 uppercase tracking-[0.2em]">or Email</span>
                                         <div className="h-[1px] flex-1 bg-white/5" />
                                     </div>
 
                                     <form onSubmit={handleSubmitStep1} className="space-y-6">
                                         <div className="space-y-2">
-                                            <label className="text-[13px] font-semibold text-white/60 ml-1">Email Address</label>
+                                            <label className="text-[13px] font-bold text-white/80 ml-1">Email Address</label>
                                             <input
                                                 required type="email" value={email} onChange={(e) => setEmail(e.target.value)}
                                                 placeholder="name@university.edu"
-                                                className="w-full bg-white/[0.03] border border-white/10 rounded-2xl px-6 py-5 text-sm focus:border-emerald-500/50 outline-none transition-all placeholder:text-white/10"
+                                                className="w-full bg-white/[0.05] border border-white/20 rounded-2xl px-6 py-5 text-sm focus:border-emerald-500 outline-none transition-all placeholder:text-white/30 text-white"
                                             />
                                         </div>
                                         <div className="space-y-2">
-                                            <label className="text-[13px] font-semibold text-white/60 ml-1">Password</label>
+                                            <label className="text-[13px] font-bold text-white/80 ml-1">Password</label>
                                             <input
                                                 required type="password" value={password} onChange={(e) => setPassword(e.target.value)}
                                                 placeholder="Enter your password"
-                                                className="w-full bg-white/[0.03] border border-white/10 rounded-2xl px-6 py-5 text-sm focus:border-emerald-500/50 outline-none transition-all placeholder:text-white/10"
+                                                className="w-full bg-white/[0.05] border border-white/20 rounded-2xl px-6 py-5 text-sm focus:border-emerald-500 outline-none transition-all placeholder:text-white/30 text-white"
                                             />
                                         </div>
 
                                         <button
                                             disabled={isLoading}
-                                            className="w-full h-15 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-2xl text-[14px] transition-all shadow-xl mt-4 active:scale-[0.98] disabled:opacity-50 flex items-center justify-center gap-2"
+                                            className="w-full min-h-[56px] bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-2xl text-[14px] transition-all shadow-xl mt-4 active:scale-[0.98] disabled:opacity-50 flex items-center justify-center gap-2 hover-effect"
                                         >
                                             {isLoading && <div className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin" />}
                                             {isRegister ? 'Create Account' : 'Login'}
@@ -399,8 +399,8 @@ export default function LoginPage() {
                                     </form>
 
                                     <div className="text-center">
-                                        <button onClick={() => setIsRegister(!isRegister)} className="text-sm font-semibold text-white/30 hover:text-emerald-500 transition-colors underline decoration-emerald-500/0 hover:decoration-emerald-500 underline-offset-4">
-                                            {isRegister ? 'Already have an account? Sign In' : "New student? Create Account"}
+                                        <button onClick={() => setIsRegister(!isRegister)} className="text-sm font-bold text-white/70 hover:text-emerald-500 transition-colors underline decoration-emerald-500/0 hover:decoration-emerald-500 underline-offset-4">
+                                            {isRegister ? 'Already have an account? Sign In' : "New attendee? Create Account"}
                                         </button>
                                     </div>
                                 </motion.div>
@@ -413,7 +413,7 @@ export default function LoginPage() {
                                 >
                                     <div className="space-y-2 text-center lg:text-left">
                                         <div className="flex items-center justify-between">
-                                            <h2 className="text-3xl font-bold tracking-tight">Complete Profile</h2>
+                                            <h2 className="text-3xl font-bold tracking-tight">About You</h2>
                                             {email.endsWith('@sode-edu.in') ? (
                                                 <div className="px-3 py-1 bg-emerald-500/10 border border-emerald-500/20 rounded-full flex items-center gap-1.5">
                                                     <Shield className="w-3.5 h-3.5 text-emerald-500" />
@@ -426,50 +426,50 @@ export default function LoginPage() {
                                                 </div>
                                             )}
                                         </div>
-                                        <p className="text-white/40 font-medium text-sm">Welcome! Please provide your college details to access the portal.</p>
+                                        <p className="text-white/75 font-medium text-sm">Awesome! Let's get your fest pass ready with a few details.</p>
                                     </div>
 
                                     <form onSubmit={handleFinalSubmit} className="space-y-5">
                                         <div className="space-y-4">
                                             <div className="space-y-2">
-                                                <label className="text-[13px] font-semibold text-white/60 ml-1">Full Name</label>
-                                                <input required type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder="Full Name" className="w-full bg-white/[0.03] border border-white/10 rounded-2xl px-6 py-4 text-sm focus:border-emerald-500/50 outline-none transition-all" />
+                                                <label className="text-[13px] font-bold text-white/80 ml-1">Full Name</label>
+                                                <input required type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder="Full Name" className="w-full bg-white/[0.05] border border-white/20 rounded-2xl px-6 py-4 text-sm focus:border-emerald-500 outline-none transition-all placeholder:text-white/30 text-white" />
                                             </div>
                                             <div className="space-y-2">
-                                                <label className="text-[13px] font-semibold text-white/60 ml-1">USN / Roll Number</label>
-                                                <input required type="text" value={usn} onChange={(e) => setUsn(e.target.value)} placeholder="4XX00XX000" className="w-full bg-white/[0.03] border border-white/10 rounded-2xl px-6 py-4 text-sm focus:border-emerald-500/50 outline-none transition-all" />
+                                                <label className="text-[13px] font-bold text-white/80 ml-1">USN / Roll Number</label>
+                                                <input required type="text" value={usn} onChange={(e) => setUsn(e.target.value)} placeholder="College ID / USN" className="w-full bg-white/[0.05] border border-white/20 rounded-2xl px-6 py-4 text-sm focus:border-emerald-500 outline-none transition-all placeholder:text-white/30 text-white" />
                                             </div>
                                             <div className="space-y-2">
-                                                <label className="text-[13px] font-semibold text-white/60 ml-1">College</label>
+                                                <label className="text-[13px] font-bold text-white/80 ml-1">College</label>
                                                 <div className="relative">
                                                     <select
                                                         required
                                                         value={college}
                                                         onChange={(e) => setCollege(e.target.value)}
                                                         disabled={email.endsWith('@sode-edu.in')}
-                                                        className={`w-full bg-white/[0.03] border border-white/10 rounded-2xl px-6 py-4 text-sm focus:border-emerald-500/50 outline-none transition-all appearance-none cursor-pointer ${email.endsWith('@sode-edu.in') ? 'opacity-60 cursor-not-allowed' : ''}`}
+                                                        className={`w-full bg-white/[0.05] border border-white/20 rounded-2xl px-6 py-4 text-sm focus:border-emerald-500 outline-none transition-all appearance-none cursor-pointer text-white ${email.endsWith('@sode-edu.in') ? 'opacity-60 cursor-not-allowed' : ''}`}
                                                     >
                                                         <option value="" disabled className="bg-[#0c1420]">Select Institution</option>
-                                                        {COLLEGES.map(c => <option key={c} value={c} className="bg-[#0c1420]">{c}</option>)}
+                                                        {COLLEGES.map(c => <option key={c} value={c} className="bg-[#0c1420] text-white">{c}</option>)}
                                                     </select>
                                                     {!email.endsWith('@sode-edu.in') && <ChevronDown className="absolute right-5 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40 pointer-events-none" />}
                                                 </div>
                                                 {email.endsWith('@sode-edu.in') && (
-                                                    <p className="text-[10px] text-emerald-500/60 ml-1 font-medium">Verified SMVITM student domain detected.</p>
+                                                    <p className="text-[10px] text-emerald-400 ml-1 font-medium">Verified student domain detected.</p>
                                                 )}
                                             </div>
                                             <div className="space-y-2">
-                                                <label className="text-[13px] font-semibold text-white/60 ml-1">Phone Number</label>
-                                                <input required type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+91 XXX-XXX-XXXX" className="w-full bg-white/[0.03] border border-white/10 rounded-2xl px-6 py-4 text-sm focus:border-emerald-500/50 outline-none transition-all" />
+                                                <label className="text-[13px] font-bold text-white/80 ml-1">Phone Number</label>
+                                                <input required type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+91 XXX-XXX-XXXX" className="w-full bg-white/[0.05] border border-white/20 rounded-2xl px-6 py-4 text-sm focus:border-emerald-500 outline-none transition-all placeholder:text-white/30 text-white" />
                                             </div>
                                         </div>
 
                                         <button
                                             disabled={isLoading}
-                                            className="w-full h-15 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-2xl text-sm transition-all shadow-xl active:scale-[0.98] mt-4 flex items-center justify-center gap-2 disabled:opacity-50"
+                                            className="w-full min-h-[56px] bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-2xl text-sm transition-all shadow-xl active:scale-[0.98] mt-4 flex items-center justify-center gap-2 disabled:opacity-50 hover-effect"
                                         >
                                             {isLoading && <div className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin" />}
-                                            Finish Setup
+                                            Finish Hub Setup
                                         </button>
                                     </form>
                                 </motion.div>

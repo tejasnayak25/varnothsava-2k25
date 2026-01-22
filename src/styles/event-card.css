@@ -6,11 +6,13 @@
     --theme-glow: 25 100% 45%;
     --theme-dark: 25 80% 8%;
     position: relative;
-    width: 100%;
-    max-width: 320px;
-    height: 520px;
+    width: min(100%, 320px);
+    aspect-ratio: 320 / 520;
+    height: auto;
     perspective: 1200px;
     margin: 0 auto;
+    transform: translate3d(0, 0, 0);
+    /* gpu-accel base */
 }
 
 /* Theme variations */
@@ -77,6 +79,7 @@
             calc(100% - 40px) 100%, 40px 100%,
             0 calc(100% - 20px), 0 20px);
     transition: transform 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+    will-change: transform;
     overflow: hidden;
 }
 
@@ -280,7 +283,7 @@
 .badge-text {
     position: relative;
     font-family: var(--font-display);
-    font-size: 0.9rem;
+    font-size: clamp(0.7rem, 2vw, 0.9rem);
     font-weight: 800;
     letter-spacing: 0.3em;
     color: hsl(230 40% 6%);
@@ -290,9 +293,10 @@
 /* Character container */
 .character-container {
     position: relative;
-    width: 160px;
-    height: 160px;
-    margin: 55px auto 10px;
+    width: clamp(120px, 50%, 160px);
+    aspect-ratio: 1/1;
+    height: auto;
+    margin: clamp(40px, 15%, 55px) auto 10px;
 }
 
 .hex-outer-ring,
@@ -432,7 +436,7 @@
 
 .event-title {
     font-family: var(--font-display);
-    font-size: 1rem;
+    font-size: clamp(0.8rem, 3vw, 1rem);
     font-weight: 700;
     letter-spacing: 0.15em;
     color: hsl(200 100% 95%);
