@@ -125,7 +125,7 @@ export function CosmicGallery() {
                             key="showcase"
                             initial={{ opacity: 0, y: 50, scale: 0.95 }}
                             animate={{ opacity: 1, y: -40, scale: 1 }}
-                            exit={{ opacity: 0, scale: 0.9, blur: "10px" }}
+                            exit={{ opacity: 0, scale: 0.9, filter: "blur(10px)" }}
                             transition={{ duration: 0.8, ease: [0.19, 1, 0.22, 1] }}
                             className="w-full max-w-6xl flex flex-col md:flex-row items-center gap-12 px-8"
                         >
