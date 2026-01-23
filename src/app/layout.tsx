@@ -3,10 +3,9 @@ import { Outfit } from "next/font/google";
 import "./globals.css";
 import { AppProvider } from "@/context/AppContext";
 import { InnovativeNavbar } from "@/components/layout/InnovativeNavbar";
-import { LoadingScreen } from "@/components/layout/LoadingScreen";
 import { PageTransition } from "@/components/layout/PageTransition";
-import { PageTransitionBar } from "@/components/layout/PageTransitionBar";
 import { SmoothScroll } from "../components/ui/SmoothScroll";
+import ClientLayoutOverlays from "@/components/layout/ClientLayoutOverlays";
 
 import { CustomCursor } from "@/components/layout/CustomCursor";
 
@@ -26,8 +25,7 @@ export default function RootLayout({
         <html lang="en">
             <body className={`${outfit.className} bg-[#050805] text-white antialiased`}>
                 <AppProvider>
-                    <LoadingScreen />
-                    <PageTransitionBar />
+                    <ClientLayoutOverlays />
                     <CustomCursor />
 
 
