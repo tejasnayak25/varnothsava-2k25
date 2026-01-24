@@ -7,6 +7,8 @@ import { InnovativeNavbar } from "@/components/layout/InnovativeNavbar";
 import { PageTransition } from "@/components/layout/PageTransition";
 import { SmoothScroll } from "../components/ui/SmoothScroll";
 import ClientLayoutOverlays from "@/components/layout/ClientLayoutOverlays";
+import { LoadingScreen } from "@/components/layout/LoadingScreen";
+import { PageTransitionBar } from "@/components/layout/PageTransitionBar";
 
 import { CustomCursor } from "@/components/layout/CustomCursor";
 
