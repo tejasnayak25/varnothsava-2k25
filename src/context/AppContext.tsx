@@ -46,7 +46,9 @@ interface AppContextType {
     registerMission: (eventId: string, teamName: string, members: string[]) => Promise<boolean>
     updateAvatar: (avatarUrl: string) => void,
     updateProfile: (data: { name: string, usn: string, phone: string, collegeName: string }) => Promise<boolean>,
-    mountUser: () => Promise<void>
+    mountUser: () => Promise<void>,
+    isSiteLoaded: boolean,
+    setIsSiteLoaded: (val: boolean) => void
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined)
@@ -93,6 +95,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     const [isInitializing, setIsInitializing] = useState(true)
     const [userData, setUserData] = useState<UserData | null>(null)
     const [needsOnboarding, setNeedsOnboarding] = useState(false)
+    const [isSiteLoaded, setIsSiteLoaded] = useState(false)
     const router = useRouter();
 
     useEffect(() => {
@@ -364,7 +367,9 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
             markAsPaid,
             updateAvatar,
             updateProfile,
-            mountUser
+            mountUser,
+            isSiteLoaded,
+            setIsSiteLoaded
         }}>
             {children}
         </AppContext.Provider>

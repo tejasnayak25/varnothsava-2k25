@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react'
-import { motion, AnimatePresence, useScroll, useTransform } from 'framer-motion'
+import { motion, AnimatePresence, useScroll, useTransform, useMotionValueEvent } from 'framer-motion'
 import { Search, Zap, ChevronDown, Trophy, X, CheckCircle2, Loader2, ShieldCheck, Mail, Grid, Filter } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useApp } from '@/context/AppContext'
@@ -18,7 +18,7 @@ interface EventGridProps {
 }
 
 export function EventGrid({ missions }: EventGridProps) {
-    const { userData, registerMission, isLoggedIn } = useApp()
+    const { userData, registerMission, isLoggedIn, isSiteLoaded } = useApp()
     const router = useRouter()
     const [filter, setFilter] = useState<'All' | 'Technical' | 'Cultural' | 'Gaming'>('All')
     const [subFilter, setSubFilter] = useState<'All' | 'Hobby Club' | 'General' | 'Promotional'>('All')
@@ -58,10 +58,7 @@ export function EventGrid({ missions }: EventGridProps) {
             return matchesType && matchesSub && matchesSearch
         })
 
-        // Only limit to 3 for Cultural filter when no search is active
-        if (filter === 'Cultural' && searchQuery === '') {
-            return base.slice(0, 3)
-        }
+        // Return all filtered results
         return base
     }, [missions, filter, subFilter, searchQuery])
 
@@ -102,7 +99,7 @@ export function EventGrid({ missions }: EventGridProps) {
                 bg: 'bg-violet-600',
                 bgHover: 'hover:bg-violet-600',
                 shadow: 'shadow-[0_0_20px_rgba(139, 92, 246, 0.4)]',
-                gradient: 'from-violet-600 via-violet-500 to-cyan-400',
+                gradient: 'from-violet-600 via-violet-500 to-cyan-200',
                 pulse: 'bg-violet-600/5 group-hover:bg-violet-600/20',
                 radarColor: 'rgba(139, 92, 246, 0.15)'
             }
@@ -126,6 +123,7 @@ export function EventGrid({ missions }: EventGridProps) {
     }, [])
 
     useEffect(() => {
+        if (!isSiteLoaded) return
         setActiveThemeOverride(null)
         if (!gridRef.current) return
 
@@ -134,11 +132,17 @@ export function EventGrid({ missions }: EventGridProps) {
 
         gsap.killTweensOf(cards)
 
+        if (isMobile) {
+            gsap.set(cards, { opacity: 1, y: 0, scale: 1, x: 0, rotateX: 0, rotateY: 0, filter: "none" })
+            gsap.set(".header-reveal", { opacity: 1, y: 0, filter: "none" })
+            return
+        }
+
         const tl = gsap.timeline({ defaults: { ease: "power4.out" } })
 
         tl.fromTo(".header-reveal",
-            { opacity: 0, y: isMobile ? -20 : -40, filter: isMobile ? "none" : "blur(10px)" },
-            { opacity: 1, y: 0, filter: "blur(0px)", duration: isMobile ? 0.8 : 1.2, stagger: isMobile ? 0.1 : 0.2 }
+            { opacity: 0, y: -40, filter: "blur(10px)" },
+            { opacity: 1, y: 0, filter: "blur(0px)", duration: 1.2, stagger: 0.2 }
         )
 
         gsap.set(cards, { opacity: 0, y: isMobile ? 50 : 150, scale: isMobile ? 1 : 0.8 })
@@ -184,6 +188,8 @@ export function EventGrid({ missions }: EventGridProps) {
             fastScrollEnd: true
         })
 
+        ScrollTrigger.refresh()
+
         const sections = [
             { ref: techRef, theme: 'emerald' as const },
             { ref: cultRef, theme: 'amber' as const },
@@ -212,7 +218,7 @@ export function EventGrid({ missions }: EventGridProps) {
         return () => {
             ScrollTrigger.getAll().forEach(t => t.kill())
         }
-    }, [filtered])
+    }, [filtered, isSiteLoaded])
 
     const complexClip = filter === 'Cultural'
         ? `polygon(15px 0, calc(100% - 15px) 0, 100% 15px, 100% calc(100% - 15px), calc(100% - 15px) 100%, 15px 100%, 0 calc(100% - 15px), 0 15px)`
@@ -299,8 +305,8 @@ export function EventGrid({ missions }: EventGridProps) {
     }
 
     const backgroundComponent = useMemo(() => (
-        <ProEventBackground theme={getBackgroundTheme()} scrollProgress={0} />
-    ), [activeThemeOverride, filter])
+        <ProEventBackground theme={getBackgroundTheme()} scrollProgress={scrollYProgress} />
+    ), [activeThemeOverride, filter, scrollYProgress])
 
     return (
         <section className="relative min-h-[100dvh] pt-20 pb-24 px-4 md:px-6 bg-[#020206] overflow-hidden root-container">
@@ -419,7 +425,7 @@ export function EventGrid({ missions }: EventGridProps) {
                                         </div>
                                         <div className="h-[1px] flex-1 bg-gradient-to-l from-transparent via-amber-500/50 to-amber-500" />
                                     </motion.div>
-                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10 md:gap-16 xl:gap-24 px-8 md:px-12">
+                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10 md:gap-16 xl:gap-24 px-4 md:px-12">
                                         {groupedEvents.cultural.map((event, idx) => (
                                             <MissionCard key={event.id} event={event} idx={idx} theme={getEventTheme(event.type)} complexClip={complexClip} isRegistered={userData?.registeredEvents?.some(re => re.id === event.id)} isLoggedIn={isLoggedIn} onRegister={handleRegisterClick} className="will-change-gpu" />
                                         ))}

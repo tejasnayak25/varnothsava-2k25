@@ -2,17 +2,26 @@
 
 import { motion } from 'framer-motion'
 import { Trophy, Activity, Shield, Zap, Search, ChevronRight, Star } from 'lucide-react'
+import { useState, useEffect } from 'react'
 
 const ranks: any[] = []
 
 export function Leaderboard() {
+    const [isMobile, setIsMobile] = useState(false)
+
+    useEffect(() => {
+        setIsMobile(window.innerWidth < 768)
+    }, [])
+
     return (
         <section className="relative min-h-[100dvh] py-32 px-4 md:px-6 bg-[#020603] overflow-hidden root-container">
 
-            {/* Background Glow */}
-            <div className="absolute top-0 left-0 w-full h-full pointer-events-none z-0">
-                <div className="absolute top-[10%] left-[50%] -translate-x-1/2 w-full h-[60vh] bg-[radial-gradient(circle,rgba(16,185,129,0.05),transparent_70%)]" />
-            </div>
+            {/* Background Glow - Desktop Only */}
+            {!isMobile && (
+                <div className="absolute top-0 left-0 w-full h-full pointer-events-none z-0">
+                    <div className="absolute top-[10%] left-[50%] -translate-x-1/2 w-full h-[60vh] bg-[radial-gradient(circle,rgba(16,185,129,0.05),transparent_70%)]" />
+                </div>
+            )}
 
             <div className="container mx-auto max-w-6xl relative z-10">
                 {/* Header Section */}
@@ -47,7 +56,7 @@ export function Leaderboard() {
 
                 {/* Leaderboard Table */}
                 <motion.div
-                    initial={{ opacity: 0, y: 40 }}
+                    initial={isMobile ? { opacity: 1, y: 0 } : { opacity: 0, y: 40 }}
                     animate={{ opacity: 1, y: 0 }}
                     className={`bg-white/[0.02] ${typeof window !== 'undefined' && window.innerWidth < 768 ? '' : 'backdrop-blur-3xl'} border border-white/10 rounded-[3.5rem] overflow-hidden shadow-2xl will-change-gpu`}
                 >
@@ -66,9 +75,10 @@ export function Leaderboard() {
                             ranks.map((entry, i) => (
                                 <motion.div
                                     key={entry.rank}
-                                    initial={{ opacity: 0, x: -20 }}
-                                    whileInView={{ opacity: 1, x: 0 }}
-                                    transition={{ delay: i * 0.1 }}
+                                    initial={isMobile ? { opacity: 1, x: 0 } : { opacity: 0, x: -20 }}
+                                    whileInView={isMobile ? undefined : { opacity: 1, x: 0 }}
+                                    viewport={{ once: true }}
+                                    transition={{ delay: isMobile ? 0 : i * 0.1 }}
                                     className="grid grid-cols-2 md:grid-cols-5 px-6 md:px-10 py-8 md:py-10 items-center group hover:bg-white/[0.04] transition-all will-change-gpu"
                                 >
                                     <div className="flex items-center gap-4 md:gap-8">

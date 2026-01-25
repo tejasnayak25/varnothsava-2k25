@@ -760,3 +760,24 @@
 .event-card-wrapper:hover::after {
     opacity: 1;
 }
+
+/* MOBILE OPTIMIZATIONS */
+@media (max-width: 768px) {
+
+    .geo-frame-outer,
+    .geo-frame-middle,
+    .diamond-inner,
+    .hex-outer-ring,
+    .hex-mid-ring,
+    .energy-pulse {
+        animation: none !important;
+    }
+
+    .event-card-wrapper::after {
+        display: none !important;
+    }
+
+    .scan-lines {
+        display: none !important;
+    }
+}

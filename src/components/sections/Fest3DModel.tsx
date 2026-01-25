@@ -1,9 +1,10 @@
 'use client'
 
-import React, { useRef, useMemo } from 'react'
+import React, { useRef, useMemo, useState, useEffect } from 'react'
 import { Canvas, useFrame } from '@react-three/fiber'
 import { Float, OrbitControls, Octahedron, Sphere, Box, Torus, MeshDistortMaterial } from '@react-three/drei'
 import * as THREE from 'three'
+import Image from 'next/image'
 
 function Scene() {
     const groupRef = useRef<THREE.Group>(null)
@@ -27,7 +28,7 @@ function Scene() {
     }, [])
 
     const particles = useMemo(() => {
-        return Array.from({ length: 100 }).map(() => ({
+        return Array.from({ length: 40 }).map(() => ({
             position: [(Math.random() - 0.5) * 12, (Math.random() - 0.5) * 12, (Math.random() - 0.5) * 12] as [number, number, number],
             size: 0.01 + Math.random() * 0.02
         }))
@@ -60,19 +61,19 @@ function Scene() {
 
     return (
         <>
-            <ambientLight intensity={0.2} />
-            <pointLight position={[10, 10, 10]} intensity={2.5} color="#10b981" />
-            <spotLight position={[-10, 10, 10]} angle={0.25} penumbra={1} intensity={2.5} color="#10b981" />
-            <pointLight position={[0, -5, 0]} intensity={1.5} color="#064e3b" />
+            <ambientLight intensity={0.8} />
+            <pointLight position={[10, 10, 10]} intensity={4.5} color="#10b981" />
+            <spotLight position={[-10, 10, 10]} angle={0.25} penumbra={1} intensity={4.0} color="#10b981" />
+            <pointLight position={[0, -5, 0]} intensity={3.0} color="#064e3b" />
 
             <Float speed={2} rotationIntensity={0.5} floatIntensity={0.5}>
                 <group ref={groupRef}>
                     {/* The Core Eternal Heart */}
-                    <Sphere args={[0.6, 32, 32]} ref={coreRef}>
+                    <Sphere args={[0.6, 24, 24]} ref={coreRef}>
                         <meshStandardMaterial
                             color="#10b981"
                             emissive="#10b981"
-                            emissiveIntensity={15}
+                            emissiveIntensity={20}
                             roughness={0}
                             metalness={1}
                         />
@@ -84,17 +85,17 @@ function Scene() {
                             color="#34d399"
                             wireframe
                             transparent
-                            opacity={0.2}
+                            opacity={0.3}
                             emissive="#10b981"
-                            emissiveIntensity={1}
+                            emissiveIntensity={1.5}
                         />
                     </Octahedron>
 
                     {/* Orbital Rings */}
-                    <Torus args={[2.2, 0.02, 16, 100]} ref={ring1Ref}>
+                    <Torus args={[2.2, 0.02, 12, 48]} ref={ring1Ref}>
                         <meshStandardMaterial color="#10b981" emissive="#10b981" emissiveIntensity={5} transparent opacity={0.6} />
                     </Torus>
-                    <Torus args={[2.6, 0.015, 16, 100]} ref={ring2Ref} rotation={[Math.PI / 2, 0, 0]}>
+                    <Torus args={[2.6, 0.015, 12, 48]} ref={ring2Ref} rotation={[Math.PI / 2, 0, 0]}>
                         <meshStandardMaterial color="#34d399" emissive="#10b981" emissiveIntensity={3} transparent opacity={0.4} />
                     </Torus>
 
@@ -104,9 +105,9 @@ function Scene() {
                             <mesh key={i} position={s.position} rotation={s.rotation} scale={s.scale}>
                                 <Box args={[1, 1, 1]}>
                                     <meshStandardMaterial
-                                        color={i % 2 === 0 ? "#064e3b" : "#1e293b"}
-                                        roughness={0.8}
-                                        metalness={0.2}
+                                        color={i % 2 === 0 ? "#34d399" : "#94a3b8"}
+                                        roughness={0.2}
+                                        metalness={0.8}
                                     />
                                 </Box>
                                 {/* Inner shard glow */}
@@ -134,13 +135,28 @@ function Scene() {
 }
 
 export default function AncientForestModel() {
+    // Default to true (Mobile First) to prevent heavy 3D load on phones during hydration
+    const [isMobile, setIsMobile] = useState(true)
+
+    useEffect(() => {
+        const checkMobile = () => {
+            // Defer the check slightly to allow main thread to breathe
+            requestAnimationFrame(() => {
+                setIsMobile(window.innerWidth < 768)
+            })
+        }
+        checkMobile()
+        window.addEventListener('resize', checkMobile)
+        return () => window.removeEventListener('resize', checkMobile)
+    }, [])
+
     return (
         <div className="w-full h-full relative">
             <Canvas
                 camera={{ position: [0, 0, 7], fov: 45 }}
-                dpr={[1, 2]}
+                dpr={isMobile ? [1, 1] : [1, 1.5]}
                 gl={{
-                    antialias: true,
+                    antialias: !isMobile,
                     alpha: true,
                     powerPreference: "high-performance",
                     preserveDrawingBuffer: true

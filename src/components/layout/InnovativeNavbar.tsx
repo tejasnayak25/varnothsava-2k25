@@ -85,12 +85,14 @@ export function InnovativeNavbar() {
     const navY = useSpring(0, { stiffness: 100, damping: 30 })
 
     useEffect(() => {
+        if (typeof window !== 'undefined' && window.innerWidth < 768) return
+
         let rafId: number;
         const handleMouseMove = (e: MouseEvent) => {
             rafId = requestAnimationFrame(() => {
                 const { clientX, clientY } = e
                 const { innerWidth, innerHeight } = window
-                const x = (clientX - innerWidth / 2) / 60 // Reduced intensity
+                const x = (clientX - innerWidth / 2) / 60
                 const y = (clientY - innerHeight / 2) / 60
                 setMousePosition({ x, y })
                 navX.set(x)
@@ -103,21 +105,24 @@ export function InnovativeNavbar() {
             cancelAnimationFrame(rafId)
         }
     }, [])
-
     // Navbar intelligence: Scroll direction and magnitude
 
+    // Navbar intelligence: Smoother Visibility Logic
     useMotionValueEvent(scrollY, "change", (latest) => {
         const direction = latest > lastScrollY ? "down" : "up"
+        const scrollDelta = Math.abs(latest - lastScrollY)
 
-        if (latest < 30) {
+        if (latest < 50) {
             setIsVisible(true)
             setIsScrolled(false)
         } else {
             setIsScrolled(true)
-            if (direction === "down" && latest > 150) {
-                setIsVisible(false)
-            } else if (direction === "up" && Math.abs(latest - lastScrollY) > 5) {
-                setIsVisible(true)
+            if (scrollDelta > 10) { // Add buffer to prevent micro-stutters
+                if (direction === "down" && latest > 150) {
+                    setIsVisible(false)
+                } else if (direction === "up") {
+                    setIsVisible(true)
+                }
             }
         }
         setLastScrollY(latest)
@@ -126,28 +131,27 @@ export function InnovativeNavbar() {
     useEffect(() => {
         const checkMobile = () => {
             const width = window.innerWidth;
-            setIsMobile(width < 768); // Mobile standard breakpoint
+            setIsMobile(width < 768);
         }
         checkMobile()
         window.addEventListener('resize', checkMobile)
         return () => window.removeEventListener('resize', checkMobile)
     }, [])
 
-    const springConfig = { damping: 25, stiffness: 180, mass: 0.8 }
-
-
+    // SMOOTHER Spring Config
+    const springConfig = { damping: 40, stiffness: 300, mass: 1 }
 
     return (
         <>
             <AnimatePresence mode="wait">
                 {isVisible && (
                     <motion.div
-                        initial={{ y: 150, opacity: 0 }}
+                        initial={{ y: 100, opacity: 0 }}
                         animate={{ y: 0, opacity: 1 }}
-                        exit={{ y: 150, opacity: 0 }}
+                        exit={{ y: 100, opacity: 0 }}
                         style={{ x: isMobile ? 0 : navX, y: isMobile ? 0 : navY }}
-                        transition={{ type: 'spring', ...springConfig }}
-                        className="fixed z-[5000] bottom-0 left-0 right-0 flex justify-center pb-4 md:pb-8 px-2 md:px-4 pointer-events-none no-jank"
+                        transition={isMobile ? { duration: 0.3, ease: 'easeOut' } : { type: 'spring', ...springConfig }}
+                        className="fixed z-[5000] bottom-0 left-0 right-0 flex justify-center pb-[max(1rem,env(safe-area-inset-bottom))] md:pb-8 px-4 md:px-8 pointer-events-none no-jank"
                     >
                         {/* HOLOGRAPHIC SHOCKWAVE EFFECT */}
                         <AnimatePresence>
@@ -229,11 +233,13 @@ export function InnovativeNavbar() {
                                             className="text-[7px] md:text-[8px] text-emerald-300 font-bold flex items-center gap-2 bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-500/20 backdrop-blur-sm max-w-full truncate"
                                         >
                                             <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse shadow-[0_0_8px_rgba(52,211,153,0.8)] flex-shrink-0" />
-                                            <span className="truncate">STUDENT PORTAL ACCESS // 2026</span>
+                                            <span className="truncate">STUDENT PORTAL ACCESS 2026</span>
                                         </motion.div>
                                     </div>
 
                                     <motion.button
+                                        type="button"
+                                        aria-label="Unlock Navigation"
                                         onMouseDown={handlePressStart}
                                         onMouseUp={handlePressEnd}
                                         onMouseLeave={handlePressEnd}
@@ -293,7 +299,7 @@ export function InnovativeNavbar() {
                             >
                                 <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 left-1/2 -translate-x-1/2 z-[6000] pointer-events-none">
                                     <div className={cn("absolute left-1/2 -translate-x-1/2", isMobile ? "-top-14" : "-top-20")}>
-                                        <Link href="/events" className="pointer-events-auto">
+                                        <Link href="/events" className="pointer-events-auto cursor-pointer" prefetch={true}>
                                             <Magnetic strength={0.4}>
                                                 <div className={cn("relative", isMobile ? "w-[70px] h-[70px]" : "w-[92px] h-[92px]")}>
                                                     {/* Ambient Energy Ripples */}
@@ -341,59 +347,47 @@ export function InnovativeNavbar() {
                                     <div className="absolute inset-0 bg-white/[0.02] backdrop-blur-3xl rounded-[2.5rem] -z-20 pointer-events-none" style={{ clipPath: 'polygon(0% 20%, 100% 20%, 100% 100%, 0% 100%)' }} />
                                 </div>
 
-                                <div className="flex-1 flex justify-around items-center px-2 md:px-4">
-                                    <Link href="/" className="group flex flex-col items-center gap-1 py-2 min-w-[60px] md:min-w-[80px]">
-                                        <div className={cn("relative p-3.5 rounded-2xl transition-all duration-500", pathname === '/' ? "theme-nav-bg theme-nav-accent theme-nav-glow" : "text-white/80 group-hover:theme-nav-accent md:group-hover:bg-white/10")}>
-                                            <LayoutGrid size={24} />
+                                <div className="flex-1 flex justify-around items-center px-1 xs:px-2 md:px-4 h-full">
+                                    <Link href="/" aria-current={pathname === '/' ? 'page' : undefined} className="group h-full flex flex-col items-center justify-center gap-1 flex-1 min-w-0 md:min-w-[80px] cursor-pointer" prefetch={true}>
+                                        <div className={cn("relative p-2.5 xs:p-3.5 rounded-2xl transition-all duration-500", pathname === '/' ? "theme-nav-bg theme-nav-accent theme-nav-glow" : "text-white/80 group-hover:theme-nav-accent md:group-hover:bg-white/10")}>
+                                            <LayoutGrid size={isMobile ? 22 : 24} />
                                         </div>
-                                        <span className={cn("text-[9px] md:text-[11px] tracking-[0.2em] font-bold uppercase transition-all duration-300", pathname === '/' ? "theme-nav-accent drop-shadow-[0_0_8px_rgba(var(--nav-current-theme),0.8)] scale-110" : "text-white/95 md:group-hover:theme-nav-accent")}>HOME</span>
+                                        <span className={cn("text-[8px] xs:text-[9px] md:text-[11px] tracking-[0.1em] xs:tracking-[0.2em] font-bold uppercase transition-all duration-300", pathname === '/' ? "theme-nav-accent drop-shadow-[0_0_8px_rgba(var(--nav-current-theme),0.8)] scale-110" : "text-white/95 md:group-hover:theme-nav-accent")}>HOME</span>
                                     </Link>
-                                    <Link href="/leaderboard" className="group flex flex-col items-center gap-1 py-2 min-w-[60px] md:min-w-[80px]">
-                                        <div className={cn("relative p-3.5 rounded-2xl transition-all duration-500", pathname === '/leaderboard' ? "theme-nav-bg theme-nav-accent theme-nav-glow" : "text-white/80 group-hover:theme-nav-accent md:group-hover:bg-white/10")}>
-                                            <Trophy size={24} />
+                                    <Link href="/leaderboard" aria-current={pathname === '/leaderboard' ? 'page' : undefined} className="group h-full flex flex-col items-center justify-center gap-1 flex-1 min-w-0 md:min-w-[80px] cursor-pointer" prefetch={true}>
+                                        <div className={cn("relative p-2.5 xs:p-3.5 rounded-2xl transition-all duration-500", pathname === '/leaderboard' ? "theme-nav-bg theme-nav-accent theme-nav-glow" : "text-white/80 group-hover:theme-nav-accent md:group-hover:bg-white/10")}>
+                                            <Trophy size={isMobile ? 22 : 24} />
                                         </div>
-                                        <span className={cn("text-[9px] md:text-[11px] tracking-[0.2em] font-bold uppercase transition-all duration-300", pathname === '/leaderboard' ? "theme-nav-accent drop-shadow-[0_0_8px_rgba(var(--nav-current-theme),0.8)] scale-110" : "text-white/95 md:group-hover:theme-nav-accent")}>SCORES</span>
+                                        <span className={cn("text-[8px] xs:text-[9px] md:text-[11px] tracking-[0.1em] xs:tracking-[0.2em] font-bold uppercase transition-all duration-300", pathname === '/leaderboard' ? "theme-nav-accent drop-shadow-[0_0_8px_rgba(var(--nav-current-theme,16,185,129),0.8)] scale-110" : "text-white/95 md:group-hover:theme-nav-accent")}>SCORES</span>
                                     </Link>
                                 </div>
 
                                 {/* Central Spacer for action button */}
-                                <div className="w-20 md:w-32 flex-shrink-0" />
+                                <div className="w-16 xs:w-20 md:w-32 flex-shrink-0 h-full" />
 
-                                <div className="flex-1 flex justify-around items-center px-2 md:px-4">
-                                    <Link href="/gallery" className="group flex flex-col items-center gap-1 py-2 min-w-[60px] md:min-w-[80px]">
-                                        <div className={cn("relative p-3.5 rounded-2xl transition-all duration-500", pathname === '/gallery' ? "theme-nav-bg theme-nav-accent theme-nav-glow" : "text-white/80 group-hover:theme-nav-accent md:group-hover:bg-white/10")}>
-                                            <Camera size={24} />
+                                <div className="flex-1 flex justify-around items-center px-1 xs:px-2 md:px-4 h-full">
+                                    <Link href="/gallery" aria-current={pathname === '/gallery' ? 'page' : undefined} className="group h-full flex flex-col items-center justify-center gap-1 flex-1 min-w-0 md:min-w-[80px] cursor-pointer" prefetch={true}>
+                                        <div className={cn("relative p-2.5 xs:p-3.5 rounded-2xl transition-all duration-500", pathname === '/gallery' ? "theme-nav-bg theme-nav-accent theme-nav-glow" : "text-white/80 group-hover:theme-nav-accent md:group-hover:bg-white/10")}>
+                                            <Camera size={isMobile ? 22 : 24} />
                                         </div>
-                                        <span className={cn("text-[9px] md:text-[11px] tracking-[0.2em] font-bold uppercase transition-all duration-300", pathname === '/gallery' ? "theme-nav-accent drop-shadow-[0_0_8px_rgba(var(--nav-current-theme),0.8)] scale-110" : "text-white/95 md:group-hover:theme-nav-accent")}>GALLERY</span>
+                                        <span className={cn("text-[8px] xs:text-[9px] md:text-[11px] tracking-[0.1em] xs:tracking-[0.2em] font-bold uppercase transition-all duration-300", pathname === '/gallery' ? "theme-nav-accent drop-shadow-[0_0_8px_rgba(var(--nav-current-theme),0.8)] scale-110" : "text-white/95 md:group-hover:theme-nav-accent")}>GALLERY</span>
                                     </Link>
-                                    <Link href={isLoggedIn ? "/profile" : "/login"} className="group flex flex-col items-center gap-1 py-2 min-w-[60px] md:min-w-[80px]">
-                                        <div className={cn("relative p-3.5 rounded-2xl transition-all duration-500", (pathname === '/profile' || pathname === '/login') ? "theme-nav-bg theme-nav-accent theme-nav-glow" : "text-white/80 group-hover:theme-nav-accent md:group-hover:bg-white/10")}>
-                                            <User size={24} />
+                                    <Link href={isLoggedIn ? "/profile" : "/login"} className="group h-full flex flex-col items-center justify-center gap-1 flex-1 min-w-0 md:min-w-[80px] cursor-pointer" prefetch={true}>
+                                        <div className={cn("relative p-2.5 xs:p-3.5 rounded-2xl transition-all duration-500", (pathname === '/profile' || pathname === '/login') ? "theme-nav-bg theme-nav-accent theme-nav-glow" : "text-white/80 group-hover:theme-nav-accent md:group-hover:bg-white/10")}>
+                                            <User size={isMobile ? 22 : 24} />
                                         </div>
-                                        <span className={cn("text-[9px] md:text-[11px] tracking-[0.2em] font-bold uppercase transition-all duration-300", (pathname === '/profile' || pathname === '/login') ? "theme-nav-accent drop-shadow-[0_0_8px_rgba(var(--nav-current-theme),0.8)] scale-110" : "text-white/95 md:group-hover:theme-nav-accent")}>{isLoggedIn ? 'PROFILE' : 'LOGIN'}</span>
+                                        <span className={cn("text-[8px] xs:text-[9px] md:text-[11px] tracking-[0.1em] xs:tracking-[0.2em] font-bold uppercase transition-all duration-300", (pathname === '/profile' || pathname === '/login') ? "theme-nav-accent drop-shadow-[0_0_8px_rgba(var(--nav-current-theme),0.8)] scale-110" : "text-white/95 md:group-hover:theme-nav-accent")}>{isLoggedIn ? 'PROFILE' : 'LOGIN'}</span>
                                     </Link>
                                 </div>
 
                                 <div className="absolute top-0 left-0 w-12 h-12 border-l-2 border-t-2 border-emerald-400/40 rounded-tl-[2.5rem] shadow-[-5px_-5px_15px_rgba(52,211,153,0.1)]" />
-                                <div className="absolute top-0 right-0 w-12 h-12 border-r-2 border-t-2 border-emerald-400/40 rounded-tr-[2.5rem] shadow-[5px_-5px_15px_rgba(52,211,153,0.1)] flex items-start justify-end p-2 px-4 overflow-hidden">
-                                    {/* Live System Monitoring (Student Waveform) */}
-                                    <div className="flex items-end gap-[1px] h-3 opacity-40">
-                                        {[1, 2, 3, 4, 3, 2, 1, 2, 3].map((h, i) => (
-                                            <motion.div
-                                                key={i}
-                                                animate={{ height: [`${h * 20}%`, `${(h + 2) * 20}%`, `${h * 20}%`] }}
-                                                transition={{ duration: 0.5 + Math.random(), repeat: Infinity, ease: "easeInOut" }}
-                                                className="w-[1px] bg-emerald-400 rounded-full"
-                                            />
-                                        ))}
-                                    </div>
-                                    <span className="text-[8px] text-emerald-400/60 ml-1 mt-[2px] tracking-tighter">FESTIVAL LIVE: 2026</span>
-                                </div>
+                                <div className="absolute top-0 right-0 w-12 h-12 border-r-2 border-t-2 border-emerald-400/40 rounded-tr-[2.5rem] shadow-[5px_-5px_15px_rgba(52,211,153,0.1)]" />
 
-                                <div className="absolute right-[-100px] bottom-0 flex flex-col items-center gap-4 pointer-events-auto">
-                                    <Link href="/checkout" className="block relative group">
-                                        <motion.div whileHover={{ scale: 1.1, x: 10 }} className="p-5 bg-black/60 backdrop-blur-3xl border border-emerald-500/30 rounded-[1.5rem] shadow-2xl overflow-hidden">
-                                            <ShoppingCart size={22} className="text-emerald-400" />
+                                {/* Cart Button - Responsive Position: Stacked on Mobile, Side on Desktop */}
+                                <div className="absolute right-0 bottom-[90px] md:bottom-0 md:right-[-100px] flex flex-col items-center gap-4 pointer-events-auto z-40">
+                                    <Link href="/checkout" className="block relative group" aria-label="View Cart" prefetch={true}>
+                                        <motion.div whileHover={{ scale: 1.1, x: 10 }} className="p-4 md:p-5 bg-black/60 backdrop-blur-3xl border border-emerald-500/30 rounded-[1.5rem] shadow-2xl overflow-hidden">
+                                            <ShoppingCart size={isMobile ? 20 : 22} className="text-emerald-400" />
                                             {cart.length > 0 && (
                                                 <span className="absolute top-2 right-2 w-5 h-5 bg-emerald-500 text-black text-[10px] font-black rounded-full flex items-center justify-center border-2 border-[#050805]">
                                                     {cart.length}
@@ -417,13 +411,13 @@ export function InnovativeNavbar() {
                         exit={{ opacity: 0, scale: 0.9, y: 20 }}
                         className="fixed inset-0 z-[1100] bg-black/90 backdrop-blur-xl flex flex-col items-center justify-center p-8 lg:hidden"
                     >
-                        <button onClick={() => setIsMenuOpen(false)} className="absolute top-8 right-8 w-12 h-12 rounded-full border border-white/10 flex items-center justify-center">
+                        <button onClick={() => setIsMenuOpen(false)} aria-label="Close Menu" className="absolute top-8 right-8 w-12 h-12 rounded-full border border-white/10 flex items-center justify-center">
                             <X size={24} />
                         </button>
                         <div className="flex flex-col gap-8 text-center">
                             {NAV_LINKS.map((link, i) => (
                                 <motion.div key={link.name} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.1 }}>
-                                    <Link href={link.href} onClick={() => setIsMenuOpen(false)} className="text-4xl font-black tracking-tighter hover:text-emerald-400 transition-colors">
+                                    <Link href={link.href} onClick={() => setIsMenuOpen(false)} className="text-4xl font-black tracking-tighter hover:text-emerald-400 transition-colors" prefetch={true}>
                                         {link.name}
                                     </Link>
                                 </motion.div>

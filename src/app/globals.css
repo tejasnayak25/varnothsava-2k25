@@ -16,16 +16,16 @@
     /* Base font size scales from 14px to 16px */
     --font-size-base: clamp(0.875rem, 0.9vw + 0.5rem, 1rem);
 
-    /* Display Heading: 64px to 160px */
-    --fs-display: clamp(4rem, 15vw + 1rem, 10rem);
+    /* Display Heading: More elegant 'medium' scale */
+    --fs-display: clamp(2rem, 6vw + 1rem, 4.5rem);
 
     --nav-current-theme: 16, 185, 129;
-    /* Hero Heading: 80px to 224px */
-    --fs-hero: clamp(5rem, 20vw + 1rem, 14rem);
-    /* Large Heading: 48px to 128px */
-    --fs-h2: clamp(3rem, 10vw + 1rem, 8rem);
-    /* Section Heading: 32px to 64px */
-    --fs-h3: clamp(2rem, 5vw + 1rem, 4rem);
+    /* Hero Heading: 40px to 96px */
+    --fs-hero: clamp(2.25rem, 7vw + 1rem, 5.5rem);
+    /* Large Heading: 28px to 64px */
+    --fs-h2: clamp(1.75rem, 5vw + 1rem, 4rem);
+    /* Section Heading: 22px to 40px */
+    --fs-h3: clamp(1.4rem, 3vw + 1rem, 2.5rem);
 
     /* Fluid Spacing */
     --space-xs: clamp(0.5rem, 1vw, 0.75rem);
@@ -34,8 +34,10 @@
     --space-lg: clamp(2.5rem, 8vw, 5rem);
     --space-xl: clamp(5rem, 12vw, 10rem);
 
-    /* Animation */
-    --ease-expo: cubic-bezier(0.87, 0, 0.13, 1);
+    /* Spacing & Layout */
+    --safe-bottom: env(safe-area-inset-bottom, 24px);
+    --safe-top: env(safe-area-inset-top, 24px);
+    --navbar-height: 180px;
 }
 
 .theme-nav-accent {
@@ -62,14 +64,15 @@ body {
     width: 100%;
     min-height: 100vh;
     min-height: 100dvh;
-    /* Dynamic Viewport Height */
     background-color: var(--bg-dark);
     color: white;
-    overflow-x: hidden;
-    position: relative;
-    /* Zero Overflow */
+    overflow-x: clip !important;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    scroll-behavior: smooth;
+    position: relative;
+    touch-action: manipulation;
+    /* FIX: Faster taps on mobile */
 }
 
 body {
@@ -102,9 +105,9 @@ body {
 /* Zero Overflow Root */
 .root-container {
     width: 100%;
-    overflow-x: hidden;
+    overflow-x: clip !important;
     position: relative;
-    padding-bottom: env(safe-area-inset-bottom, 120px);
+    padding-bottom: var(--navbar-height);
     touch-action: pan-y;
 }
 
@@ -262,4 +265,85 @@ body {
 
 .text-h3 {
     font-size: var(--fs-h3);
+}
+
+/* --- MOBILE PERFORMANCE OVERRIDES --- */
+@media (max-width: 768px) {
+
+    /* Disable expensive blur filters globally for smoothness */
+    *,
+    *::before,
+    *::after {
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
+    }
+
+    /* Fallback for glass elements to ensure visibility */
+    .glass-modal,
+    [class*="backdrop-blur-"] {
+        background-color: rgba(5, 8, 5, 0.95) !important;
+    }
+
+    /* Disable heavy large shadows/glows */
+    .shadow-2xl,
+    .drop-shadow-2xl {
+        box-shadow: none !important;
+        filter: none !important;
+    }
+
+    /* Hardware accelerate everything */
+    * {
+        -webkit-font-smoothing: antialiased;
+    }
+
+    /* Force 'Medium' sizes for large headings on mobile */
+    .text-display,
+    .text-hero {
+        font-size: clamp(1.8rem, 8vw, 2.5rem) !important;
+        line-height: 1.1 !important;
+    }
+
+    .text-h2 {
+        font-size: clamp(1.4rem, 6vw, 2rem) !important;
+    }
+}
+
+/* PERFORMANCE & CINEMATIC UTILITIES */
+.gpu-accel {
+    transform: translateZ(0);
+    backface-visibility: hidden;
+    will-change: transform;
+}
+
+.content-lazy {
+    content-visibility: auto;
+    contain-intrinsic-size: 1px 500px;
+}
+
+.text-glow-emerald {
+    text-shadow: 0 0 10px rgba(16, 185, 129, 0.4);
+}
+
+.btn-hover-glow:hover {
+    box-shadow: 0 0 20px rgba(16, 185, 129, 0.3);
+}
+
+@keyframes scanline {
+    0% {
+        transform: translateY(-100%);
+    }
+
+    100% {
+        transform: translateY(100%);
+    }
+}
+
+.scanner-overlay::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: linear-gradient(to bottom, transparent 50%, rgba(16, 185, 129, 0.05) 50.5%, transparent 51%);
+    background-size: 100% 4px;
+    z-index: 100;
 }

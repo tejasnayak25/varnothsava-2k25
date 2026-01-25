@@ -84,7 +84,7 @@ export async function POST(request: NextRequest) {
             profileCode: Math.random().toString(36).substring(2, 8).toUpperCase(),
             hasPaid: false,
             registeredEvents: [],
-            avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(name)}`,
+            avatar: ['/avatars/solo_male.png', '/avatars/solo_female.png', '/avatars/ds_male.png', '/avatars/ds_female.png', '/avatars/jjk_male.png', '/avatars/jjk_female.png', '/avatars/mha_male.png', '/avatars/mha_female.png'][Math.floor(Math.random() * 8)],
             createdAt: new Date().toISOString(),
             updatedAt: new Date().toISOString(),
             emailVerified: verified.email_verified || false,

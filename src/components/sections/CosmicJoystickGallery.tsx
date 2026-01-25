@@ -515,7 +515,7 @@ export function CosmicJoystickGallery() {
             {/* JOYSTICK CONTROLLER */}
             <div
                 className="fixed z-[5000] flex flex-col items-center gap-2 transition-all duration-300 md:gap-6 md:right-12 md:top-1/2 md:-translate-y-1/2 md:scale-[0.8] left-1/2 -translate-x-1/2 scale-[1.15]"
-                style={{ zIndex: 5000, bottom: 'clamp(140px, 18dvh, 220px)' }}
+                style={{ zIndex: 5000, bottom: 'clamp(190px, 22dvh, 260px)' }}
             >
                 {/* Label */}
                 <div

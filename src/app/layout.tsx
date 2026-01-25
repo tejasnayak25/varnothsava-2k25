@@ -1,21 +1,34 @@
 import React, { Suspense } from "react";
-import type { Metadata } from "next";
-import { Outfit } from "next/font/google";
+import type { Metadata, Viewport } from "next";
+import { Outfit, Poppins, Inter } from "next/font/google";
 import "./globals.css";
 import { AppProvider } from "@/context/AppContext";
-import { InnovativeNavbar } from "@/components/layout/InnovativeNavbar";
 import { LoadingScreen } from "@/components/layout/LoadingScreen";
-import { PageTransition } from "@/components/layout/PageTransition";
 import { PageTransitionBar } from "@/components/layout/PageTransitionBar";
-import { SmoothScroll } from "../components/ui/SmoothScroll";
-
 import { CustomCursor } from "@/components/layout/CustomCursor";
+import { SiteContent } from "@/components/layout/SiteContent";
 
-const outfit = Outfit({ subsets: ["latin"] });
+const outfit = Outfit({ subsets: ["latin"], variable: "--font-outfit" });
+const poppins = Poppins({
+    weight: ['400', '500', '600', '700', '800'],
+    subsets: ["latin"],
+    variable: "--font-poppins"
+});
+const inter = Inter({
+    subsets: ["latin"],
+    variable: "--font-inter"
+});
 
 export const metadata: Metadata = {
     title: "Varnothsava 2026 | National Level Techno-Cultural Fest",
     description: "Experience the ultimate fusion of technology and culture at Varnothsava 2026. Join the celebration of innovation and art.",
+};
+
+export const viewport: Viewport = {
+    width: "device-width",
+    initialScale: 1,
+    maximumScale: 5,
+    themeColor: "#050805",
 };
 
 export default function RootLayout({
@@ -29,10 +42,9 @@ export default function RootLayout({
                 <link rel="preconnect" href="https://fonts.googleapis.com" />
                 <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
                 <link rel="preconnect" href="https://images.unsplash.com" />
-                <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5, viewport-fit=cover" />
                 <meta name="theme-color" content="#050805" />
             </head>
-            <body className={`${outfit.className} bg-[#050805] text-white antialiased selection:bg-emerald-500/30`}>
+            <body className={`${outfit.variable} ${poppins.variable} ${inter.variable} font-sans bg-[#050805] text-white antialiased selection:bg-emerald-500/30`}>
                 <AppProvider>
                     <Suspense fallback={null}>
                         <LoadingScreen />
@@ -41,15 +53,11 @@ export default function RootLayout({
                     <CustomCursor />
 
 
-                    <SmoothScroll>
-                        <InnovativeNavbar />
-                        <PageTransition>
-                            {children}
-                        </PageTransition>
-                    </SmoothScroll>
+                    <SiteContent children={children} />
                 </AppProvider>
             </body>
         </html>
     );
 }
+
 
