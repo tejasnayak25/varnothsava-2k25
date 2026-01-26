@@ -100,7 +100,7 @@ export function RegistrationModal({ isOpen, onClose, event, userData, onConfirm 
                             initial={{ opacity: 0, scale: 0.9, y: 20 }}
                             animate={{ opacity: 1, scale: 1, y: 0 }}
                             exit={{ opacity: 0, scale: 0.9, y: 20 }}
-                            className="relative w-full max-w-lg bg-[#050905] border border-emerald-500/20 rounded-[2.5rem] overflow-hidden shadow-[0_0_50px_rgba(16,185,129,0.1)] z-10"
+                            className="relative w-[95vw] md:w-full max-w-lg bg-[#050905] border border-emerald-500/20 rounded-[1.5rem] md:rounded-[2.5rem] overflow-hidden shadow-[0_0_50px_rgba(16,185,129,0.1)] z-10 mx-auto"
                         >
                             {/* Header Image/Banner */}
                             <div className="h-32 relative overflow-hidden">
@@ -117,15 +117,15 @@ export function RegistrationModal({ isOpen, onClose, event, userData, onConfirm 
                                         <X size={20} />
                                     </button>
                                 </div>
-                                <div className="absolute bottom-4 left-8">
+                                <div className="absolute bottom-4 left-6 md:left-8 pr-4">
                                     <div className="flex items-center gap-2 text-[10px] font-black text-emerald-500 uppercase tracking-widest mb-1">
                                         <Zap size={12} /> Mission_Initialization
                                     </div>
-                                    <h3 className="text-2xl font-black text-white uppercase tracking-tight">{event.title}</h3>
+                                    <h3 className="text-xl md:text-2xl font-black text-white uppercase tracking-tight truncate max-w-full">{event.title}</h3>
                                 </div>
                             </div>
 
-                            <form onSubmit={handleSubmit} className="p-8 space-y-6">
+                            <form onSubmit={handleSubmit} className="p-4 md:p-8 space-y-4 md:space-y-6">
 
                                 {/* Mission Config */}
                                 <div className="space-y-4 mb-4">

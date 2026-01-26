@@ -17,15 +17,15 @@ export const SmoothScroll = ({ children }: SmoothScrollProps) => {
             return;
         }
 
-        // Initialize Lenis
+        // Initialize Lenis with "Buttery" Preset
         const lenis = new Lenis({
-            duration: 1.8, // Slightly longer for "Premium" weight
-            easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)), // Silky smooth exponential out
+            duration: 1.2,
+            easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
             orientation: "vertical",
             gestureOrientation: "vertical",
             smoothWheel: true,
-            wheelMultiplier: 1.1, // Slight boost for responsiveness
-            touchMultiplier: 1.5,
+            wheelMultiplier: 1,
+            touchMultiplier: 2,
             infinite: false,
         });
 
