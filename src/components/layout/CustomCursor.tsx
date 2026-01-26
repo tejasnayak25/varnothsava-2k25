@@ -68,7 +68,7 @@ export function CustomCursor() {
             document.removeEventListener('mouseleave', handleMouseLeave)
             document.removeEventListener('mouseenter', handleMouseEnter)
         }
-    }, [cursorX, cursorY, isVisible])
+    }, [cursorX, cursorY, isVisible, isMobile])
 
     if (isMobile) return null
 

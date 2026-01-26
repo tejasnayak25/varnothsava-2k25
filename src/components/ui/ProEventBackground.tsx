@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useRef, useEffect, useMemo } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion, AnimatePresence, useTransform } from 'framer-motion'
 import Image from 'next/image'
 
 interface ProEventBackgroundProps {
@@ -11,7 +11,11 @@ interface ProEventBackgroundProps {
 }
 
 // --- EPIC LIVELY GAMING BACKGROUND (CHARACTERS & ARENA) ---
-const GamingPulse = React.memo(({ scrollProgress = 0 }: { scrollProgress?: number }) => {
+// --- EPIC LIVELY GAMING BACKGROUND (CHARACTERS & ARENA) ---
+const GamingPulse = React.memo(({ scrollProgress, isMobile }: { scrollProgress: any, isMobile: boolean }) => {
+    const y = useTransform(scrollProgress, (val: number) => val * 50)
+    const scale = useTransform(scrollProgress, (val: number) => 1 + val * 0.05)
+
     return (
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
             {/* Base Lively Gaming Image Layer (Parallax) */}
@@ -20,17 +24,20 @@ const GamingPulse = React.memo(({ scrollProgress = 0 }: { scrollProgress?: numbe
                     src="/gaming-bg.png"
                     alt=""
                     fill
-                    className="absolute inset-0 w-full h-full object-cover blur-[2px] opacity-40 scale-110"
+                    className={`absolute inset-0 w-full h-full object-cover opacity-40 scale-110 ${isMobile ? '' : 'blur-[2px]'}`}
                 />
-                <motion.img
-                    src="/gaming-bg.png"
-                    alt="Gaming Vibe"
-                    className="relative z-10 w-full h-full object-cover opacity-60"
-                    style={{
-                        y: scrollProgress * 50,
-                        scale: 1 + scrollProgress * 0.05
-                    }}
-                />
+                <motion.div
+                    className="relative z-10 w-full h-full"
+                    style={{ y, scale }}
+                >
+                    <Image
+                        src="/gaming-bg.png"
+                        alt="Gaming Vibe"
+                        fill
+                        className="object-cover opacity-60"
+                        priority
+                    />
+                </motion.div>
                 {/* Overlay Vignette for readability */}
                 <div className="absolute inset-0 z-20 bg-gradient-to-b from-black/60 via-transparent to-black/90" />
             </div>
@@ -38,39 +45,45 @@ const GamingPulse = React.memo(({ scrollProgress = 0 }: { scrollProgress?: numbe
             {/* Kinetic Energy Overlays */}
             <div className="absolute inset-0 z-30">
                 {/* Rapid 'Speed Lanes' */}
-                <div className="absolute inset-0 opacity-10">
-                    {[...Array(4)].map((_, i) => (
-                        <motion.div
-                            key={`lane-${i}`}
-                            className="absolute w-[1px] h-[300%] bg-gradient-to-b from-transparent via-cyan-400 to-transparent"
-                            style={{
-                                left: `${20 + i * 20}%`,
-                                top: '-100%',
-                                rotate: '15deg',
-                                willChange: 'transform'
-                            }}
-                            animate={{ y: ['-30%', '30%'] }}
-                            transition={{ duration: 4 + i, repeat: Infinity, ease: "linear" }}
-                        />
-                    ))}
-                </div>
+                {!isMobile && (
+                    <div className="absolute inset-0 opacity-10">
+                        {[...Array(4)].map((_, i) => (
+                            <motion.div
+                                key={`lane-${i}`}
+                                className="absolute w-[1px] h-[300%] bg-gradient-to-b from-transparent via-cyan-400 to-transparent"
+                                style={{
+                                    left: `${20 + i * 20}%`,
+                                    top: '-100%',
+                                    rotate: '15deg',
+                                    willChange: 'transform'
+                                }}
+                                animate={{ y: ['-30%', '30%'] }}
+                                transition={{ duration: 4 + i, repeat: Infinity, ease: "linear" }}
+                            />
+                        ))}
+                    </div>
+                )}
 
-                {/* Stadium Light Sweeps */}
-                <motion.div
-                    className="absolute top-0 left-0 w-[300px] h-[200%] bg-cyan-500/10 blur-[150px]"
-                    animate={{ rotate: [-8, 8, -8], x: ['-5%', '5%', '-5%'] }}
-                    transition={{ duration: 18, repeat: Infinity, ease: "easeInOut" }}
-                    style={{ transformOrigin: 'top center', willChange: 'transform' }}
-                />
-                <motion.div
-                    className="absolute top-0 right-0 w-[300px] h-[200%] bg-violet-600/10 blur-[150px]"
-                    animate={{ rotate: [8, -8, 8], x: ['5%', '-5%', '5%'] }}
-                    transition={{ duration: 16, repeat: Infinity, ease: "easeInOut" }}
-                    style={{ transformOrigin: 'top center', willChange: 'transform' }}
-                />
+                {/* Stadium Light Sweeps - Desktop Only */}
+                {!isMobile && (
+                    <>
+                        <motion.div
+                            className="absolute top-0 left-0 w-[300px] h-[200%] bg-cyan-500/10 blur-[150px]"
+                            animate={{ rotate: [-8, 8, -8], x: ['-5%', '5%', '-5%'] }}
+                            transition={{ duration: 18, repeat: Infinity, ease: "easeInOut" }}
+                            style={{ transformOrigin: 'top center', willChange: 'transform' }}
+                        />
+                        <motion.div
+                            className="absolute top-0 right-0 w-[300px] h-[200%] bg-violet-600/10 blur-[150px]"
+                            animate={{ rotate: [8, -8, 8], x: ['5%', '-5%', '5%'] }}
+                            transition={{ duration: 16, repeat: Infinity, ease: "easeInOut" }}
+                            style={{ transformOrigin: 'top center', willChange: 'transform' }}
+                        />
+                    </>
+                )}
 
                 {/* Energy Sparks */}
-                {[...Array(10)].map((_, i) => (
+                {[...Array(isMobile ? 3 : 10)].map((_, i) => (
                     <motion.div
                         key={`spark-${i}`}
                         className="absolute w-[1.5px] h-[1.5px] bg-white rounded-full shadow-[0_0_10px_white]"
@@ -124,14 +137,15 @@ const GridBeams = React.memo(({ theme = 'emerald' }: { theme?: 'emerald' | 'ambe
         const isEmerald = theme === 'emerald'
         const isGaming = theme === 'gaming'
 
+        // Optimization: Larger grid on mobile means fewer lines to draw
         const gridSize = isMobile ? 80 : (isGaming ? 40 : 50)
         const gridColor = `rgba(${rgb}, ${isEmerald ? 0.15 : (isGaming ? 0.12 : 0.08)})`
         // ... existing render logic simplified for brevity but needs to be complete ...
         const beams: { x: number; y: number; axis: 'x' | 'y'; life: number; speed: number }[] = []
-        const squares: { x: number; y: number; life: number }[] = []
+        const squares: { x: number; y: number; life: number; maxLife?: number }[] = []
         const particles: { x: number; y: number; s: number; vy: number }[] = []
 
-        const particleCount = isMobile ? 15 : 40
+        const particleCount = isMobile ? 4 : 40
         for (let i = 0; i < particleCount; i++) {
             particles.push({
                 x: Math.random() * width,
@@ -142,43 +156,79 @@ const GridBeams = React.memo(({ theme = 'emerald' }: { theme?: 'emerald' | 'ambe
         }
 
         let rafId: number
+        let time = 0
         const render = () => {
+            time += 0.05
             ctx.clearRect(0, 0, width, height)
-            ctx.strokeStyle = gridColor
+
+            // Dynamic "Breathing" Grid Layer
+            // Broaden "Technical" definition (Technical = anything not Cultural)
+            const isTechnical = theme !== 'amber'
+            const baseOpacity = isTechnical ? (isMobile ? 0.1 : 0.15) : 0.08
+            const pulse = (Math.sin(time * 0.5) + 1) * 0.5 // 0 to 1 oscillating
+            const pulseAmplitude = isMobile ? 0.02 : 0.05
+            const currentGridOpacity = baseOpacity + (pulse * pulseAmplitude)
+
+            ctx.strokeStyle = `rgba(${rgb}, ${currentGridOpacity})`
             ctx.lineWidth = 1
             ctx.beginPath()
             for (let x = 0; x <= width; x += gridSize) { ctx.moveTo(x, 0); ctx.lineTo(x, height) }
             for (let y = 0; y <= height; y += gridSize) { ctx.moveTo(0, y); ctx.lineTo(width, y) }
             ctx.stroke()
 
-            if (Math.random() < (isMobile ? 0.01 : 0.03)) {
+            // Increased Beam Frequency for Liveliness
+            if (Math.random() < (isMobile ? 0.02 : 0.08)) {
                 const axis = Math.random() > 0.5 ? 'x' : 'y'
                 beams.push({
                     x: Math.floor(Math.random() * (width / gridSize)) * gridSize,
                     y: Math.floor(Math.random() * (height / gridSize)) * gridSize,
-                    axis, life: 1.0, speed: 2 + Math.random() * 3
+                    axis, life: 1.0, speed: isMobile ? 1 + Math.random() * 2 : 2 + Math.random() * 4
                 })
             }
 
             for (let i = beams.length - 1; i >= 0; i--) {
-                const b = beams[i]; b.life -= 0.02
+                const b = beams[i]; b.life -= 0.015 // Beams last longer
                 if (b.life <= 0) { beams.splice(i, 1); continue }
-                const grad = ctx.createLinearGradient(b.x, b.y, b.axis === 'x' ? b.x + 80 : b.x, b.axis === 'y' ? b.y + 80 : b.y)
-                grad.addColorStop(0, 'transparent'); grad.addColorStop(1, `rgba(${rgb}, ${b.life * 0.5})`)
-                ctx.strokeStyle = grad; ctx.lineWidth = 1.2; ctx.beginPath()
-                if (b.axis === 'x') { ctx.moveTo(b.x, b.y); ctx.lineTo(b.x + 80, b.y); b.x += b.speed }
-                else { ctx.moveTo(b.x, b.y); ctx.lineTo(b.x, b.y + 80); b.y += b.speed }
+                const beamLen = isMobile ? 60 : 120
+                const grad = ctx.createLinearGradient(b.x, b.y, b.axis === 'x' ? b.x + beamLen : b.x, b.axis === 'y' ? b.y + beamLen : b.y)
+                grad.addColorStop(0, 'transparent'); grad.addColorStop(1, `rgba(${rgb}, ${b.life * 0.8})`) // Brighter beams
+                ctx.strokeStyle = grad; ctx.lineWidth = 1.5; ctx.beginPath()
+                if (b.axis === 'x') { ctx.moveTo(b.x, b.y); ctx.lineTo(b.x + beamLen, b.y); b.x += b.speed }
+                else { ctx.moveTo(b.x, b.y); ctx.lineTo(b.x, b.y + beamLen); b.y += b.speed }
                 ctx.stroke()
             }
 
-            if (Math.random() < 0.05) squares.push({ x: Math.floor(Math.random() * (width / gridSize)) * gridSize, y: Math.floor(Math.random() * (height / gridSize)) * gridSize, life: 0 })
-            for (let i = squares.length - 1; i >= 0; i--) {
-                const s = squares[i]; s.life += 0.02
-                if (s.life >= 1) { squares.splice(i, 1); continue }
-                ctx.fillStyle = `rgba(${rgb}, ${Math.sin(s.life * Math.PI) * 0.15})`; ctx.fillRect(s.x + 1, s.y + 1, gridSize - 2, gridSize - 2)
+            // Enhanced "Lively" Pattern for Emerald Theme
+            const squareProb = isTechnical ? 0.25 : 0.08 // Significantly increased probability for tech and non-tech
+            if (Math.random() < squareProb) {
+                squares.push({
+                    x: Math.floor(Math.random() * (width / gridSize)) * gridSize,
+                    y: Math.floor(Math.random() * (height / gridSize)) * gridSize,
+                    life: 0,
+                    maxLife: isTechnical ? 0.8 + Math.random() * 0.4 : 0.6 + Math.random() * 0.3
+                })
             }
 
-            ctx.fillStyle = `rgba(${rgb}, 0.3)`
+            for (let i = squares.length - 1; i >= 0; i--) {
+                const s = squares[i]; s.life += (isTechnical ? 0.015 : 0.02)
+                if (s.life >= (s.maxLife || 1)) { squares.splice(i, 1); continue }
+
+                // Tech theme gets a more digital/solid look
+                const maxOpacity = isTechnical ? 0.25 : 0.12
+                const opacity = Math.sin((s.life / (s.maxLife || 1)) * Math.PI) * maxOpacity
+
+                ctx.fillStyle = `rgba(${rgb}, ${opacity})`
+                ctx.fillRect(s.x + 1, s.y + 1, gridSize - 2, gridSize - 2)
+
+                // Optional: Outline for extra "tech" feel
+                if (isTechnical && opacity > 0.1) {
+                    const pad = isMobile ? 2 : 4
+                    ctx.strokeStyle = `rgba(${rgb}, ${opacity * 1.5})`
+                    ctx.strokeRect(s.x + pad, s.y + pad, gridSize - (pad * 2), gridSize - (pad * 2))
+                }
+            }
+
+            ctx.fillStyle = `rgba(${rgb}, 0.4)` // Brighter particles
             for (let p of particles) {
                 p.y -= p.vy; if (p.y < 0) p.y = height; if (p.y > height) p.y = 0
                 ctx.beginPath(); ctx.arc(p.x, p.y, p.s, 0, Math.PI * 2); ctx.fill()
@@ -225,7 +275,7 @@ const FloatingOrbs = React.memo(({ theme = 'emerald' }: { theme?: 'emerald' | 'a
             orbs.push({
                 x: Math.random() * width, y: Math.random() * height,
                 r: Math.random() * (isMobile ? 80 : 180) + 40,
-                vx: (Math.random() - 0.5) * 0.2, vy: (Math.random() - 0.5) * 0.2,
+                vx: (Math.random() - 0.5) * 0.8, vy: (Math.random() - 0.5) * 0.8, // Increased speed
                 alpha: Math.random() * 0.06 + 0.02
             })
         }
@@ -247,8 +297,11 @@ const FloatingOrbs = React.memo(({ theme = 'emerald' }: { theme?: 'emerald' | 'a
     return <canvas ref={canvasRef} className="absolute inset-0 w-full h-full opacity-50 pointer-events-none" />
 })
 
-export default function ProEventBackground({ theme = 'emerald', scrollProgress = 0, isDetailed = false }: ProEventBackgroundProps) {
+export default function ProEventBackground({ theme = 'emerald', scrollProgress = 0, isDetailed = false }: { theme: any, scrollProgress: any, isDetailed?: boolean }) {
     const [isMobile, setIsMobile] = React.useState(false)
+
+    // Using useTransform for smooth parallax without re-renders
+    const amberY = useTransform(scrollProgress, (val: number) => val * 30)
 
     React.useEffect(() => {
         const checkMobile = () => setIsMobile(window.innerWidth < 768)
@@ -276,7 +329,7 @@ export default function ProEventBackground({ theme = 'emerald', scrollProgress =
                         <GridBeams theme="gaming" />
                     </div>
 
-                    <GamingPulse scrollProgress={scrollProgress} />
+                    <GamingPulse scrollProgress={scrollProgress} isMobile={isMobile} />
                     <FloatingOrbs theme="gaming" />
 
                     <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,transparent_20%,rgba(3,2,13,0.5)_100%)] pointer-events-none" />
@@ -295,23 +348,42 @@ export default function ProEventBackground({ theme = 'emerald', scrollProgress =
                     exit={{ opacity: 0 }}
                     transition={{ duration: 0.8 }}
                 >
-                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(251,191,36,0.15),transparent_80%)]" />
-                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_10%_10%,rgba(245,158,11,0.1),transparent_60%)]" />
+                    {/* Ambient Glows */}
+                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(251,191,36,0.2),transparent_80%)]" />
+                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_10%_10%,rgba(245,158,11,0.15),transparent_60%)]" />
 
                     {!isDetailed && (
-                        <div className="absolute inset-0 z-0 flex items-start justify-center overflow-hidden">
-                            <img src="/cultural-bg.png" alt="" className="absolute inset-0 w-full h-full object-cover blur-3xl opacity-40 scale-110" />
-                            <motion.img
-                                src="/cultural-bg.png" alt="Cultural Background"
-                                className="relative z-10 w-full md:h-auto h-full object-cover md:object-contain opacity-100"
-                                loading="eager"
-                                style={{
-                                    filter: isMobile ? 'brightness(0.8) contrast(1.1)' : 'brightness(1.1) contrast(1.05)',
-                                    transformOrigin: 'top',
-                                    y: scrollProgress * 0.1
-                                }}
+                        <div className="absolute inset-0 z-0 overflow-hidden">
+                            {/* Blurred Background Base */}
+                            <Image
+                                src="/cultural-bg.png"
+                                alt=""
+                                fill
+                                className="object-cover blur-3xl opacity-30 scale-110"
+                                priority
                             />
-                            <div className="absolute inset-0 z-20 bg-gradient-to-b from-black/10 via-transparent to-[#0f0901]/90" />
+
+                            {/* Sharp Foreground Image */}
+                            <motion.div
+                                className="absolute inset-0 z-10"
+                                style={{
+                                    y: amberY
+                                }}
+                            >
+                                <Image
+                                    src="/cultural-bg.png"
+                                    alt="Cultural Background"
+                                    fill
+                                    className={`object-cover object-center opacity-70 ${isMobile ? 'scale-110' : 'scale-100'}`} // Slight zoom on mobile to ensure coverage during parallax
+                                    loading="eager"
+                                    priority
+                                    style={{
+                                        filter: isMobile ? 'brightness(0.6) contrast(1.2)' : 'brightness(1.1) contrast(1.05)',
+                                    }}
+                                />
+                            </motion.div>
+                            <div className="absolute inset-0 z-20 bg-gradient-to-b from-black/20 via-transparent to-[#0f0901] opacity-90" />
+                            <div className="absolute inset-x-0 bottom-0 h-[60%] bg-gradient-to-t from-[#0f0901] via-[#0f0901]/40 to-transparent z-20" />
                         </div>
                     )}
 
@@ -322,26 +394,32 @@ export default function ProEventBackground({ theme = 'emerald', scrollProgress =
             {theme === 'emerald' && (
                 <motion.div
                     key="emerald-layer"
-                    className="fixed inset-0 z-0 pointer-events-none bg-[#010a06] will-change-opacity"
+                    className="fixed inset-0 z-0 pointer-events-none bg-[#010502] will-change-opacity gpu-accel"
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
                     transition={{ duration: 0.8 }}
                 >
-                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_10%,rgba(16,185,129,0.18),transparent_70%)]" />
-                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_90%_90%,rgba(16,185,129,0.08),transparent_50%)]" />
-                    <div className="absolute inset-0 opacity-100 mix-blend-screen">
+                    {/* Deepened background radial gradients - Reduced Opacity */}
+                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_10%,rgba(16,185,129,0.1),transparent_70%)]" />
+                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_90%_90%,rgba(16,185,129,0.05),transparent_50%)]" />
+
+                    {/* Grid Beams - Lower Opacity for subtler effect */}
+                    <div className="absolute inset-0 opacity-40 mix-blend-screen">
                         <GridBeams theme={theme} />
                     </div>
+
                     <FloatingOrbs theme="emerald" />
-                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,transparent_30%,rgba(1,10,6,0.5)_100%)] pointer-events-none" />
+
+                    {/* High Contrast Overlay - Darker edges */}
+                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,transparent_30%,rgba(0,0,0,0.8)_100%)] pointer-events-none" />
                 </motion.div>
             )}
 
             {theme === 'cyan' && (
                 <motion.div
                     key="cyan-layer"
-                    className="fixed inset-0 z-0 pointer-events-none bg-[#00080d] will-change-opacity"
+                    className="fixed inset-0 z-0 pointer-events-none bg-[#00080d] will-change-opacity gpu-accel"
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
@@ -360,7 +438,7 @@ export default function ProEventBackground({ theme = 'emerald', scrollProgress =
             {theme === 'indigo' && (
                 <motion.div
                     key="indigo-layer"
-                    className="fixed inset-0 z-0 pointer-events-none bg-[#03030f] will-change-opacity"
+                    className="fixed inset-0 z-0 pointer-events-none bg-[#03030f] will-change-opacity gpu-accel"
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}

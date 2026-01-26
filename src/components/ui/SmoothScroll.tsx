@@ -11,14 +11,20 @@ export const SmoothScroll = ({ children }: SmoothScrollProps) => {
     const lenisRef = useRef<Lenis | null>(null);
 
     useEffect(() => {
+        // Disable Lenis on mobile devices to restore native hardware-accelerated scrolling
+        // This fixes the "laggy feel" caused by JS fighting the OS touch driver
+        if (typeof window !== 'undefined' && (window.innerWidth < 768 || 'ontouchstart' in window)) {
+            return;
+        }
+
         // Initialize Lenis
         const lenis = new Lenis({
-            duration: 1.5,
-            easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+            duration: 1.8, // Slightly longer for "Premium" weight
+            easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)), // Silky smooth exponential out
             orientation: "vertical",
             gestureOrientation: "vertical",
             smoothWheel: true,
-            wheelMultiplier: 1.0,
+            wheelMultiplier: 1.1, // Slight boost for responsiveness
             touchMultiplier: 1.5,
             infinite: false,
         });

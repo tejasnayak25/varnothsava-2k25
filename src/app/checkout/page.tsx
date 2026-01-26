@@ -54,7 +54,7 @@ export default function CheckoutPage() {
                                         </div>
                                         <div className="flex-1 min-w-0">
                                             <h3 className="text-sm font-black uppercase tracking-tight truncate">{item.title}</h3>
-                                            <p className="text-[10px] font-mono text-white/40 uppercase mt-1">Fee: ₹{item.fee}</p>
+                                            <p className="text-[10px] font-mono text-emerald-500/60 uppercase mt-1">Status: READY_FOR_SYNC</p>
                                         </div>
                                         <button
                                             onClick={() => removeFromCart(item.id)}
@@ -75,18 +75,14 @@ export default function CheckoutPage() {
 
                             <div className="space-y-3 font-mono text-xs uppercase">
                                 <div className="flex justify-between text-white/40">
-                                    <span>Subtotal</span>
-                                    <span>₹{total}</span>
+                                    <span>Total Events</span>
+                                    <span>{cart.length} UNITS</span>
                                 </div>
                                 <div className="flex justify-between text-white/40">
-                                    <span>Platform Fee</span>
-                                    <span>₹0</span>
+                                    <span>Sync Status</span>
+                                    <span>ENCRYPTED</span>
                                 </div>
                                 <div className="h-[1px] bg-white/10 my-2" />
-                                <div className="flex justify-between text-lg font-black text-white italic">
-                                    <span>Total</span>
-                                    <span>₹{total}</span>
-                                </div>
                             </div>
 
                             <button

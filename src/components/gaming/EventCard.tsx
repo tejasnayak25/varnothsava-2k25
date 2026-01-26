@@ -8,7 +8,6 @@ interface EventCardProps {
     eventTitle: string;
     date: string;
     prizePool: string;
-    entryFee: string;
     slots: string;
     image: string;
     theme: "bgmi" | "valorant";
@@ -21,7 +20,6 @@ export default function EventCard({
     eventTitle,
     date,
     prizePool,
-    entryFee,
     slots,
     image,
     theme,
@@ -32,7 +30,7 @@ export default function EventCard({
 
     return (
         <div
-            className={`event-card-wrapper ${theme}`}
+            className={`event-card-wrapper ${theme} gpu-accel`}
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
         >
@@ -111,14 +109,6 @@ export default function EventCard({
                         <div className="stat-content">
                             <span className="stat-label">PRIZE</span>
                             <span className="stat-value">{prizePool}</span>
-                        </div>
-                    </div>
-                    <div className="stat-divider" />
-                    <div className="stat-box">
-                        <div className="stat-icon text-[10px]">💎</div>
-                        <div className="stat-content">
-                            <span className="stat-label">ENTRY</span>
-                            <span className="stat-value">{entryFee}</span>
                         </div>
                     </div>
                     <div className="stat-divider" />

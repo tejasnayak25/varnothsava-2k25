@@ -267,7 +267,7 @@ function LoginContent() {
     }
 
     return (
-        <main className="min-h-screen w-full bg-[#050b14] text-white relative flex items-center justify-center py-10 md:py-20 overflow-x-hidden root-container">
+        <main className="min-h-screen w-full bg-[#050b14] text-white relative flex flex-col items-center pt-32 pb-[200px] md:pb-[150px] overflow-x-hidden root-container">
             {/* LIVELY STARFIELD BACKGROUND */}
             <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
                 <div className="absolute inset-0 bg-[#050b14]" />
@@ -310,9 +310,9 @@ function LoginContent() {
                             <div className="absolute inset-0 bg-emerald-500/5 blur-[80px] rounded-full -z-10" />
                         </div>
 
-                        <h1 className="text-display font-bold tracking-tight leading-tight gpu-accel">
+                        <h1 className="text-display font-extrabold tracking-tight leading-[1] gpu-accel uppercase italic max-w-md">
                             Varnothsava<br />
-                            <span className="text-emerald-500 font-extrabold italic">Fest Hub.</span>
+                            <span className="text-emerald-500">Fest Hub.</span>
                         </h1>
                         <p className="mt-6 text-lg xl:text-xl text-white/70 font-medium leading-relaxed max-w-sm">
                             Join the celebration at the official college fest hub.

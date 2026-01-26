@@ -18,6 +18,17 @@ import Tilt from 'react-parallax-tilt'
 const ACCENT_GREEN = '#00ff9d'
 const ACCENT_CYAN = '#00f2ff'
 
+const ANIME_AVATARS = [
+    { id: 'solo_male', name: 'Hunter SJW', src: '/avatars/solo_male.png', color: 'from-blue-500 to-indigo-500' },
+    { id: 'solo_female', name: 'Hunter CHA', src: '/avatars/solo_female.png', color: 'from-yellow-400 to-amber-500' },
+    { id: 'ds_male', name: 'Slayer TAN', src: '/avatars/ds_male.png', color: 'from-cyan-400 to-blue-500' },
+    { id: 'ds_female', name: 'Slayer SHI', src: '/avatars/ds_female.png', color: 'from-purple-400 to-pink-500' },
+    { id: 'jjk_male', name: 'Sorcerer GOJ', src: '/avatars/jjk_male.png', color: 'from-indigo-400 to-purple-500' },
+    { id: 'jjk_female', name: 'Sorcerer KUG', src: '/avatars/jjk_female.png', color: 'from-orange-400 to-red-500' },
+    { id: 'mha_male', name: 'Hero DEK', src: '/avatars/mha_male.png', color: 'from-emerald-400 to-green-500' },
+    { id: 'mha_female', name: 'Hero URA', src: '/avatars/mha_female.png', color: 'from-pink-400 to-rose-500' },
+]
+
 // --- ANIMATED BORDER WRAPPER ---
 const AnimatedBorderCard = ({ children, className = "", noPadding = false, hoverEffect = true }: { children: React.ReactNode, className?: string, noPadding?: boolean, hoverEffect?: boolean }) => {
     return (
@@ -64,25 +75,27 @@ const BackgroundElements = () => {
             {/* Animated Mesh Gradient Layer */}
             <div className="absolute inset-0 opacity-40">
                 <motion.div
-                    animate={{
+                    animate={isMobile ? {} : {
                         scale: [1, 1.3, 1],
                         rotate: [0, 90, 0],
                         x: ['-20%', '20%', '-20%'],
                         y: ['-10%', '10%', '-10%'],
                     }}
                     transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
-                    className="absolute top-[-30%] left-[-30%] w-[120%] h-[120%] bg-emerald-500/20 rounded-full blur-[180px]"
+                    className={`absolute top-[-30%] left-[-30%] w-[120%] h-[120%] bg-emerald-500/20 rounded-full ${isMobile ? 'blur-[100px]' : 'blur-[180px]'}`}
                 />
-                <motion.div
-                    animate={{
-                        scale: [1.3, 1, 1.3],
-                        rotate: [0, -90, 0],
-                        x: ['20%', '-20%', '20%'],
-                        y: ['10%', '-10%', '10%'],
-                    }}
-                    transition={{ duration: 35, repeat: Infinity, ease: "linear" }}
-                    className="absolute bottom-[-30%] right-[-20%] w-[100%] h-[100%] bg-blue-600/15 rounded-full blur-[180px]"
-                />
+                {!isMobile && (
+                    <motion.div
+                        animate={{
+                            scale: [1.3, 1, 1.3],
+                            rotate: [0, -90, 0],
+                            x: ['20%', '-20%', '20%'],
+                            y: ['10%', '-10%', '10%'],
+                        }}
+                        transition={{ duration: 35, repeat: Infinity, ease: "linear" }}
+                        className="absolute bottom-[-30%] right-[-20%] w-[100%] h-[100%] bg-blue-600/15 rounded-full blur-[180px]"
+                    />
+                )}
             </div>
 
             {/* Interactive Neural Glow - Disabled on Mobile for performance */}
@@ -100,7 +113,7 @@ const BackgroundElements = () => {
             {/* Micro-Particle Field - Reduced for mobile */}
             {isMounted && (
                 <div className="absolute inset-0">
-                    {[...Array(isMobile ? 10 : 30)].map((_, i) => (
+                    {[...Array(isMobile ? 8 : 30)].map((_, i) => (
                         <motion.div
                             key={i}
                             initial={{
@@ -118,19 +131,19 @@ const BackgroundElements = () => {
                                 ease: "linear",
                                 delay: Math.random() * 10
                             }}
-                            className="absolute w-1 h-1 bg-emerald-400/40 rounded-full blur-[1px]"
+                            className="absolute w-1 h-1 bg-emerald-400/30 rounded-full blur-[1px]"
                         />
                     ))}
                 </div>
             )}
 
-            {/* Dynamic Scanning Rays */}
+            {/* Dynamic Scanning Rays - Simplified on Mobile */}
             <motion.div
                 animate={{
                     left: ['-50%', '150%']
                 }}
-                transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
-                className="absolute top-0 w-[2px] h-full bg-emerald-500/10 skew-x-[45deg] blur-2xl"
+                transition={{ duration: isMobile ? 20 : 12, repeat: Infinity, ease: "easeInOut" }}
+                className={`absolute top-0 w-[1px] md:w-[2px] h-full bg-emerald-500/10 skew-x-[45deg] ${isMobile ? 'blur-xl' : 'blur-2xl'}`}
             />
         </div>
     )
@@ -216,12 +229,19 @@ export default function ProfilePage() {
         }
     }
 
+    const [isMobile, setIsMobile] = useState(false)
+
     useEffect(() => {
         const init = async () => {
             setMounted(true)
+            setIsMobile(window.innerWidth < 768)
             await mountUser()
         }
         init()
+
+        const checkMobile = () => setIsMobile(window.innerWidth < 768)
+        window.addEventListener('resize', checkMobile)
+        return () => window.removeEventListener('resize', checkMobile)
     }, [])
 
     useEffect(() => {
@@ -243,7 +263,7 @@ export default function ProfilePage() {
     }
 
     return (
-        <div className="min-h-screen bg-[#030408] text-white selection:bg-emerald-500/20 overflow-x-hidden font-sans relative">
+        <div className="min-h-screen bg-[#030408] text-white selection:bg-emerald-500/20 overflow-x-hidden font-sans relative no-jank">
             <motion.div style={{ opacity: backgroundOpacity }} className="fixed inset-0 pointer-events-none z-0">
                 <BackgroundElements />
             </motion.div>
@@ -253,7 +273,7 @@ export default function ProfilePage() {
                 initial="hidden"
                 whileInView="visible"
                 viewport={{ once: true, margin: "-50px" }}
-                className="relative z-10 max-w-6xl mx-auto pt-20 md:pt-32 pb-40 px-4 md:px-8 root-container"
+                className="relative z-10 max-w-6xl mx-auto pt-20 md:pt-32 pb-40 px-4 md:px-8 root-container gpu-accel"
                 style={{ perspective: 1500 }}
             >
                 {/* --- CONTROL CENTER HEADER --- */}
@@ -269,7 +289,7 @@ export default function ProfilePage() {
                         </div>
 
                         <div className="space-y-4">
-                            <h1 className="text-4xl sm:text-6xl md:text-8xl font-black tracking-tight leading-[0.8] gpu-accel text-white uppercase italic">
+                            <h1 className="text-display font-extrabold tracking-tight leading-[1] gpu-accel text-white uppercase italic">
                                 MY <span className="bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent">PROFILE</span>
                             </h1>
                             <div className="h-1.5 w-32 bg-gradient-to-r from-emerald-500 to-cyan-500 rounded-full" />
@@ -327,12 +347,11 @@ export default function ProfilePage() {
                 {/* --- LEFT SIDEBAR --- */}
                 <div className="lg:col-span-4 space-y-6 md:space-y-8">
                     <motion.div variants={itemVariants}>
-                        <Tilt tiltMaxAngleX={3} tiltMaxAngleY={3} perspective={1000}>
+                        {isMobile ? (
                             <AnimatedBorderCard noPadding className="!rounded-[2rem] md:rounded-[2.5rem]">
                                 <div className="p-6 md:p-8 space-y-6 md:space-y-10 relative z-10">
                                     <div className="flex flex-col items-center text-center">
                                         <div className="relative mb-6 group/avatar">
-                                            <div className="absolute -inset-6 bg-emerald-500/20 blur-[40px] rounded-full opacity-60 group-hover:opacity-100 transition-opacity duration-700" />
                                             <div className="relative w-28 md:w-36 h-28 md:h-36 rounded-[2rem] md:rounded-[2.5rem] p-1.5 bg-gradient-to-br from-emerald-500/50 via-cyan-500/50 to-emerald-500/50">
                                                 <div className="w-full h-full bg-[#05060a] rounded-[1.8rem] md:rounded-[2.2rem] overflow-hidden border border-white/10">
                                                     <img src={userData.avatar} alt={userData.name} className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110" />
@@ -375,7 +394,57 @@ export default function ProfilePage() {
                                     </button>
                                 </div>
                             </AnimatedBorderCard>
-                        </Tilt>
+                        ) : (
+                            <Tilt tiltMaxAngleX={3} tiltMaxAngleY={3} perspective={1000}>
+                                <AnimatedBorderCard noPadding className="!rounded-[2rem] md:rounded-[2.5rem]">
+                                    <div className="p-6 md:p-8 space-y-6 md:space-y-10 relative z-10">
+                                        <div className="flex flex-col items-center text-center">
+                                            <div className="relative mb-6 group/avatar">
+                                                <div className="absolute -inset-6 bg-emerald-500/20 blur-[40px] rounded-full opacity-60 group-hover:opacity-100 transition-opacity duration-700" />
+                                                <div className="relative w-28 md:w-36 h-28 md:h-36 rounded-[2rem] md:rounded-[2.5rem] p-1.5 bg-gradient-to-br from-emerald-500/50 via-cyan-500/50 to-emerald-500/50">
+                                                    <div className="w-full h-full bg-[#05060a] rounded-[1.8rem] md:rounded-[2.2rem] overflow-hidden border border-white/10">
+                                                        <img src={userData.avatar} alt={userData.name} className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110" />
+                                                    </div>
+                                                </div>
+                                                <button
+                                                    onClick={() => setActiveModal('qr')}
+                                                    className="absolute -bottom-2 -right-2 w-12 md:w-12 h-12 md:h-12 bg-white rounded-xl flex items-center justify-center text-black shadow-2xl transition-transform hover:scale-110 hover:rotate-12 border-2 md:border-4 border-[#08090f] z-20 min-h-[48px] min-w-[48px]"
+                                                >
+                                                    <QrCode size={22} />
+                                                </button>
+                                            </div>
+
+                                            <div className="space-y-3">
+                                                <h2 className="text-lg md:text-2xl font-bold text-white px-2 leading-tight uppercase tracking-tight">{userData.name}</h2>
+                                                <div className="inline-flex items-center gap-2 px-3 py-1 bg-emerald-500/10 border border-emerald-500/30 rounded-xl">
+                                                    <span className="text-[10px] md:text-sm font-bold text-emerald-400 tracking-wider">PASS ID: {userData.profileCode}</span>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div className="grid grid-cols-2 gap-4">
+                                            <div className="p-4 md:p-5 bg-white/[0.03] border border-white/10 rounded-2xl group transition-all hover:bg-emerald-500/5 hover:border-emerald-500/20">
+                                                <p className="text-[10px] md:text-xs font-bold text-slate-400 uppercase tracking-widest mb-1.5">Events</p>
+                                                <p className="text-xl md:text-3xl font-bold text-white leading-none"><CountUp end={userData.registeredEvents?.length || 0} /></p>
+                                            </div>
+                                            <div className="p-4 md:p-5 bg-white/[0.03] border border-white/10 rounded-2xl flex flex-col justify-center items-center">
+                                                <div className="w-8 md:w-10 h-8 md:h-10 rounded-full bg-emerald-500/10 flex items-center justify-center mb-1.5">
+                                                    <CheckCircle size={18} className="text-emerald-400" />
+                                                </div>
+                                                <span className="text-[10px] md:text-xs font-bold text-emerald-400 uppercase tracking-widest">Active Entry</span>
+                                            </div>
+                                        </div>
+
+                                        <button
+                                            onClick={() => setActiveModal('editProfile')}
+                                            className="w-full py-5 bg-emerald-500 hover:bg-cyan-400 text-black font-black uppercase text-[10px] md:text-xs tracking-[0.2em] rounded-2xl transition-all shadow-[0_10px_30px_rgba(16,185,129,0.3)] flex items-center justify-center gap-3 active:scale-95 ring-4 ring-emerald-500/20 border border-white/20 min-h-[56px] hover-effect"
+                                        >
+                                            <Edit3 size={16} /> Update Profile
+                                        </button>
+                                    </div>
+                                </AnimatedBorderCard>
+                            </Tilt>
+                        )}
                     </motion.div>
 
                     <motion.div
@@ -424,7 +493,7 @@ export default function ProfilePage() {
                                     <User size={32} strokeWidth={1.5} className="relative z-10" />
                                 </div>
                                 <div>
-                                    <h3 className="text-xl md:text-3xl font-black text-white tracking-tight uppercase leading-none">PERSONAL_INFO</h3>
+                                    <h3 className="text-xl md:text-3xl font-black text-white tracking-tight uppercase leading-none">PERSONAL INFO</h3>
                                     <p className="text-[10px] md:text-xs font-black text-emerald-500 uppercase tracking-[0.3em] mt-2 opacity-70">Verified Profile Details</p>
                                 </div>
                             </div>
@@ -433,7 +502,7 @@ export default function ProfilePage() {
                                 {[
                                     { label: "Full Name", value: userData.name, icon: User },
                                     { label: "College Email", value: userData.email, icon: Mail },
-                                    { label: "Phone Number", value: userData.phone || 'NOT_LINKED', icon: Phone },
+                                    { label: "Phone Number", value: userData.phone || 'NOT LINKED', icon: Phone },
                                     { label: "USN / Roll Number", value: userData.usn, icon: Hash }
                                 ].map((field, idx) => (
                                     <div key={idx} className="space-y-2 md:space-y-3 pb-4 md:pb-6 border-b border-white/5 group/field relative">
@@ -457,7 +526,7 @@ export default function ProfilePage() {
                                     <School size={32} strokeWidth={1.5} className="relative z-10" />
                                 </div>
                                 <div>
-                                    <h3 className="text-xl md:text-3xl font-black text-white tracking-tight uppercase leading-none">COLLEGE_INFO</h3>
+                                    <h3 className="text-xl md:text-3xl font-black text-white tracking-tight uppercase leading-none">COLLEGE INFO</h3>
                                     <p className="text-[10px] md:text-xs font-black text-cyan-500 uppercase tracking-[0.3em] mt-2 opacity-70">Registered College Information</p>
                                 </div>
                             </div>
@@ -491,7 +560,7 @@ export default function ProfilePage() {
                                         <BookOpen size={32} strokeWidth={1.5} className="relative z-10" />
                                     </div>
                                     <div>
-                                        <h3 className="text-xl md:text-3xl font-black text-white tracking-tight uppercase leading-none">MY_EVENTS</h3>
+                                        <h3 className="text-xl md:text-3xl font-black text-white tracking-tight uppercase leading-none">MY EVENTS</h3>
                                         <p className="text-[10px] md:text-xs font-black text-emerald-500 uppercase tracking-[0.3em] mt-2 opacity-70">Participated Events for 2026</p>
                                     </div>
                                 </div>
@@ -610,58 +679,34 @@ export default function ProfilePage() {
                                                 </p>
                                             </div>
 
-                                            <div className="grid grid-cols-2 gap-3">
-                                                <button
-                                                    disabled={isRegenerating}
-                                                    onClick={async () => {
-                                                        setIsRegenerating(true)
-                                                        try {
-                                                            const seed = Math.floor(Math.random() * 1000)
-                                                            await updateAvatar(`https://api.dicebear.com/7.x/avataaars/svg?seed=${seed}&gender=male`)
-                                                        } finally {
-                                                            setIsRegenerating(false)
-                                                        }
-                                                    }}
-                                                    className={`p-4 bg-white/5 border border-white/10 ring-1 ring-white/5 text-white font-bold uppercase text-[9px] tracking-widest rounded-xl hover:bg-emerald-500/10 hover:border-emerald-500/30 transition-all flex flex-col items-center justify-center gap-1 ${isRegenerating ? 'opacity-50 cursor-not-allowed' : ''}`}
-                                                >
-                                                    <span className="text-xs">Pick Male</span>
-                                                    <span className="text-[7px] text-slate-500">BOY AVATAR</span>
-                                                </button>
-                                                <button
-                                                    disabled={isRegenerating}
-                                                    onClick={async () => {
-                                                        setIsRegenerating(true)
-                                                        try {
-                                                            const seed = Math.floor(Math.random() * 1000)
-                                                            await updateAvatar(`https://api.dicebear.com/7.x/avataaars/svg?seed=${seed}&gender=female`)
-                                                        } finally {
-                                                            setIsRegenerating(false)
-                                                        }
-                                                    }}
-                                                    className={`p-4 bg-white/5 border border-white/10 ring-1 ring-white/5 text-white font-bold uppercase text-[9px] tracking-widest rounded-xl hover:bg-pink-500/10 hover:border-pink-500/30 transition-all flex flex-col items-center justify-center gap-1 ${isRegenerating ? 'opacity-50 cursor-not-allowed' : ''}`}
-                                                >
-                                                    <span className="text-xs">Pick Female</span>
-                                                    <span className="text-[7px] text-slate-500">GIRL AVATAR</span>
-                                                </button>
+                                            <div className="space-y-4">
+                                                <div className="grid grid-cols-4 gap-2 md:gap-3">
+                                                    {ANIME_AVATARS.map((avatar) => (
+                                                        <button
+                                                            key={avatar.id}
+                                                            disabled={isRegenerating}
+                                                            onClick={async () => {
+                                                                setIsRegenerating(true)
+                                                                try {
+                                                                    await updateAvatar(avatar.src)
+                                                                } finally {
+                                                                    setIsRegenerating(false)
+                                                                }
+                                                            }}
+                                                            className="group relative aspect-square rounded-2xl overflow-hidden border border-white/10 hover:border-white/40 transition-all active:scale-95"
+                                                        >
+                                                            <div className={`absolute inset-0 opacity-0 group-hover:opacity-20 transition-opacity bg-gradient-to-br ${avatar.color}`} />
+                                                            <img src={avatar.src} alt={avatar.name} className="w-full h-full object-cover" />
+                                                            {userData.avatar === avatar.src && (
+                                                                <div className="absolute inset-0 ring-2 ring-emerald-500 ring-offset-2 ring-offset-black rounded-2xl" />
+                                                            )}
+                                                        </button>
+                                                    ))}
+                                                </div>
+                                                <p className="text-[10px] text-slate-500 font-mono tracking-widest text-center pt-2">Tap to equip signature avatar set</p>
                                             </div>
 
-                                            <button
-                                                disabled={isRegenerating}
-                                                onClick={async () => {
-                                                    setIsRegenerating(true)
-                                                    try {
-                                                        const seed = Math.floor(Math.random() * 10000)
-                                                        const styles = ['avataaars', 'bottts', 'pixel-art', 'lorelei']
-                                                        const style = styles[Math.floor(Math.random() * styles.length)]
-                                                        await updateAvatar(`https://api.dicebear.com/7.x/${style}/svg?seed=${seed}`)
-                                                    } finally {
-                                                        setIsRegenerating(false)
-                                                    }
-                                                }}
-                                                className={`w-full py-4 bg-emerald-500 text-black font-black uppercase text-xs tracking-widest rounded-xl hover:bg-emerald-400 transition-all flex items-center justify-center gap-3 shadow-[0_10px_30px_rgba(16,185,129,0.3)] ring-4 ring-emerald-500/20 border border-white/20 ${isRegenerating ? 'opacity-50 cursor-not-allowed' : ''}`}
-                                            >
-                                                {isRegenerating ? 'UPDATING...' : <><Sparkles size={16} /> Random Avatar</>}
-                                            </button>
+
                                         </div>
                                     )}
 
@@ -723,40 +768,32 @@ export default function ProfilePage() {
                                             className="space-y-6"
                                         >
                                             <div className="space-y-4">
-                                                <p className="text-[10px] font-black text-emerald-500 uppercase tracking-widest mb-2">Character Appearance</p>
-                                                <div className="grid grid-cols-2 gap-3 mb-6">
-                                                    <button
-                                                        type="button"
-                                                        disabled={isRegenerating}
-                                                        onClick={async () => {
-                                                            setIsRegenerating(true)
-                                                            try {
-                                                                const seed = Math.floor(Math.random() * 1000)
-                                                                await updateAvatar(`https://api.dicebear.com/7.x/avataaars/svg?seed=${seed}&gender=male`)
-                                                            } finally {
-                                                                setIsRegenerating(false)
-                                                            }
-                                                        }}
-                                                        className="p-3 bg-white/5 border border-white/10 rounded-xl hover:bg-emerald-500/10 transition-all text-[10px] font-bold text-white uppercase"
-                                                    >
-                                                        Switch to Male
-                                                    </button>
-                                                    <button
-                                                        type="button"
-                                                        disabled={isRegenerating}
-                                                        onClick={async () => {
-                                                            setIsRegenerating(true)
-                                                            try {
-                                                                const seed = Math.floor(Math.random() * 1000)
-                                                                await updateAvatar(`https://api.dicebear.com/7.x/avataaars/svg?seed=${seed}&gender=female`)
-                                                            } finally {
-                                                                setIsRegenerating(false)
-                                                            }
-                                                        }}
-                                                        className="p-3 bg-white/5 border border-white/10 rounded-xl hover:bg-pink-500/10 transition-all text-[10px] font-bold text-white uppercase"
-                                                    >
-                                                        Switch to Female
-                                                    </button>
+                                                <div className="space-y-4 mb-6">
+                                                    <p className="text-[10px] font-black text-emerald-500 uppercase tracking-widest mb-2">Select Avatar</p>
+                                                    <div className="grid grid-cols-4 gap-2 md:gap-3">
+                                                        {ANIME_AVATARS.map((avatar) => (
+                                                            <button
+                                                                key={avatar.id}
+                                                                type="button"
+                                                                disabled={isRegenerating}
+                                                                onClick={async () => {
+                                                                    setIsRegenerating(true)
+                                                                    try {
+                                                                        await updateAvatar(avatar.src)
+                                                                    } finally {
+                                                                        setIsRegenerating(false)
+                                                                    }
+                                                                }}
+                                                                className="group relative aspect-square rounded-2xl overflow-hidden border border-white/10 hover:border-white/40 transition-all active:scale-95"
+                                                            >
+                                                                <div className={`absolute inset-0 opacity-0 group-hover:opacity-20 transition-opacity bg-gradient-to-br ${avatar.color}`} />
+                                                                <img src={avatar.src} alt={avatar.name} className="w-full h-full object-cover" />
+                                                                {userData.avatar === avatar.src && (
+                                                                    <div className="absolute inset-0 ring-2 ring-emerald-500 ring-offset-2 ring-offset-black rounded-2xl" />
+                                                                )}
+                                                            </button>
+                                                        ))}
+                                                    </div>
                                                 </div>
 
                                                 <div className="space-y-2">

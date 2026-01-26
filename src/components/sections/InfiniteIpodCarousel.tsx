@@ -29,8 +29,11 @@ export function InfiniteIpodCarousel() {
     const [currentIndex, setCurrentIndex] = useState(0);
     const [mounted, setMounted] = useState(false);
 
+    const [isMobile, setIsMobile] = useState(false);
+
     useEffect(() => {
         setMounted(true);
+        setIsMobile(window.innerWidth < 768);
     }, []);
 
     const handleNext = useCallback(() => {
@@ -73,13 +76,13 @@ export function InfiniteIpodCarousel() {
                                 key={idx}
                                 initial={false}
                                 animate={{
-                                    x: wrappedDiff * 550,
-                                    scale: active ? 1.4 : 0.7,
-                                    opacity: active ? 1 : 0.2,
-                                    rotateY: wrappedDiff * -35,
-                                    z: active ? 300 : -500,
+                                    x: wrappedDiff * (isMobile ? 320 : 550),
+                                    scale: active ? (isMobile ? 1.0 : 1.4) : (isMobile ? 0.8 : 0.7),
+                                    opacity: active ? 1 : (isMobile ? 0.5 : 0.2),
+                                    rotateY: isMobile ? 0 : wrappedDiff * -35,
+                                    z: isMobile ? 0 : (active ? 300 : -500),
                                 }}
-                                transition={{ type: 'spring', stiffness: 80, damping: 20 }}
+                                transition={isMobile ? { duration: 0.3 } : { type: 'spring', stiffness: 80, damping: 20 }}
                                 className="absolute pointer-events-auto"
                             >
                                 <div
@@ -94,8 +97,9 @@ export function InfiniteIpodCarousel() {
                                         alt={img.title}
                                         fill
                                         className="object-contain p-8"
-                                        unoptimized
-                                        priority={active}
+                                        sizes="(max-width: 768px) 300px, 500px"
+                                        quality={isMobile ? 60 : 85}
+                                        priority={active || Math.abs(wrappedDiff) <= 1}
                                     />
 
                                     {active && (

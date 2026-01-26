@@ -7,8 +7,14 @@ module.exports = {
     theme: {
         extend: {
             screens: {
-                'xs': '320px', // extra small devices
-                '2xl': '1536px', // ultra-wide
+                'xs': '320px',
+                'sm': '640px',
+                'md': '768px',
+                'lg': '1024px',
+                'xl': '1280px',
+                '2xl': '1536px',
+                '3xl': '1920px',
+                'ultra-wide': '2560px',
             },
             spacing: {
                 '9/16': '56.25%', // for 16:9 aspect ratio
@@ -17,7 +23,6 @@ module.exports = {
     },
     plugins: [
         require('@tailwindcss/aspect-ratio'),
-        require('@tailwindcss/line-clamp'),
         require('@tailwindcss/typography'),
     ],
 };

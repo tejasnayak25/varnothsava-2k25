@@ -94,7 +94,9 @@ export function CosmicGallery() {
                             src={activeItem.src}
                             alt="Background"
                             fill
-                            className="object-cover blur-[60px] brightness-[0.2] saturate-[1.2]"
+                            sizes="100vw"
+                            quality={40}
+                            className="object-cover blur-[20px] md:blur-[60px] brightness-[0.2] saturate-[1.2]"
                             priority
                         />
                     </motion.div>
@@ -106,10 +108,10 @@ export function CosmicGallery() {
             {/* 2. MAIN HUD ELEMENTS */}
             <div className="absolute top-12 left-12 z-50 pointer-events-none">
                 <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}>
-                    <h2 className="text-white font-black italic text-4xl tracking-tighter leading-none mb-2">
+                    <h2 className="text-white font-black italic text-2xl md:text-4xl tracking-tighter leading-none mb-1 md:mb-2">
                         ARCHIVE // <span className="text-emerald-500">2K26</span>
                     </h2>
-                    <p className="text-emerald-500/40 font-mono text-[9px] tracking-[0.6em] uppercase">Visual Memory Terminal</p>
+                    <p className="text-emerald-500/40 font-mono text-[7px] md:text-[9px] tracking-[0.4em] md:tracking-[0.6em] uppercase">Visual Memory Terminal</p>
                 </motion.div>
             </div>
 
@@ -141,6 +143,8 @@ export function CosmicGallery() {
                                         src={activeItem.src}
                                         alt={activeItem.title}
                                         fill
+                                        sizes="(max-width: 768px) 100vw, 500px"
+                                        quality={75}
                                         className="object-cover transition-transform duration-1000 group-hover:scale-105"
                                         priority
                                     />
@@ -173,7 +177,7 @@ export function CosmicGallery() {
                                         <button className="flex items-center gap-3 px-10 py-5 rounded-full bg-white text-black font-black text-xs hover:scale-105 transition-transform active:scale-95 shadow-[0_20px_40px_rgba(255,255,255,0.1)]">
                                             <Play size={16} fill="black" /> ENTER ARCHIVE
                                         </button>
-                                        <button className="p-5 rounded-full border border-white/10 text-white/50 hover:text-white hover:bg-white/5 transition-all">
+                                        <button aria-label="Maximize Image" className="p-5 rounded-full border border-white/10 text-white/50 hover:text-white hover:bg-white/5 transition-all">
                                             <Maximize2 size={24} />
                                         </button>
                                     </div>
@@ -221,7 +225,7 @@ export function CosmicGallery() {
                                             }}
                                         >
                                             <div className="w-full h-full rounded-[3rem] overflow-hidden border border-white/20 shadow-2xl relative bg-neutral-900 group">
-                                                <Image src={item.src} alt={item.title} fill className="object-cover" />
+                                                <Image src={item.src} alt={item.title} fill sizes="(max-width: 768px) 300px, 420px" quality={60} className="object-cover" />
                                                 <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
                                                     <div className="absolute bottom-8 left-8">
                                                         <p className="text-emerald-400 font-mono text-[10px] tracking-widest mb-1">{item.tag}</p>
@@ -255,6 +259,7 @@ export function CosmicGallery() {
                         >
                             <button
                                 onClick={(e) => { e.stopPropagation(); handlePrev(); }}
+                                aria-label="Previous Image"
                                 className="w-14 h-14 flex items-center justify-center rounded-full hover:bg-white/10 text-white/40 hover:text-white transition-all transform hover:scale-125"
                             >
                                 <ChevronLeft size={36} />
@@ -262,6 +267,7 @@ export function CosmicGallery() {
 
                             <button
                                 onClick={(e) => { e.stopPropagation(); toggleView(); }}
+                                aria-label="Toggle Gallery View"
                                 className="w-16 h-16 flex items-center justify-center rounded-full bg-emerald-500 text-black hover:scale-110 active:scale-95 transition-all shadow-[0_0_40px_rgba(16,185,129,0.5)]"
                             >
                                 <X size={32} className="transform hover:rotate-90 transition-transform" />
@@ -269,6 +275,7 @@ export function CosmicGallery() {
 
                             <button
                                 onClick={(e) => { e.stopPropagation(); handleNext(); }}
+                                aria-label="Next Image"
                                 className="w-14 h-14 flex items-center justify-center rounded-full hover:bg-white/10 text-white/40 hover:text-white transition-all transform hover:scale-125"
                             >
                                 <ChevronRight size={36} />
@@ -281,7 +288,7 @@ export function CosmicGallery() {
                             initial={{ y: 150, rotate: -30, opacity: 0 }}
                             animate={{ y: 0, rotate: 0, opacity: 1 }}
                             exit={{ y: 150, rotate: 30, opacity: 0 }}
-                            className="relative w-80 h-80 flex items-center justify-center pointer-events-auto"
+                            className="relative w-64 h-64 md:w-80 md:h-80 flex items-center justify-center pointer-events-auto"
                         >
                             <motion.div
                                 animate={{ rotate: currentIndex * 45 }}
@@ -292,12 +299,14 @@ export function CosmicGallery() {
                                 <div className="w-full flex justify-between px-10">
                                     <button
                                         onClick={(e) => { e.stopPropagation(); handlePrev(); }}
+                                        aria-label="Previous Memory"
                                         className="text-white/30 hover:text-emerald-500 transition-all transform hover:scale-150 active:scale-90"
                                     >
                                         <ChevronLeft size={48} strokeWidth={3} />
                                     </button>
                                     <button
                                         onClick={(e) => { e.stopPropagation(); handleNext(); }}
+                                        aria-label="Next Memory"
                                         className="text-white/30 hover:text-emerald-500 transition-all transform hover:scale-150 active:scale-90"
                                     >
                                         <ChevronRight size={48} strokeWidth={3} />
@@ -308,10 +317,11 @@ export function CosmicGallery() {
 
                             <button
                                 onClick={(e) => { e.stopPropagation(); toggleView(); }}
-                                className="relative w-40 h-40 bg-[#151515] rounded-full border border-white/10 shadow-2xl active:scale-90 transition-all flex items-center justify-center group overflow-hidden"
+                                aria-label="Exit Explorer Mode"
+                                className="relative w-32 h-32 md:w-40 md:h-40 bg-[#151515] rounded-full border border-white/10 shadow-2xl active:scale-90 transition-all flex items-center justify-center group overflow-hidden"
                             >
                                 <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/20 to-transparent group-hover:opacity-100 opacity-0 transition-opacity" />
-                                <Zap className="w-16 h-16 text-white/10 group-hover:text-emerald-400 group-hover:drop-shadow-[0_0_20px_rgba(16,185,129,0.9)] transition-all" fill="currentColor" />
+                                <Zap className="w-12 h-12 md:w-16 md:h-16 text-white/10 group-hover:text-emerald-400 group-hover:drop-shadow-[0_0_20px_rgba(16,185,129,0.9)] transition-all" fill="currentColor" />
                             </button>
                         </motion.div>
                     )}

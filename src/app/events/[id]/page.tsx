@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
-import { motion } from 'framer-motion'
+import { motion, useScroll, useTransform } from 'framer-motion'
 import {
     ChevronLeft,
     ShoppingCart,
@@ -113,7 +113,9 @@ export default function EventDetailsPage() {
 
     const [mission, setMission] = useState<any | null>(null)
     const [isVideoPlaying, setIsVideoPlaying] = useState(false)
-    const [scrollProgress, setScrollProgress] = useState(0)
+    const { scrollYProgress } = useScroll()
+    // Transform scroll progress to percentage for the progress bar width
+    const scrollBarWidth = useTransform(scrollYProgress, [0, 1], ['0%', '100%'])
 
     useEffect(() => {
         const found = missions.find(m => m.id === id)
@@ -124,31 +126,18 @@ export default function EventDetailsPage() {
 
     const isAdded = false
 
-    // Scroll progress tracking - heavily throttled
     useEffect(() => {
         window.scrollTo({ top: 0, behavior: 'instant' })
-
-        let ticking = false
-        let lastUpdate = 0
-        const handleScroll = () => {
-            const now = Date.now()
-            if (!ticking && now - lastUpdate > 100) {  // Only update every 100ms
-                window.requestAnimationFrame(() => {
-                    const totalScroll = document.documentElement.scrollHeight - window.innerHeight
-                    const currentProgress = (window.scrollY / totalScroll) * 100
-                    setScrollProgress(currentProgress)
-                    lastUpdate = now
-                    ticking = false
-                })
-                ticking = true
-            }
-        }
-
-        window.addEventListener('scroll', handleScroll, { passive: true })
-        return () => window.removeEventListener('scroll', handleScroll)
     }, [])
 
     if (!mission) return <div className="h-screen bg-black flex items-center justify-center text-emerald-500 font-mono">LOADING_DATA...</div>
+
+    const handleRegisterClick = (event: any) => {
+        // Placeholder for now - redirect to login if not logged in, else open modal
+        if (!isAdded) {
+            router.push('/login')
+        }
+    }
 
     const themeColor = mission ? (
         mission.type === 'Cultural' ? 'amber' :
@@ -162,20 +151,15 @@ export default function EventDetailsPage() {
 
     return (
         <main className="min-h-screen bg-[#020202] text-white relative overflow-x-hidden font-sans" style={{ contain: 'layout paint' }}>
-            <ProEventBackground theme={themeColor as any} scrollProgress={scrollProgress} isDetailed={true} />
 
-            {/* Ambient Base Grid */}
-            <div className={`fixed inset-0 pointer-events-none opacity-[0.03] bg-[linear-gradient(rgba(255,255,255,0.05)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.05)_1px,transparent_1px)] bg-[size:50px_50px]`} />
 
             {/* Scroll Progress Indicator */}
             <motion.div
                 className={`fixed top-0 left-0 h-1 bg-gradient-to-r ${twTheme === 'amber' ? 'from-amber-500 to-amber-300' : (twTheme === 'red' ? 'from-red-500 to-red-300' : 'from-emerald-500 to-emerald-300')} z-[100] shadow-[0_0_10px_rgba(0,0,0,0.5)]`}
                 style={{
-                    width: `${scrollProgress}%`,
+                    width: scrollBarWidth,
                     boxShadow: `0 0 20px ${themeColor === 'amber' ? 'rgba(245, 158, 11, 0.8)' : (themeColor === 'gaming' ? 'rgba(239, 68, 68, 0.8)' : 'rgba(16, 185, 129, 0.8)')}`
                 }}
-                initial={{ width: 0 }}
-                animate={{ width: `${scrollProgress}%` }}
             />
 
             {/* Header / Navigation */}
@@ -192,27 +176,29 @@ export default function EventDetailsPage() {
             </nav>
 
             <div className="relative z-10 pt-32 pb-24 px-6 md:px-12 max-w-7xl mx-auto">
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
+                <div className="flex flex-col lg:grid lg:grid-cols-12 gap-8 lg:gap-12 items-start">
 
                     {/* Left Column: Visual and Quick Actions */}
-                    <div className="lg:col-span-5 space-y-8 sticky top-32">
+                    <div className="w-full lg:col-span-5 space-y-6 lg:space-y-8 relative lg:sticky lg:top-32">
                         <motion.div
                             initial={{ opacity: 0, scale: 0.9, y: 50 }}
                             animate={{ opacity: 1, scale: 1, y: 0 }}
                             transition={{ duration: 0.8, ease: [0.25, 0.1, 0.25, 1] }}
-                            className="relative aspect-video md:aspect-[4/5] group"
+                            className="relative aspect-video sm:aspect-[4/3] md:aspect-[4/5] group w-full"
                         >
                             {/* Geometric Border & Glow */}
                             <div className={`absolute inset-0 bg-${twTheme}-500/20 blur-xl opacity-0 group-hover:opacity-40 transition-opacity duration-500`} />
+                            {/* ... (rest of the image container remains similar but ensure w-full) ... */}
+                            {/* Re-use existing inner content logic but ensure wrapper is responsive */}
                             <div
                                 className={`relative w-full h-full p-[2px] bg-gradient-to-br from-${twTheme}-500 via-${twTheme}-500/30 to-${twTheme}-500 overflow-hidden`}
                                 style={{ clipPath: 'polygon(30px 0, calc(100% - 15px) 0, 100% 15px, 100% calc(100% - 30px), calc(100% - 30px) 100%, 15px 100%, 0 calc(100% - 15px), 0 30px)' }}
                             >
                                 {/* Corner Accents */}
-                                <div className={`absolute top-0 left-0 w-12 h-12 border-t-2 border-l-2 border-${twTheme}-500`} />
-                                <div className={`absolute top-0 right-0 w-12 h-12 border-t-2 border-r-2 border-${twTheme}-500`} />
-                                <div className={`absolute bottom-0 left-0 w-12 h-12 border-b-2 border-l-2 border-${twTheme}-500`} />
-                                <div className={`absolute bottom-0 right-0 w-12 h-12 border-b-2 border-r-2 border-${twTheme}-500`} />
+                                <div className={`absolute top-0 left-0 w-8 h-8 md:w-12 md:h-12 border-t-2 border-l-2 border-${twTheme}-500`} />
+                                <div className={`absolute top-0 right-0 w-8 h-8 md:w-12 md:h-12 border-t-2 border-r-2 border-${twTheme}-500`} />
+                                <div className={`absolute bottom-0 left-0 w-8 h-8 md:w-12 md:h-12 border-b-2 border-l-2 border-${twTheme}-500`} />
+                                <div className={`absolute bottom-0 right-0 w-8 h-8 md:w-12 md:h-12 border-b-2 border-r-2 border-${twTheme}-500`} />
 
                                 <div className={`absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent w-[200%] h-[200%] -translate-x-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 animate-spin`} style={{ animationDuration: '3s' }} />
 
@@ -225,18 +211,18 @@ export default function EventDetailsPage() {
                                     />
                                     <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent" />
 
-                                    <div className="absolute bottom-0 left-0 w-full p-8">
+                                    <div className="absolute bottom-0 left-0 w-full p-6 md:p-8">
                                         <motion.h1
-                                            className={`text-2xl sm:text-3xl md:text-5xl font-black uppercase tracking-tighter leading-none mb-4 ${twTheme === 'amber' ? 'text-amber-500' : (twTheme === 'red' ? 'text-red-500' : 'text-emerald-500')}`}
+                                            className={`text-3xl sm:text-4xl md:text-5xl font-black uppercase tracking-tighter leading-none mb-3 md:mb-4 ${twTheme === 'amber' ? 'text-amber-500' : (twTheme === 'red' ? 'text-red-500' : 'text-emerald-500')}`}
                                             style={{ textShadow: `0 0 30px ${primaryGlow}` }}
                                         >
                                             {mission.title.replace('_', ' ')}
                                         </motion.h1>
-                                        <div className="flex flex-wrap gap-4 items-center">
-                                            <span className="px-3 py-1 bg-white/10 backdrop-blur-md rounded-full text-[10px] font-bold uppercase tracking-widest border border-white/20">
-                                                EVENT_ID: {mission.id}
+                                        <div className="flex flex-wrap gap-3 md:gap-4 items-center">
+                                            <span className="px-2 md:px-3 py-1 bg-white/10 backdrop-blur-md rounded-full text-[9px] md:text-[10px] font-bold uppercase tracking-widest border border-white/20">
+                                                ID: {mission.id}
                                             </span>
-                                            <span className={`px-3 py-1 bg-${twTheme}-500/10 backdrop-blur-md rounded-full text-[10px] font-bold uppercase tracking-widest border border-${twTheme}-500/30 text-${twTheme}-400`}>
+                                            <span className={`px-2 md:px-3 py-1 bg-${twTheme}-500/10 backdrop-blur-md rounded-full text-[9px] md:text-[10px] font-bold uppercase tracking-widest border border-${twTheme}-500/30 text-${twTheme}-400`}>
                                                 {mission.type}
                                             </span>
                                         </div>
@@ -247,7 +233,7 @@ export default function EventDetailsPage() {
 
 
                         <motion.div
-                            className="grid grid-cols-2 gap-4"
+                            className="grid grid-cols-2 gap-3 md:gap-4"
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ duration: 0.6, delay: 0.4, ease: [0.25, 0.1, 0.25, 1] }}
@@ -258,51 +244,52 @@ export default function EventDetailsPage() {
                                 transition={{ duration: 0.5, delay: 0.5 }}
                                 whileHover={{ scale: 1.02 }}
                                 whileTap={{ scale: 0.98 }}
-                                className={`col-span-2 py-5 rounded-xl flex items-center justify-center gap-3 transition-all duration-300 font-black uppercase tracking-widest border ${isAdded
+                                onClick={() => handleRegisterClick(mission)}
+                                className={`col-span-2 py-4 md:py-5 rounded-xl flex items-center justify-center gap-3 transition-all duration-300 font-black uppercase tracking-widest border text-sm md:text-base ${isAdded
                                     ? `bg-${twTheme}-600 border-${twTheme}-500 text-white`
                                     : `bg-${twTheme}-500 border-${twTheme}-400 text-black hover:bg-${twTheme}-400`
                                     }`}
                             >
-                                <ShoppingCart size={20} />
-                                {isAdded ? 'REGISTERED' : 'REGISTER'}
+                                <ShoppingCart size={18} />
+                                {isAdded ? 'REGISTERED' : 'REGISTER NOW'}
                             </motion.button>
-
+                            {/* ... buttons ... */}
                             <motion.button
                                 whileHover={{ scale: 1.05 }}
                                 whileTap={{ scale: 0.95 }}
-                                className="py-4 bg-white/[0.03] border border-white/10 hover:bg-white/10 hover:border-white/20 transition-all rounded-xl flex items-center justify-center gap-2 text-[10px] font-bold uppercase tracking-widest backdrop-blur-md"
+                                className="py-3 md:py-4 bg-white/[0.03] border border-white/10 hover:bg-white/10 hover:border-white/20 transition-all rounded-xl flex items-center justify-center gap-2 text-[9px] md:text-[10px] font-bold uppercase tracking-widest backdrop-blur-md"
                             >
-                                <Download size={16} />
+                                <Download size={14} />
                                 BROCHURE
                             </motion.button>
                             <motion.button
                                 whileHover={{ scale: 1.05 }}
                                 whileTap={{ scale: 0.95 }}
-                                className="py-4 bg-white/[0.03] border border-white/10 hover:bg-white/10 hover:border-white/20 transition-all rounded-xl flex items-center justify-center gap-2 text-[10px] font-bold uppercase tracking-widest backdrop-blur-md"
+                                className="py-3 md:py-4 bg-white/[0.03] border border-white/10 hover:bg-white/10 hover:border-white/20 transition-all rounded-xl flex items-center justify-center gap-2 text-[9px] md:text-[10px] font-bold uppercase tracking-widest backdrop-blur-md"
                             >
-                                <Globe size={16} />
+                                <Globe size={14} />
                                 TEASER
                             </motion.button>
                         </motion.div>
                     </div>
 
-                    {/* Right Column: Detailed Info */}
-                    <div className="lg:col-span-7 space-y-12">
-
-                        {/* Video Section */}
+                    {/* Right Column: Detailed Info - Ensure responsive spacing */}
+                    <div className="w-full lg:col-span-7 space-y-8 md:space-y-12">
+                        {/* ... keep existing logic but check for padding/margins ... */}
                         {mission.videoUrl && (
                             <motion.section
                                 initial={{ opacity: 0, y: 20 }}
                                 whileInView={{ opacity: 1, y: 0 }}
                                 viewport={{ once: true, amount: 0.3 }}
                                 transition={{ duration: 0.4 }}
-                                className="space-y-4"
+                                className="space-y-3 md:space-y-4"
                             >
                                 <div className="flex items-center gap-3">
-                                    <Play size={20} className={`text-${twTheme}-500`} />
-                                    <h2 className="text-sm font-black uppercase tracking-widest">EVENT_GLIMPSE</h2>
+                                    <Play size={18} className={`text-${twTheme}-500`} />
+                                    <h2 className="text-xs md:text-sm font-black uppercase tracking-widest">EVENT_GLIMPSE</h2>
                                 </div>
-                                <div className="relative rounded-2xl overflow-hidden border border-white/10 aspect-video bg-black/40 group">
+                                {/* ... video container ... */}
+                                <div className="relative rounded-xl md:rounded-2xl overflow-hidden border border-white/10 aspect-video bg-black/40 group">
                                     {!isVideoPlaying ? (
                                         <div
                                             className="w-full h-full cursor-pointer relative"
@@ -310,8 +297,8 @@ export default function EventDetailsPage() {
                                         >
                                             <img src={mission.visual} className="w-full h-full object-cover opacity-40 blur-sm scale-105" />
                                             <div className="absolute inset-0 flex items-center justify-center">
-                                                <div className={`w-20 h-20 rounded-full border-2 border-${twTheme}-500 flex items-center justify-center bg-${twTheme}-500/10 group-hover:scale-110 transition-transform`}>
-                                                    <Play fill="currentColor" size={32} className={`text-${twTheme}-500 translate-x-1`} />
+                                                <div className={`w-16 h-16 md:w-20 md:h-20 rounded-full border-2 border-${twTheme}-500 flex items-center justify-center bg-${twTheme}-500/10 group-hover:scale-110 transition-transform`}>
+                                                    <Play fill="currentColor" size={24} className={`text-${twTheme}-500 translate-x-1 md:w-8 md:h-8`} />
                                                 </div>
                                             </div>
                                         </div>
@@ -324,25 +311,24 @@ export default function EventDetailsPage() {
                             </motion.section>
                         )}
 
-                        {/* Description */}
                         <motion.section
                             initial={{ opacity: 0, x: themeColor === 'emerald' ? -50 : 0, y: themeColor === 'emerald' ? 0 : 20 }}
                             whileInView={{ opacity: 1, x: 0, y: 0 }}
                             viewport={{ once: true, amount: 0.3 }}
                             transition={{ duration: 0.4 }}
-                            className="space-y-4"
+                            className="space-y-3 md:space-y-4"
                         >
                             <div className="flex items-center gap-3">
-                                <Info size={20} className={`text-${twTheme}-500`} />
-                                <h2 className="text-sm font-black uppercase tracking-widest">MISSION_BRIEF</h2>
+                                <Info size={18} className={`text-${twTheme}-500`} />
+                                <h2 className="text-xs md:text-sm font-black uppercase tracking-widest">MISSION_BRIEF</h2>
                             </div>
-                            <p className="text-sm md:text-lg text-white/80 font-medium leading-relaxed font-mono">
+                            <p className="text-sm sm:text-base md:text-lg text-white/80 font-medium leading-relaxed font-mono">
                                 {mission.description}
                             </p>
                         </motion.section>
 
-                        {/* Rules and Regulations */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
+                            {/* ... Rules ... */}
                             <motion.div
                                 initial={{ opacity: 0, x: themeColor === 'emerald' ? -50 : 0, y: themeColor === 'emerald' ? 0 : 20 }}
                                 whileInView={{ opacity: 1, x: 0, y: 0 }}
@@ -350,15 +336,15 @@ export default function EventDetailsPage() {
                                 transition={{ duration: 0.4 }}
                             >
                                 <TechContentCard theme={twTheme}>
-                                    <div className="space-y-6">
+                                    <div className="space-y-4 md:space-y-6">
                                         <div className="flex items-center gap-3">
-                                            <FileText size={20} className={`text-${twTheme}-500`} />
-                                            <h2 className="text-sm font-black uppercase tracking-widest">RULES</h2>
+                                            <FileText size={18} className={`text-${twTheme}-500`} />
+                                            <h2 className="text-xs md:text-sm font-black uppercase tracking-widest">RULES</h2>
                                         </div>
-                                        <ul className="space-y-4">
+                                        <ul className="space-y-3 md:space-y-4">
                                             {mission.rules?.map((rule: string, idx: number) => (
-                                                <li key={idx} className="flex gap-3 text-sm text-white/60 font-mono items-start">
-                                                    <span className={`text-${twTheme}-500 mt-1`}>▶</span>
+                                                <li key={idx} className="flex gap-3 text-xs md:text-sm text-white/60 font-mono items-start">
+                                                    <span className={`text-${twTheme}-500 mt-0.5 md:mt-1`}>▶</span>
                                                     {rule}
                                                 </li>
                                             ))}
@@ -374,15 +360,15 @@ export default function EventDetailsPage() {
                                 transition={{ duration: 0.4 }}
                             >
                                 <TechContentCard theme={twTheme}>
-                                    <div className="space-y-6">
+                                    <div className="space-y-4 md:space-y-6">
                                         <div className="flex items-center gap-3">
-                                            <Trophy size={20} className="text-amber-500" />
-                                            <h2 className="text-sm font-black uppercase tracking-widest">EVALUATION</h2>
+                                            <Trophy size={18} className="text-amber-500" />
+                                            <h2 className="text-xs md:text-sm font-black uppercase tracking-widest">EVALUATION</h2>
                                         </div>
-                                        <ul className="space-y-4">
+                                        <ul className="space-y-3 md:space-y-4">
                                             {(mission.evaluation || ['Innovation', 'Technical Implementation', 'Presentation', 'Theme Adherence']).map((item: string, idx: number) => (
-                                                <li key={idx} className="flex gap-3 text-sm text-white/60 font-mono items-start">
-                                                    <span className="text-amber-500 mt-1 font-bold">{idx + 1}.</span>
+                                                <li key={idx} className="flex gap-3 text-xs md:text-sm text-white/60 font-mono items-start">
+                                                    <span className="text-amber-500 mt-0.5 md:mt-1 font-bold">{idx + 1}.</span>
                                                     {item}
                                                 </li>
                                             ))}
@@ -391,8 +377,7 @@ export default function EventDetailsPage() {
                                 </TechContentCard>
                             </motion.div>
                         </div>
-
-                        {/* Regulations */}
+                        {/* Wrapper for Regulations and Coordinators remains similar to original structure, just ensuring TechContentCard is used responsivenessly */}
                         <motion.div
                             initial={{ opacity: 0, x: themeColor === 'emerald' ? 50 : 0, y: themeColor === 'emerald' ? 0 : 20 }}
                             whileInView={{ opacity: 1, x: 0, y: 0 }}
@@ -400,9 +385,9 @@ export default function EventDetailsPage() {
                             transition={{ duration: 0.4 }}
                         >
                             <TechContentCard theme={twTheme}>
-                                <div className="space-y-6">
-                                    <h2 className="text-xl font-black italic uppercase tracking-tighter">REGULATIONS_&_COMPLIANCE</h2>
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div className="space-y-4 md:space-y-6">
+                                    <h2 className="text-lg md:text-xl font-black italic uppercase tracking-tighter">REGULATIONS_&_COMPLIANCE</h2>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
                                         {[
                                             'Standard code of conduct applies.',
                                             'Valid registration proof required for venue entry.',
@@ -411,7 +396,7 @@ export default function EventDetailsPage() {
                                         ].map((reg: string, idx: number) => (
                                             <div key={idx} className="flex gap-3 items-center p-3 bg-white/5 rounded-lg border border-white/5">
                                                 <div className={`w-1.5 h-1.5 rounded-full bg-${twTheme}-500`} />
-                                                <span className="text-xs font-mono text-white/70">{reg}</span>
+                                                <span className="text-[10px] md:text-xs font-mono text-white/70">{reg}</span>
                                             </div>
                                         ))}
                                     </div>
@@ -419,19 +404,18 @@ export default function EventDetailsPage() {
                             </TechContentCard>
                         </motion.div>
 
-                        {/* Coordinators */}
                         <motion.div
-                            className="space-y-8"
+                            className="space-y-6 md:space-y-8"
                             initial={{ opacity: 0, y: 20 }}
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true, amount: 0.2 }}
                             transition={{ duration: 0.4 }}
                         >
                             <div className="flex items-center gap-3">
-                                <Users size={20} className={`text-${twTheme}-500`} />
-                                <h2 className="text-sm font-black uppercase tracking-widest">MISSION_COMMANDERS</h2>
+                                <Users size={18} className={`text-${twTheme}-500`} />
+                                <h2 className="text-xs md:text-sm font-black uppercase tracking-widest">MISSION_COMMANDERS</h2>
                             </div>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
                                 {mission.coordinators?.map((name: string, idx: number) => (
                                     <motion.div
                                         key={idx}
@@ -443,15 +427,15 @@ export default function EventDetailsPage() {
                                         <TechContentCard theme={twTheme}>
                                             <div className="flex items-center justify-between">
                                                 <div>
-                                                    <h3 className="text-lg font-black uppercase tracking-tighter">{name}</h3>
-                                                    <p className="text-[10px] font-bold text-white/40 uppercase tracking-widest mt-1">Event Coordinator</p>
+                                                    <h3 className="text-base md:text-lg font-black uppercase tracking-tighter">{name}</h3>
+                                                    <p className="text-[9px] md:text-[10px] font-bold text-white/40 uppercase tracking-widest mt-1">Event Coordinator</p>
                                                 </div>
                                                 <div className="flex gap-4">
                                                     <a href={`tel:${mission.coordinatorsContact?.[idx] || '#'}`} className="text-white/40 hover:text-emerald-500 transition-colors">
-                                                        <Phone size={18} />
+                                                        <Phone size={16} />
                                                     </a>
                                                     <a href="#" className="text-white/40 hover:text-emerald-500 transition-colors">
-                                                        <Mail size={18} />
+                                                        <Mail size={16} />
                                                     </a>
                                                 </div>
                                             </div>
@@ -465,11 +449,10 @@ export default function EventDetailsPage() {
                 </div>
 
                 {/* Logistics Bar */}
-                {/* Logistics Bar - Tech Stats */}
                 <motion.div
                     initial={{ opacity: 0, y: 40 }}
                     whileInView={{ opacity: 1, y: 0 }}
-                    className="mt-16 md:mt-24 grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6"
+                    className="mt-12 md:mt-24 grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6"
                 >
                     <TechStatCard
                         icon={Calendar}

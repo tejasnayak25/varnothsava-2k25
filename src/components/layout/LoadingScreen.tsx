@@ -7,17 +7,18 @@ import {
     Rocket, Shield, Activity, Zap, Target, Terminal,
     Star, Camera, Image as ImageIcon, User, Lock, Music
 } from 'lucide-react'
+import { useApp } from '@/context/AppContext'
 
 type ThemeType = 'GENERAL' | 'CULTURAL' | 'GAMING' | 'GALLERY' | 'PROFILE' | 'LOGIN'
 
 function LoadingContent() {
     const pathname = usePathname()
     const searchParams = useSearchParams()
-    const [step, setStep] = useState<'SYNCING' | 'READY' | 'COUNTDOWN' | 'MESSAGE' | 'LAUNCH'>('SYNCING')
+    const [step, setStep] = useState<'SYNCING' | 'READY' | 'MESSAGE' | 'LAUNCH'>('SYNCING')
     const [progress, setProgress] = useState(0)
-    const [countdown, setCountdown] = useState(3)
     const [visible, setVisible] = useState(true)
     const [isMobile, setIsMobile] = useState(false)
+    const { setIsSiteLoaded } = useApp()
 
     const [isMounted, setIsMounted] = useState(false)
 
@@ -139,12 +140,22 @@ function LoadingContent() {
         if (step === 'SYNCING') {
             const timer = setInterval(() => {
                 setProgress(p => {
+                    // GATEKEEPER: Wait for window load at 90%
+                    const isReady = typeof document !== 'undefined' && document.readyState === 'complete'
+
+                    if (p >= 90 && !isReady) {
+                        return 90
+                    }
+
                     if (p >= 100) {
                         clearInterval(timer)
-                        setTimeout(() => setStep('READY'), 500)
+                        setTimeout(() => setStep('READY'), 200)
                         return 100
                     }
-                    return p + 2.5
+
+                    // Dynamic speed: Fast start, slow finish
+                    const increment = p < 60 ? 4 : p < 80 ? 2 : 0.5
+                    return Math.min(p + increment, 100) // Ensure we don't overshoot before ready check
                 })
             }, 30)
             return () => clearInterval(timer)
@@ -152,28 +163,20 @@ function LoadingContent() {
     }, [step])
 
     useEffect(() => {
-        if (step === 'COUNTDOWN') {
-            if (countdown > 0) {
-                const timer = setTimeout(() => setCountdown(countdown - 1), 800)
-                return () => clearTimeout(timer)
-            } else {
-                setStep('MESSAGE')
-            }
-        }
-    }, [step, countdown])
-
-    useEffect(() => {
         if (step === 'MESSAGE') {
             const timer = setTimeout(() => {
                 setStep('LAUNCH')
-                setTimeout(() => setVisible(false), 800)
-            }, 1800)
+                setTimeout(() => {
+                    setVisible(false)
+                    setIsSiteLoaded(true) // UNLOCK THE SITE
+                }, 500)
+            }, 1500)
             return () => clearTimeout(timer)
         }
     }, [step])
 
     const startExperience = () => {
-        setStep('COUNTDOWN')
+        setStep('MESSAGE')
     }
 
     const clipValue = isMobile ? '20px' : '50px'
@@ -207,40 +210,46 @@ function LoadingContent() {
                 {/* 1. LUXURY CINEMATIC BACKGROUND */}
                 {/* 1. LUXURY CINEMATIC BACKGROUND */}
                 <div className="absolute inset-0 z-0 overflow-hidden">
-                    {/* Volumetric Spotlights */}
-                    <motion.div
-                        animate={{
-                            scale: [1, 1.3, 1],
-                            opacity: [0.3, 0.5, 0.3],
-                            x: ['-4%', '4%', '-4%'],
-                            y: ['-2%', '2%', '-2%'],
-                        }}
-                        transition={{ duration: 15, repeat: Infinity, ease: "easeInOut" }}
-                        className="absolute inset-0"
-                        style={{
-                            background: `radial-gradient(circle at 50% 40%, ${themeConfig.color}22 0%, transparent 70%)`
-                        }}
-                    />
+                    {/* Volumetric Spotlights - HIDDEN ON MOBILE */}
+                    {!isMobile && (
+                        <motion.div
+                            animate={{
+                                scale: [1, 1.3, 1],
+                                opacity: [0.3, 0.5, 0.3],
+                                x: ['-4%', '4%', '-4%'],
+                                y: ['-2%', '2%', '-2%'],
+                            }}
+                            transition={{ duration: 15, repeat: Infinity, ease: "easeInOut" }}
+                            className="absolute inset-0"
+                            style={{
+                                background: `radial-gradient(circle at 50% 40%, ${themeConfig.color}22 0%, transparent 70%)`
+                            }}
+                        />
+                    )}
 
-                    {/* Elegant Light Leaks */}
-                    <motion.div
-                        animate={{ opacity: [0.1, 0.25, 0.1], scale: [1, 1.2, 1], rotate: [0, 45, 0] }}
-                        transition={{ duration: 20, repeat: Infinity, ease: "easeInOut" }}
-                        className="absolute top-[-30%] left-[-20%] w-[100%] h-[100%] rounded-full blur-[200px]"
-                        style={{ background: `radial-gradient(circle, ${themeConfig.color}22, transparent)` }}
-                    />
-                    <motion.div
-                        animate={{ opacity: [0.05, 0.15, 0.05], scale: [1, 1.15, 1], rotate: [0, -45, 0] }}
-                        transition={{ duration: 25, repeat: Infinity, ease: "easeInOut", delay: 2 }}
-                        className="absolute bottom-[-30%] right-[-20%] w-[100%] h-[100%] rounded-full blur-[220px]"
-                        style={{ background: `radial-gradient(circle, ${themeConfig.color}11, transparent)` }}
-                    />
+                    {/* Elegant Light Leaks - HIDDEN ON MOBILE */}
+                    {!isMobile && (
+                        <>
+                            <motion.div
+                                animate={{ opacity: [0.1, 0.25, 0.1], scale: [1, 1.2, 1], rotate: [0, 45, 0] }}
+                                transition={{ duration: 20, repeat: Infinity, ease: "easeInOut" }}
+                                className="absolute top-[-30%] left-[-20%] w-[100%] h-[100%] rounded-full blur-[200px]"
+                                style={{ background: `radial-gradient(circle, ${themeConfig.color}22, transparent)` }}
+                            />
+                            <motion.div
+                                animate={{ opacity: [0.05, 0.15, 0.05], scale: [1, 1.15, 1], rotate: [0, -45, 0] }}
+                                transition={{ duration: 25, repeat: Infinity, ease: "easeInOut", delay: 2 }}
+                                className="absolute bottom-[-30%] right-[-20%] w-[100%] h-[100%] rounded-full blur-[220px]"
+                                style={{ background: `radial-gradient(circle, ${themeConfig.color}11, transparent)` }}
+                            />
+                        </>
+                    )}
 
                     {/* High-End Film Grain Texture */}
                     <div className="absolute inset-0 opacity-[0.05] pointer-events-none mix-blend-overlay bg-[url('https://grainy-gradients.vercel.app/noise.svg')]" />
 
-                    {/* Digital Snowfall / Floating Assets - Only render on client to avoid hydration error */}
-                    {isMounted && snowParticles.map((p) => (
+                    {/* Digital Snowfall / Floating Assets - HIDDEN ON MOBILE */}
+                    {(!isMobile && isMounted) && snowParticles.map((p) => (
                         <motion.div
                             key={`snow-${p.id}`}
                             initial={{ x: p.x, y: p.yStart, opacity: 0 }}
@@ -265,7 +274,7 @@ function LoadingContent() {
                         style={{ background: themeConfig.bgGradient }}
                     />
 
-                    {isMounted && (
+                    {isMounted && !isMobile && (
                         <>
                             {/* Theme-Specific Overlay */}
                             {theme === 'CULTURAL' && (
@@ -325,8 +334,8 @@ function LoadingContent() {
                                 />
                             )}
 
-                            {/* Animated Particles */}
-                            {particles.map((p) => (
+                            {/* Animated Particles - Desktop Only for Performance */}
+                            {!isMobile && particles.map((p) => (
                                 <motion.div
                                     key={p.id}
                                     className="absolute rounded-full"
@@ -366,10 +375,10 @@ function LoadingContent() {
                         style={{
                             clipPath: cockpitClip,
                             background: `linear-gradient(135deg, rgba(255,255,255,0.03), rgba(0,0,0,0.4))`,
-                            backdropFilter: 'blur(40px)',
-                            WebkitBackdropFilter: 'blur(40px)',
+                            backdropFilter: isMobile ? 'none' : 'blur(40px)',
+                            WebkitBackdropFilter: isMobile ? 'none' : 'blur(40px)',
                             border: `1px solid rgba(255,255,255,0.05)`,
-                            boxShadow: `0 40px 100px rgba(0,0,0,0.8)`
+                            boxShadow: isMobile ? 'none' : `0 40px 100px rgba(0,0,0,0.8)`
                         }}
                     />
 
@@ -497,7 +506,7 @@ function LoadingContent() {
                                     exit={{ opacity: 0, y: -20 }}
                                     className="space-y-10"
                                 >
-                                    <div className={`relative p-10 md:p-16 border border-white/10 bg-white/[0.01] ${isMobile ? '' : 'backdrop-blur-xl'} rounded-[3rem] md:rounded-[4rem] gpu-accel shadow-2xl overflow-hidden`}>
+                                    <div className={`relative p-6 sm:p-10 md:p-16 border border-white/10 bg-white/[0.01] ${isMobile ? '' : 'backdrop-blur-xl'} rounded-[3rem] md:rounded-[4rem] gpu-accel shadow-2xl overflow-hidden`}>
                                         <div className="absolute inset-0 bg-gradient-to-br from-transparent via-white/[0.03] to-transparent" />
 
                                         {/* Animated Border Trail for Ready Card */}
@@ -548,27 +557,6 @@ function LoadingContent() {
                                             <span className="relative z-10">OPEN PORTAL</span>
                                         </button>
                                     </div>
-                                </motion.div>
-                            )}
-
-                            {step === 'COUNTDOWN' && (
-                                <motion.div
-                                    key="countdown"
-                                    initial={{ opacity: 0 }}
-                                    animate={{ opacity: 1 }}
-                                    exit={{ opacity: 0, scale: 3 }}
-                                    className="text-center"
-                                >
-                                    <motion.div
-                                        key={countdown}
-                                        initial={{ scale: 0.3, opacity: 0, rotate: -15 }}
-                                        animate={{ scale: 1.2, opacity: 1, rotate: 0 }}
-                                        className="text-[10rem] md:text-[15rem] font-black text-white italic tracking-tighter leading-none"
-                                        style={{ textShadow: `0 0 50px ${themeConfig.color}44` }}
-                                    >
-                                        {countdown}
-                                    </motion.div>
-                                    <div className="mt-8 font-black text-[10px] md:text-[12px] tracking-[1.5em] md:tracking-[2em] uppercase opacity-40 italic" style={{ color: themeConfig.color }}>Synchronizing...</div>
                                 </motion.div>
                             )}
 
