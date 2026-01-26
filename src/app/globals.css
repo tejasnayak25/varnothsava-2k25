@@ -72,6 +72,9 @@ body {
     scroll-behavior: smooth;
     position: relative;
     touch-action: manipulation;
+    overscroll-behavior-y: none;
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
     /* FIX: Faster taps on mobile */
 }
 
@@ -274,8 +277,8 @@ body {
     *,
     *::before,
     *::after {
-        backdrop-filter: none !important;
-        -webkit-backdrop-filter: none !important;
+        backdrop-filter: blur(8px) !important;
+        -webkit-backdrop-filter: blur(8px) !important;
     }
 
     /* Fallback for glass elements to ensure visibility */

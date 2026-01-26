@@ -137,6 +137,17 @@ function LoadingContent() {
     }, [])
 
     useEffect(() => {
+        // SMART BYPASS: If session already loaded, skip EVERYTHING and render app immediately
+        // SMART BYPASS DISABLED - User wants to see the intro every time for now
+        /*
+        const hasLoadedThisSession = sessionStorage.getItem('fest_initial_loaded')
+        if (hasLoadedThisSession) {
+            setVisible(false)
+            setIsSiteLoaded(true)
+            return
+        }
+        */
+
         if (step === 'SYNCING') {
             const timer = setInterval(() => {
                 setProgress(p => {
@@ -153,9 +164,9 @@ function LoadingContent() {
                         return 100
                     }
 
-                    // Dynamic speed: Fast start, slow finish
-                    const increment = p < 60 ? 4 : p < 80 ? 2 : 0.5
-                    return Math.min(p + increment, 100) // Ensure we don't overshoot before ready check
+                    // Dynamic speed: Ultra-Cinematic (Very Slow for Testing)
+                    const increment = p < 60 ? 1.0 : p < 90 ? 0.5 : 0.2
+                    return Math.min(p + increment, 100)
                 })
             }, 30)
             return () => clearInterval(timer)
@@ -169,13 +180,14 @@ function LoadingContent() {
                 setTimeout(() => {
                     setVisible(false)
                     setIsSiteLoaded(true) // UNLOCK THE SITE
-                }, 500)
-            }, 1500)
+                }, 300)
+            }, 400)
             return () => clearTimeout(timer)
         }
     }, [step])
 
     const startExperience = () => {
+        sessionStorage.setItem('fest_initial_loaded', 'true')
         setStep('MESSAGE')
     }
 
@@ -197,13 +209,12 @@ function LoadingContent() {
                 className="fixed inset-0 z-[11000] flex items-center justify-center p-4 md:p-12 overflow-hidden select-none"
                 initial={{ opacity: 1 }}
                 exit={{
-                    scale: 1.15,
+                    scale: 1.1,
                     opacity: 0,
-                    filter: 'blur(80px)',
-                    transition: { duration: 1.5, ease: [0.7, 0, 0.3, 1] }
+                    transition: { duration: 0.8, ease: "easeInOut" }
                 }}
                 style={{
-                    willChange: 'opacity, transform, filter',
+                    willChange: 'opacity, transform',
                     backgroundColor: '#020604',
                 }}
             >

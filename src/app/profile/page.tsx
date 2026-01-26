@@ -8,7 +8,7 @@ import {
     Edit3, Award, Trophy, GraduationCap, CheckCircle,
     Settings, Globe, Calendar, Clock, CreditCard,
     BookOpen, Sparkles, ChevronRight, LayoutDashboard,
-    ArrowRight, MapPin, Link2, X
+    ArrowRight, MapPin, Link2, X, Fingerprint
 } from 'lucide-react'
 import { useApp } from '@/context/AppContext'
 import { useRouter } from 'next/navigation'
@@ -273,7 +273,7 @@ export default function ProfilePage() {
                 initial="hidden"
                 whileInView="visible"
                 viewport={{ once: true, margin: "-50px" }}
-                className="relative z-10 max-w-6xl mx-auto pt-20 md:pt-32 pb-40 px-4 md:px-8 root-container gpu-accel"
+                className="relative z-10 max-w-6xl mx-auto pt-10 md:pt-32 pb-40 px-4 md:px-8 root-container gpu-accel"
                 style={{ perspective: 1500 }}
             >
                 {/* --- CONTROL CENTER HEADER --- */}
@@ -490,7 +490,7 @@ export default function ProfilePage() {
                             <div className="flex items-center gap-6 md:gap-8 mb-8 md:mb-12">
                                 <div className="w-16 h-16 bg-white/[0.03] border border-white/10 rounded-[1.8rem] flex items-center justify-center text-emerald-400 shadow-xl relative overflow-hidden group/icon">
                                     <div className="absolute inset-0 bg-emerald-500/10 opacity-0 group-hover/icon:opacity-100 transition-opacity" />
-                                    <User size={32} strokeWidth={1.5} className="relative z-10" />
+                                    <Fingerprint size={32} strokeWidth={1.5} className="relative z-10" />
                                 </div>
                                 <div>
                                     <h3 className="text-xl md:text-3xl font-black text-white tracking-tight uppercase leading-none">PERSONAL INFO</h3>
@@ -622,26 +622,28 @@ export default function ProfilePage() {
                 </div>
             </motion.div>
 
-            {/* --- MODALS --- */}
             <AnimatePresence>
                 {activeModal && (
-                    <div className="fixed inset-0 z-[20000] flex items-center justify-center p-4 md:p-10">
+                    <div className="fixed inset-0 z-[20000] flex items-center justify-center p-4 h-[100dvh] w-screen overflow-hidden">
+                        {/* Stronger Backdrop */}
                         <motion.div
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            exit={{ opacity: 0 }}
+                            initial={{ opacity: 0, backdropFilter: "blur(0px)" }}
+                            animate={{ opacity: 1, backdropFilter: "blur(12px)" }}
+                            exit={{ opacity: 0, backdropFilter: "blur(0px)" }}
                             onClick={() => setActiveModal(null)}
-                            className="absolute inset-0 bg-black/80 backdrop-blur-md"
+                            className="absolute inset-0 bg-black/90 cursor-pointer"
                         />
 
+                        {/* Centered Modal Content */}
                         <motion.div
-                            initial={{ opacity: 0, scale: 0.95, y: 30 }}
+                            initial={{ opacity: 0, scale: 0.9, y: 50 }}
                             animate={{ opacity: 1, scale: 1, y: 0 }}
-                            exit={{ opacity: 0, scale: 1.05, y: 30 }}
-                            className="relative w-full max-w-lg max-h-[85vh] overflow-y-auto custom-scrollbar no-jank p-[1px] rounded-[2rem] overflow-hidden"
+                            exit={{ opacity: 0, scale: 0.95, y: 50 }}
+                            transition={{ type: "spring", bounce: 0.3, duration: 0.5 }}
+                            className="relative w-full max-w-lg max-h-[85dvh] overflow-y-auto custom-scrollbar p-[1px] rounded-[1.5rem] md:rounded-[2rem] mx-auto z-10 shadow-2xl"
                         >
                             {/* Mobile Modal Glass Wrapper */}
-                            <div className="relative glass-modal rounded-[1.95rem] p-6 shadow-2xl overflow-hidden min-h-[300px]">
+                            <div className="relative glass-modal rounded-[1.45rem] p-4 md:p-6 shadow-2xl overflow-hidden min-h-[300px]">
                                 <div className="absolute -top-24 -right-24 w-64 h-64 bg-emerald-500/10 blur-[80px] pointer-events-none" />
 
                                 <div className="flex justify-between items-center mb-8 relative z-10">
@@ -768,8 +770,20 @@ export default function ProfilePage() {
                                             className="space-y-6"
                                         >
                                             <div className="space-y-4">
+                                                {/* Added Large Avatar Preview for Consistency */}
+                                                <div className="relative group/avatar-edit mx-auto mb-6">
+                                                    <div className="w-24 h-24 rounded-[2rem] overflow-hidden border-2 border-emerald-500/20 shadow-2xl relative bg-[#05060a] mx-auto">
+                                                        {isRegenerating && (
+                                                            <div className="absolute inset-0 bg-black/60 backdrop-blur-sm z-10 flex items-center justify-center">
+                                                                <div className="w-6 h-6 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin" />
+                                                            </div>
+                                                        )}
+                                                        <img src={userData.avatar} className="w-full h-full object-cover" />
+                                                    </div>
+                                                </div>
+
                                                 <div className="space-y-4 mb-6">
-                                                    <p className="text-[10px] font-black text-emerald-500 uppercase tracking-widest mb-2">Select Avatar</p>
+                                                    <p className="text-[10px] font-black text-emerald-500 uppercase tracking-widest mb-2 text-center">Select New Avatar</p>
                                                     <div className="grid grid-cols-4 gap-2 md:gap-3">
                                                         {ANIME_AVATARS.map((avatar) => (
                                                             <button
@@ -841,8 +855,10 @@ export default function ProfilePage() {
                             </div>
                         </motion.div>
                     </div>
-                )}
-            </AnimatePresence>
+
+                )
+                }
+            </AnimatePresence >
 
             <style jsx global>{`
                 body {

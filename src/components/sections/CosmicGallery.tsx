@@ -143,10 +143,10 @@ export function CosmicGallery() {
                                         src={activeItem.src}
                                         alt={activeItem.title}
                                         fill
-                                        sizes="(max-width: 768px) 100vw, 500px"
-                                        quality={75}
-                                        className="object-cover transition-transform duration-1000 group-hover:scale-105"
+                                        sizes="(max-width: 768px) 100vw, 80vw"
+                                        quality={90}
                                         priority
+                                        className="object-contain drop-shadow-[0_20px_50px_rgba(0,0,0,0.5)]"
                                     />
                                 </motion.div>
                                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-60" />
@@ -214,8 +214,8 @@ export function CosmicGallery() {
                                                 z: isActive ? 400 : -600,
                                                 rotateY: wrappedDiff * -35,
                                                 opacity: isActive ? 1 : 0.25,
-                                                scale: isActive ? 1.05 : 0.8,
-                                                filter: isActive ? 'blur(0px)' : 'blur(2px)'
+                                                scale: isActive ? 1.05 : 0.8
+                                                // filter prop removed to improve performance
                                             }}
                                             transition={{ type: 'spring', stiffness: 220, damping: 28, mass: 0.6 }}
                                             className="absolute w-[300px] h-[450px] md:w-[420px] md:h-[600px] cursor-pointer no-jank"

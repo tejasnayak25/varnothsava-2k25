@@ -4,7 +4,6 @@ import { Outfit, Poppins, Inter } from "next/font/google";
 import "./globals.css";
 import { AppProvider } from "@/context/AppContext";
 import { LoadingScreen } from "@/components/layout/LoadingScreen";
-import { PageTransitionBar } from "@/components/layout/PageTransitionBar";
 import { CustomCursor } from "@/components/layout/CustomCursor";
 import { SiteContent } from "@/components/layout/SiteContent";
 
@@ -48,7 +47,6 @@ export default function RootLayout({
                 <AppProvider>
                     <Suspense fallback={null}>
                         <LoadingScreen />
-                        <PageTransitionBar />
                     </Suspense>
                     <CustomCursor />
 

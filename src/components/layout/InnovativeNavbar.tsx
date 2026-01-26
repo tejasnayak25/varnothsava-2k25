@@ -199,9 +199,8 @@ export function InnovativeNavbar() {
                                         className="absolute w-[140px] h-[140px] border-2 border-emerald-500/5 rounded-full border-dotted z-0"
                                     />
 
-                                    {/* Progress Ring (Top Layer) */}
                                     <div className="absolute z-20 pointer-events-none">
-                                        <svg className={`${isMobile ? 'w-[130px] h-[130px]' : 'w-[110px] h-[110px]'} -rotate-90`}>
+                                        <svg className="w-[130px] h-[130px] -rotate-90" viewBox="0 0 130 130">
                                             <circle
                                                 cx={isMobile ? "65" : "55"}
                                                 cy={isMobile ? "65" : "55"}
@@ -256,10 +255,10 @@ export function InnovativeNavbar() {
                                             repeat: Infinity,
                                             ease: "linear"
                                         } : {}}
-                                        className="relative w-28 h-28 md:w-24 md:h-24 rounded-full bg-emerald-950/40 backdrop-blur-3xl border border-emerald-500/40 flex items-center justify-center shadow-[0_0_60px_rgba(16,185,129,0.2)] z-20 group"
+                                        className="relative w-24 h-24 md:w-24 md:h-24 rounded-full bg-emerald-950/40 backdrop-blur-3xl border border-emerald-500/40 flex items-center justify-center shadow-[0_0_60px_rgba(16,185,129,0.2)] z-20 group"
                                     >
                                         <Fingerprint
-                                            size={isMobile ? 56 : 48}
+                                            size={48}
                                             strokeWidth={1.2}
                                             className={cn(
                                                 "transition-all duration-500 z-10",
@@ -299,8 +298,8 @@ export function InnovativeNavbar() {
                             >
                                 <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 left-1/2 -translate-x-1/2 z-[6000] pointer-events-none">
                                     <div className={cn("absolute left-1/2 -translate-x-1/2", isMobile ? "-top-14" : "-top-20")}>
-                                        <Link href="/events" className="pointer-events-auto cursor-pointer" prefetch={true}>
-                                            <Magnetic strength={0.4}>
+                                        <Link href="/events" onTouchStart={(e) => { e.currentTarget.click() }} className="pointer-events-auto cursor-pointer" prefetch={true}>
+                                            <Magnetic strength={isMobile ? 0 : 0.4}>
                                                 <div className={cn("relative", isMobile ? "w-[70px] h-[70px]" : "w-[92px] h-[92px]")}>
                                                     {/* Ambient Energy Ripples */}
                                                     <motion.div
@@ -348,13 +347,13 @@ export function InnovativeNavbar() {
                                 </div>
 
                                 <div className="flex-1 flex justify-around items-center px-1 xs:px-2 md:px-4 h-full">
-                                    <Link href="/" aria-current={pathname === '/' ? 'page' : undefined} className="group h-full flex flex-col items-center justify-center gap-1 flex-1 min-w-0 md:min-w-[80px] cursor-pointer" prefetch={true}>
+                                    <Link href="/" className="group h-full flex flex-col items-center justify-center gap-1 flex-1 min-w-0 md:min-w-[80px] cursor-pointer touch-manipulation">
                                         <div className={cn("relative p-2.5 xs:p-3.5 rounded-2xl transition-all duration-500", pathname === '/' ? "theme-nav-bg theme-nav-accent theme-nav-glow" : "text-white/80 group-hover:theme-nav-accent md:group-hover:bg-white/10")}>
                                             <LayoutGrid size={isMobile ? 22 : 24} />
                                         </div>
                                         <span className={cn("text-[8px] xs:text-[9px] md:text-[11px] tracking-[0.1em] xs:tracking-[0.2em] font-bold uppercase transition-all duration-300", pathname === '/' ? "theme-nav-accent drop-shadow-[0_0_8px_rgba(var(--nav-current-theme),0.8)] scale-110" : "text-white/95 md:group-hover:theme-nav-accent")}>HOME</span>
                                     </Link>
-                                    <Link href="/leaderboard" aria-current={pathname === '/leaderboard' ? 'page' : undefined} className="group h-full flex flex-col items-center justify-center gap-1 flex-1 min-w-0 md:min-w-[80px] cursor-pointer" prefetch={true}>
+                                    <Link href="/leaderboard" className="group h-full flex flex-col items-center justify-center gap-1 flex-1 min-w-0 md:min-w-[80px] cursor-pointer touch-manipulation">
                                         <div className={cn("relative p-2.5 xs:p-3.5 rounded-2xl transition-all duration-500", pathname === '/leaderboard' ? "theme-nav-bg theme-nav-accent theme-nav-glow" : "text-white/80 group-hover:theme-nav-accent md:group-hover:bg-white/10")}>
                                             <Trophy size={isMobile ? 22 : 24} />
                                         </div>
@@ -366,13 +365,13 @@ export function InnovativeNavbar() {
                                 <div className="w-16 xs:w-20 md:w-32 flex-shrink-0 h-full" />
 
                                 <div className="flex-1 flex justify-around items-center px-1 xs:px-2 md:px-4 h-full">
-                                    <Link href="/gallery" aria-current={pathname === '/gallery' ? 'page' : undefined} className="group h-full flex flex-col items-center justify-center gap-1 flex-1 min-w-0 md:min-w-[80px] cursor-pointer" prefetch={true}>
+                                    <Link href="/gallery" className="group h-full flex flex-col items-center justify-center gap-1 flex-1 min-w-0 md:min-w-[80px] cursor-pointer touch-manipulation">
                                         <div className={cn("relative p-2.5 xs:p-3.5 rounded-2xl transition-all duration-500", pathname === '/gallery' ? "theme-nav-bg theme-nav-accent theme-nav-glow" : "text-white/80 group-hover:theme-nav-accent md:group-hover:bg-white/10")}>
                                             <Camera size={isMobile ? 22 : 24} />
                                         </div>
                                         <span className={cn("text-[8px] xs:text-[9px] md:text-[11px] tracking-[0.1em] xs:tracking-[0.2em] font-bold uppercase transition-all duration-300", pathname === '/gallery' ? "theme-nav-accent drop-shadow-[0_0_8px_rgba(var(--nav-current-theme),0.8)] scale-110" : "text-white/95 md:group-hover:theme-nav-accent")}>GALLERY</span>
                                     </Link>
-                                    <Link href={isLoggedIn ? "/profile" : "/login"} className="group h-full flex flex-col items-center justify-center gap-1 flex-1 min-w-0 md:min-w-[80px] cursor-pointer" prefetch={true}>
+                                    <Link href={isLoggedIn ? "/profile" : "/login"} className="group h-full flex flex-col items-center justify-center gap-1 flex-1 min-w-0 md:min-w-[80px] cursor-pointer touch-manipulation">
                                         <div className={cn("relative p-2.5 xs:p-3.5 rounded-2xl transition-all duration-500", (pathname === '/profile' || pathname === '/login') ? "theme-nav-bg theme-nav-accent theme-nav-glow" : "text-white/80 group-hover:theme-nav-accent md:group-hover:bg-white/10")}>
                                             <User size={isMobile ? 22 : 24} />
                                         </div>

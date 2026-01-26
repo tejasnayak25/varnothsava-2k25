@@ -9,52 +9,61 @@ import { Orbitron } from 'next/font/google' // Import new font
 import {
     ArrowRight, MapPin, Mail, Phone,
     Facebook, Instagram, Youtube, Twitter,
-    ChevronDown, Plus, Utensils, Gamepad2, Lightbulb, Zap,
+    ChevronDown, Plus, Utensils, Gamepad2, Lightbulb, Zap, Activity,
     Sparkles, Star, Users, Trophy, Mic, Music
 } from 'lucide-react'
+import { TaranaInPixels, OriginalMusic } from '@/components/sections/TaranaSections'
 
 // --- Pro Nite / Band Section Data ---
 // --- Pro Nite / Band Section Data ---
 const bandMembers = [
     {
-        name: "Varun Sunil",
-        role: "Founder, Percussion & Vocals",
-        img: "/img/varun.png",
-        icon: Sparkles,
-        color: "text-emerald-400", // System Emerald
-        desc: "The visionary founder and rhythm architect. Varun bridges traditional folk and modern rock, creating the band's S-Rank sound."
-    },
-    {
-        name: "Abhijith Anilkumar",
-        role: "Lead Vocals",
-        img: "/img/abhijith.png",
+        name: "Shreyas B Rao",
+        role: "VOCALIST | Founder",
+        img: "/img/shreyas_rao.png",
         icon: Mic,
-        color: "text-teal-400",
-        desc: "Powerhouse vocalist. Seamlessly switches between classical gamakas and high-octane rock textures."
+        color: "text-emerald-400",
+        desc: "Yede Thumbi Haduvenu Runner-Up. Shared stage with Raghu Dixit, Rajesh Vaidhya, Manju Drums. A powerhouse vocalist with boundless range."
     },
     {
-        name: "Razik Mujawar",
-        role: "Lead Vocals",
-        img: "/img/razik.png",
-        icon: Mic,
-        color: "text-emerald-300",
-        desc: "The voice of rebellion. Electrifying stage presence that ignites the crowd into a frenzy."
-    },
-    {
-        name: "Amal Sivan",
-        role: "Violin Maestro",
-        img: "/img/amal.png",
+        name: "Aditya Rajaram",
+        role: "FLAUTIST",
+        img: "/img/aditya_rajaram.png",
         icon: Music,
-        color: "text-teal-300",
-        desc: "Weaving spells with the violin. His solos are a precise, lethal journey through raga and rhythm."
+        color: "text-teal-400",
+        desc: "Carnatic Trained with 10+ years of experience. The Show Stealer who invokes deep emotions through his soulful melodies."
     },
     {
-        name: "Dayasankar",
-        role: "Drums & Percussion",
-        img: "/img/daya.png",
+        name: "Sujan Rao",
+        role: "PERCUSSIONIST / MANAGER",
+        img: "/img/sujan_rao.png",
         icon: Zap,
+        color: "text-emerald-300",
+        desc: "Certified by Trinity College of Music. Completed Junior Exam in Mridangam. A rhythmic force driving the band's pulse."
+    },
+    {
+        name: "Saathvik Raghavendra",
+        role: "DRUMMER",
+        img: "/img/saathvik.png",
+        icon: Sparkles,
+        color: "text-teal-300",
+        desc: "Certified by Trinity School of London Music. 10+ years experience. Performed alongside maestros like Arun Kumar and Giridar Udupa."
+    },
+    {
+        name: "Harsh Makam",
+        role: "BASSIST",
+        img: "/img/harsh_makam.png",
+        icon: Activity,
         color: "text-green-400",
-        desc: "The rhythm engine. Driving the massive soundscape with thunderous, complex polyrhythms."
+        desc: "10 years of experience. Renowned for melodic and groove-driven bass lines that stand out in the mix. Not hidden, always heard."
+    },
+    {
+        name: "Shreyas Bharadhwaj",
+        role: "GUITARIST",
+        img: "/img/shreyas_bharadwaj.png",
+        icon: Music,
+        color: "text-emerald-500",
+        desc: "Self-taught prodigy with 3 years of experience. Tight, precise, and always punctual. Enhances the ensemble with sharp riffs."
     }
 ]
 
@@ -97,8 +106,17 @@ const ConcertStage = () => {
             <motion.div
                 animate={{ scale: [1, 1.1, 1] }}
                 transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-                className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1501281668745-f7f57925c3b4?q=80&w=1740&auto=format&fit=crop')] bg-cover bg-center opacity-40 mix-blend-screen grayscale-[0.5] sm:animate-none"
-            />
+                className="absolute inset-0 opacity-40 mix-blend-screen grayscale-[0.5] sm:animate-none"
+            >
+                <Image
+                    src="https://images.unsplash.com/photo-1501281668745-f7f57925c3b4?q=80&w=1740&auto=format&fit=crop"
+                    alt="Concert Stage"
+                    fill
+                    priority
+                    className="object-cover"
+                    sizes="100vw"
+                />
+            </motion.div>
 
             {/* Grid */}
             <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[200vw] h-[100vh] bg-[linear-gradient(rgba(16,185,129,0.15)_1px,transparent_1px),linear-gradient(90deg,rgba(16,185,129,0.15)_1px,transparent_1px)] bg-[size:50px_50px] [transform:rotateX(60deg)_translateY(200px)] opacity-50 origin-bottom" />
@@ -120,7 +138,7 @@ const ProNiteSection = () => {
 
     useMotionValueEvent(scrollYProgress, "change", (latest) => {
         // Tighter exit logic to remove gap
-        if (latest > 0.92) {
+        if (latest > 0.98) {
             setActiveIndex(-3) // Exit phase
         } else if (latest < 0.1) {
             setActiveIndex(-2) // "SYSTEM ALERT"
@@ -128,14 +146,14 @@ const ProNiteSection = () => {
             setActiveIndex(-1) // Group Photo
         } else {
             // Compressed range for artists to finish sooner
-            const memberProgress = (latest - 0.2) / 0.72
+            const memberProgress = (latest - 0.2) / 0.78
             const index = Math.floor(memberProgress * bandMembers.length)
             setActiveIndex(Math.min(index, bandMembers.length - 1))
         }
     })
 
     return (
-        <section ref={containerRef} className="relative h-[700vh] bg-[#020202]"> {/* Tighter height */}
+        <section ref={containerRef} className="relative h-[550vh] bg-[#020202]"> {/* Tighter height */}
             <div className="sticky top-0 h-screen w-full overflow-hidden flex items-center justify-center">
 
                 {/* Background Stage - Fades out on exit */}
@@ -158,14 +176,14 @@ const ProNiteSection = () => {
                             transition={{ duration: 0.3 }}
                             className="absolute inset-0 flex flex-col items-center justify-center z-50 pointer-events-none"
                         >
-                            <SystemWindow title="PRO NITE // ALERT">
+                            <SystemWindow title="PRO NITE // BAND SPOTLIGHT">
                                 <div className="p-12 text-center space-y-6 flex flex-col items-center">
                                     <motion.div
                                         animate={{ opacity: [1, 0.5, 1], scale: [1, 1.2, 1] }}
                                         transition={{ duration: 0.5, repeat: Infinity, repeatDelay: 0.5 }}
                                         className="text-emerald-500 text-7xl font-bold mb-6"
                                     >
-                                        ⚠
+                                        <Music />
                                     </motion.div>
 
                                     {/* GRAND TEXT ANIMATION */}
@@ -176,7 +194,7 @@ const ProNiteSection = () => {
                                             transition={{ type: "spring", bounce: 0.5, duration: 1.5 }}
                                             className="text-hero text-white font-[900] glow-text-emerald tracking-tighter leading-none"
                                         >
-                                            PRO NITE
+                                            TARANA BAND
                                         </motion.h1>
                                     </div>
 
@@ -186,10 +204,11 @@ const ProNiteSection = () => {
                                         initial={{ opacity: 0, letterSpacing: "1em" }}
                                         animate={{ opacity: 1, letterSpacing: "0.2em" }}
                                         transition={{ duration: 1, delay: 0.5 }}
-                                        className="text-2xl text-emerald-300 font-bold uppercase"
+                                        className="text-2xl text-white font-bold uppercase"
                                     >
-                                        MASALA COFFEE
+                                        PRO NITE 2K26
                                     </motion.div>
+                                    <p className="text-emerald-500/60 font-mono text-sm tracking-widest mt-2">CLASSICAL ROOTS // ROCK ENERGY</p>
                                 </div>
                             </SystemWindow>
                         </motion.div>
@@ -205,7 +224,7 @@ const ProNiteSection = () => {
                             transition={{ duration: 0.8, ease: "circOut" }}
                             className="absolute inset-0 flex flex-col items-center justify-center z-40 pointer-events-none"
                         >
-                            <SystemWindow title="PRO NITE // TARGET: MASALA COFFEE">
+                            <SystemWindow title="PRO NITE // TARGET: TARANA">
                                 <div className="relative w-[90vw] h-[70vh] overflow-hidden rounded-sm border-2 border-emerald-500/30 bg-black group">
 
                                     {/* NEW: Volumetric Construction + Stat Radar */}
@@ -215,18 +234,8 @@ const ProNiteSection = () => {
                                     <div className="absolute bottom-0 left-0 w-full p-8 bg-gradient-to-t from-black via-black/90 to-transparent z-40 flex items-end justify-between">
                                         <div>
                                             <h2 className="text-display font-[1000] text-white tracking-tighter uppercase leading-none font-[family-name:var(--font-orbitron)] drop-shadow-[0_0_25px_rgba(16,185,129,1)]">
-                                                MASALA COFFEE
+                                                TARANA BAND
                                             </h2>
-                                            <p className="text-emerald-400 font-mono tracking-widest mt-2 text-xl font-bold">
-                                                /// SSS-RANK DETECTED ///
-                                            </p>
-                                        </div>
-
-                                        {/* Floating Tech Specs */}
-                                        <div className="hidden md:block text-right font-mono text-xs text-emerald-500/70 leading-tight">
-                                            <p>SYNC RATE: 100%</p>
-                                            <p>AUDIO OUTPUT: MAX</p>
-                                            <p>CROWD CONTROL: OMEGA</p>
                                         </div>
                                     </div>
                                 </div>
@@ -534,11 +543,10 @@ const VolumetricImage = () => {
                 initial={{ opacity: 1 }}
                 animate={{ opacity: 0 }}
                 transition={{ duration: 1, delay: 1 }} // Fades out revealing color
-                className="absolute inset-0 bg-[url('/img/image.png')] bg-contain bg-center bg-no-repeat opacity-50 z-20 pointer-events-none"
-                style={{ filter: 'grayscale(100%) contrast(200%) brightness(50%) sepia(100%) hue-rotate(100deg) saturate(500%)' }} // Matrix green look
+                className="absolute inset-0 bg-[url('/img/tarana_group.png')] bg-contain bg-center bg-no-repeat opacity-20 z-20 pointer-events-none"
             >
                 {/* Grid Overlay on top of wireframe */}
-                <div className="absolute inset-0 bg-[linear-gradient(rgba(16,185,129,0.5)_1px,transparent_1px),linear-gradient(90deg,rgba(16,185,129,0.5)_1px,transparent_1px)] bg-[size:20px_20px]" />
+                <div className="absolute inset-0 bg-[linear-gradient(rgba(16,185,129,0.2)_1px,transparent_1px),linear-gradient(90deg,rgba(16,185,129,0.2)_1px,transparent_1px)] bg-[size:20px_20px]" />
             </motion.div>
 
             {/* Scanning Lasers */}
@@ -553,13 +561,13 @@ const VolumetricImage = () => {
             {/* Full Color Image - Revealed by scan */}
             <motion.div
                 className="relative w-full h-full z-10 flex items-center justify-center"
-                initial={{ filter: "grayscale(100%) blur(5px)", opacity: 0.5 }}
-                animate={{ filter: "grayscale(0%) blur(0px)", opacity: 1 }}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
                 transition={{ duration: 1.2, delay: 0.2 }}
             >
                 <Image
-                    src="/img/image.png"
-                    alt="Masala Coffee Group"
+                    src="/img/tarana_group.png"
+                    alt="Tarana Group"
                     fill
                     className="object-contain p-[2.5%]"
                     sizes="100vw"
@@ -628,13 +636,10 @@ const ButtonPrimary = ({ children, onClick }: { children: React.ReactNode, onCli
         onClick={onClick}
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
-        className="group relative px-8 py-4 bg-emerald-500 text-black font-extrabold text-sm tracking-widest uppercase rounded-full shadow-[0_0_30px_rgba(16,185,129,0.4)] hover:shadow-[0_0_50px_rgba(16,185,129,0.6)] transition-all duration-300 isolate"
+        className="group relative px-6 py-4 md:px-10 md:py-5 bg-emerald-600 text-white font-extrabold text-xs md:text-sm tracking-[0.2em] uppercase rounded-full shadow-[0_0_20px_rgba(16,185,129,0.4)] hover:shadow-[0_0_40px_rgba(16,185,129,0.7)] hover:scale-105 transition-all duration-300 border border-emerald-400/50"
     >
-        <LivelyBorder />
-        <div className="absolute inset-[1px] bg-emerald-500 rounded-full z-0" />
-        <div className="absolute inset-0 bg-white/40 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700 ease-in-out z-10 rounded-full" />
-        <span className="relative z-20 flex items-center gap-3 font-[family-name:var(--font-poppins)]">
-            {children} <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+        <span className="relative z-20 flex items-center gap-2 md:gap-3 font-[family-name:var(--font-poppins)]">
+            {children} <ArrowRight className="w-4 h-4 md:w-5 md:h-5 group-hover:translate-x-1 transition-transform" />
         </span>
     </motion.button>
 )
@@ -662,7 +667,7 @@ const HeroSection = () => {
     const router = useRouter()
     const { scrollY } = useScroll()
     const yHero = useTransform(scrollY, [0, 500], [0, 100])
-    const opacityHero = useTransform(scrollY, [0, 300], [1, 0])
+    const opacityHero = useTransform(scrollY, [0, 1200], [1, 0]) // Extended range for better visibility
     const [isMobile, setIsMobile] = useState(false)
 
     useEffect(() => {
@@ -670,7 +675,7 @@ const HeroSection = () => {
     }, [])
 
     return (
-        <section className="relative min-h-[100vh] flex items-center overflow-hidden bg-[#020202]">
+        <section className="relative min-h-[100vh] flex items-center overflow-hidden bg-[#020202] gpu-accel">
             {/* God Level Parallax BG */}
             <div className="absolute inset-0 pointer-events-none">
                 <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.03] mix-blend-overlay" />
@@ -715,7 +720,7 @@ const HeroSection = () => {
                             initial={{ y: 50, opacity: 0 }}
                             animate={{ y: 0, opacity: 1 }}
                             transition={{ duration: 1, ease: "easeOut" }}
-                            className={`${orbitron.className} text-hero font-[900] tracking-tighter uppercase leading-[1.1] whitespace-normal drop-shadow-[0_0_25px_rgba(255,255,255,0.2)] text-white`}
+                            className={`${orbitron.className} text-hero font-[900] tracking-tighter uppercase leading-[1.1] whitespace-normal text-white drop-shadow-lg`}
                         >
                             VARNOTHSAVA <br className="block md:hidden" /> 2K26
                         </motion.h1>
@@ -735,10 +740,16 @@ const HeroSection = () => {
                         initial={isMobile ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.5, duration: 0.8 }}
-                        className="flex flex-wrap gap-4 mt-10 justify-center lg:justify-start"
+                        className="relative z-50 flex flex-wrap gap-4 mt-10 justify-center lg:justify-start pb-24 lg:pb-0"
                     >
                         <ButtonPrimary onClick={() => router.push('/events')}>Explore Events</ButtonPrimary>
-                        <ButtonSecondary onClick={() => router.push('/login')}>Register Now</ButtonSecondary>
+                        <ButtonPrimary onClick={() => {
+                            const section = document.getElementById('pronite-section');
+                            if (section) {
+                                const top = section.getBoundingClientRect().top + window.pageYOffset;
+                                window.scrollTo({ top, behavior: 'smooth' });
+                            }
+                        }}>Pro Nite</ButtonPrimary>
                     </motion.div>
                 </motion.div>
 
@@ -772,15 +783,17 @@ const HeroSection = () => {
                 </div>
             </div>
 
-            <motion.div
-                animate={{ y: [0, 8, 0] }}
-                transition={{ duration: 2, repeat: Infinity }}
-                className="absolute bottom-12 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 cursor-pointer z-30 opacity-60 hover:opacity-100 transition-opacity"
-                onClick={() => window.scrollTo({ top: window.innerHeight, behavior: 'smooth' })}
-            >
-                <span className="text-[10px] font-bold text-emerald-500 uppercase tracking-[0.4em]">Scroll</span>
-                <ChevronDown className="w-5 h-5 text-emerald-500" />
-            </motion.div>
+            {!isMobile && (
+                <motion.div
+                    animate={{ y: [0, 8, 0] }}
+                    transition={{ duration: 2, repeat: Infinity }}
+                    className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 cursor-pointer z-30 opacity-60 hover:opacity-100 transition-opacity"
+                    onClick={() => window.scrollTo({ top: window.innerHeight, behavior: 'smooth' })}
+                >
+                    <span className="text-[10px] font-bold text-emerald-500 uppercase tracking-[0.4em]">Scroll</span>
+                    <ChevronDown className="w-5 h-5 text-emerald-500" />
+                </motion.div>
+            )}
 
             {/* Velocity Marquee at bottom of Hero */}
             <div className="absolute bottom-0 w-full z-10 opacity-30 mix-blend-overlay pointer-events-none">
@@ -792,7 +805,7 @@ const HeroSection = () => {
 
 const WelcomeSection = () => {
     return (
-        <section className="py-20 px-4 md:px-12 relative bg-[#020202]">
+        <section className="py-20 px-4 md:px-12 relative bg-[#020202] gpu-accel">
             <ParallaxBackground />
 
             <div className="container mx-auto grid grid-cols-1 lg:grid-cols-2 gap-20 items-center relative z-10">
@@ -993,7 +1006,7 @@ const HorizontalTimeline = () => {
     const x = useTransform(scrollYProgress, [0, 1], ["1%", endValue])
 
     return (
-        <section ref={sectionRef} className="relative h-[250vh] bg-[#020202]">
+        <section ref={sectionRef} className="relative h-[250vh] bg-[#020202] gpu-accel smooth-scroll-fix">
             <div className="sticky top-0 h-screen flex items-center overflow-hidden">
                 <div className="absolute top-10 left-8 md:left-20 z-20 bg-black/50 backdrop-blur-md px-6 py-3 rounded-full border border-white/10">
                     <StaggerTitle title="The Saga" subtitle="4 Days. Infinite Memories." />
@@ -1156,8 +1169,6 @@ const SpecialAttractions = () => (
 )
 
 const MarvelTrailerSection = () => {
-    const [currentImageIndex, setCurrentImageIndex] = useState(0)
-
     // Fast-paced image switching for "Marvel Intro" vibe
     const images = [
         "/img/1 (1).jpg",
@@ -1170,38 +1181,61 @@ const MarvelTrailerSection = () => {
         "/img/IMG_5442.JPG"
     ]
 
+    const imageRefs = useRef<(HTMLDivElement | null)[]>([])
+
     useEffect(() => {
+        let index = 0
+        // Ensure first image is visible immediately
+        if (imageRefs.current[0]) imageRefs.current[0]!.style.opacity = '1'
+
         const interval = setInterval(() => {
-            setCurrentImageIndex(prev => (prev + 1) % images.length)
-        }, 150) // Switch every 150ms - very fast
+            const prevIndex = index
+            index = (index + 1) % images.length
+
+            // Direct DOM manipulation to avoid React Render Cycle
+            if (imageRefs.current[prevIndex]) imageRefs.current[prevIndex]!.style.opacity = '0'
+            if (imageRefs.current[index]) imageRefs.current[index]!.style.opacity = '1'
+        }, 150)
         return () => clearInterval(interval)
     }, [])
 
     return (
-        <section className="relative h-screen w-full bg-black overflow-hidden flex items-center justify-center">
-            {/* Rapid Fire Background */}
+        <section className="relative h-screen w-full bg-black overflow-hidden flex items-center justify-center gpu-accel">
+            {/* Rapid Fire Background - Optimized with stable DOM nodes */}
             <div className="absolute inset-0 opacity-40">
-                <Image
-                    src={images[currentImageIndex]}
-                    alt="Mongage"
-                    fill
-                    className="object-cover grayscale contrast-125 brightness-50"
-                    sizes="100vw"
-                    priority
-                />
-                <div className="absolute inset-0 bg-red-600 mix-blend-multiply opacity-20" />
-                <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-30 mix-blend-overlay" />
+                {images.map((img, i) => (
+                    <div
+                        key={img}
+                        ref={el => { imageRefs.current[i] = el }}
+                        className="absolute inset-0 transition-opacity duration-75 will-change-[opacity]"
+                        style={{ opacity: i === 0 ? 1 : 0 }}
+                    >
+                        <Image
+                            src={img}
+                            alt="Montage"
+                            fill
+                            className="object-cover grayscale contrast-125 brightness-50"
+                            sizes="(max-width: 768px) 100vw, 50vw"
+                            quality={60}
+                            loading={i === 0 ? "eager" : "lazy"}
+                            priority={i === 0}
+                        />
+                    </div>
+                ))}
+
+                <div className="absolute inset-0 bg-red-600 mix-blend-multiply opacity-20 pointer-events-none" />
+                <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-30 mix-blend-overlay pointer-events-none" />
             </div>
 
             {/* Letter Masking Effect - "SMVITM" or Similar */}
             <div className="relative z-10 flex flex-col items-center justify-center text-center px-4">
                 <motion.div
-                    initial={{ scale: 20, opacity: 0 }}
-                    whileInView={{ scale: 1, opacity: 1 }}
+                    initial={{ scale: 2, opacity: 0, filter: "blur(10px)" }}
+                    whileInView={{ scale: 1, opacity: 1, filter: "blur(0px)" }}
                     transition={{ duration: 0.8, ease: "circOut" }}
-                    className="mb-8"
+                    className="mb-8 will-change-transform"
                 >
-                    <div className="text-[15vw] leading-none font-[1000] text-transparent bg-clip-text bg-gradient-to-br from-white via-red-500 to-red-900 tracking-tighter drop-shadow-[0_0_50px_rgba(220,38,38,0.5)] font-[family-name:var(--font-orbitron)]">
+                    <div className="text-[15vw] leading-none font-[1000] text-red-600 md:text-transparent md:bg-clip-text md:bg-gradient-to-br md:from-white md:via-red-500 md:to-red-900 tracking-tighter drop-shadow-none md:drop-shadow-lg font-[family-name:var(--font-orbitron)]">
                         2K26
                     </div>
                 </motion.div>
@@ -1406,8 +1440,12 @@ export default function LandingPage() {
             <ViewportLazy><AboutFestSection /></ViewportLazy>
             <ViewportLazy><HorizontalTimeline /></ViewportLazy>
             <ViewportLazy><SpecialAttractions /></ViewportLazy>
-            <ViewportLazy><ProNiteSection /></ViewportLazy>
-            <ViewportLazy><MarvelTrailerSection /></ViewportLazy>
+            <div id="pronite-section">
+                <ProNiteSection />
+                <ViewportLazy><TaranaInPixels /></ViewportLazy>
+                <ViewportLazy><OriginalMusic /></ViewportLazy>
+            </div>
+            <MarvelTrailerSection />
             <ViewportLazy><FAQ /></ViewportLazy>
             <Footer />
         </div>

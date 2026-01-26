@@ -267,7 +267,7 @@ function LoginContent() {
     }
 
     return (
-        <main className="min-h-screen w-full bg-[#050b14] text-white relative flex flex-col items-center pt-32 pb-[200px] md:pb-[150px] overflow-x-hidden root-container">
+        <main className="min-h-screen min-h-[100dvh] w-full bg-[#050b14] text-white relative flex flex-col items-center justify-center py-12 md:py-20 overflow-x-hidden root-container">
             {/* LIVELY STARFIELD BACKGROUND */}
             <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
                 <div className="absolute inset-0 bg-[#050b14]" />

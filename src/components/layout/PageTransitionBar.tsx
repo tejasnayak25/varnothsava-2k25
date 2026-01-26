@@ -3,7 +3,7 @@
 import { useEffect, useState, useRef } from 'react'
 import { usePathname, useSearchParams } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Terminal, Star, Shield, Activity, Cpu } from 'lucide-react'
+import { Terminal, Star, Shield, Activity } from 'lucide-react'
 
 import { useApp } from '@/context/AppContext'
 
@@ -18,16 +18,35 @@ export function PageTransitionBar() {
         setIsMobile(window.innerWidth < 768)
     }, [])
 
+    const initialLoadRef = useRef(true)
+    // Track the last path we triggered a transition for to avoid double-firing or same-page loops
+    const transitionTrigger = useRef<string>("")
+
     useEffect(() => {
         // STRICT GUARD: If main site hasn't finished its first loading screen, 
         // DO NOT show this transition bar.
         if (!isSiteLoaded) return;
 
-        // Trigger on EVERY route/filter change
+        // Skip the very first time it becomes loaded (initial entrance)
+        if (initialLoadRef.current) {
+            initialLoadRef.current = false
+            transitionTrigger.current = pathname + searchParams.toString()
+            return
+        }
+
+        const currentKey = pathname + searchParams.toString()
+
+        // Prevent transition if we are already on this exact page state
+        if (transitionTrigger.current === currentKey) return
+
+        transitionTrigger.current = currentKey
+
+        // Trigger on VALID route/filter change
         setIsLoading(true)
 
-        // Duration to hold the screen – ensures "everything is loading" first
-        const timer = setTimeout(() => setIsLoading(false), 1000)
+        // Extended delay to cover "React Hydration" gap. 
+        // This ensures the warp screen stays UP until the new page is actually ready.
+        const timer = setTimeout(() => setIsLoading(false), 800)
 
         return () => clearTimeout(timer)
     }, [pathname, searchParams, isSiteLoaded])
@@ -45,8 +64,8 @@ export function PageTransitionBar() {
                 <motion.div
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
-                    exit={{ opacity: 0, scale: 1.4, filter: 'blur(100px)' }}
-                    transition={{ duration: 0.8, ease: [0.76, 0, 0.24, 1] }}
+                    exit={{ opacity: 0, pointerEvents: 'none' }}
+                    transition={{ duration: 0.6, ease: "easeInOut" }}
                     className="fixed inset-0 z-[120000] bg-[#020603] flex items-center justify-center p-4 md:p-12 overflow-hidden pointer-events-auto"
                 >
                     {/* BLACKOUT BASE */}
@@ -119,7 +138,7 @@ export function PageTransitionBar() {
                             {/* Metadata */}
                             <div className="absolute top-10 left-12 flex flex-col gap-2">
                                 <div className="flex items-center gap-3 text-emerald-500 font-black text-[9px] tracking-widest uppercase">
-                                    <Cpu size={12} className="animate-pulse" /> SYSTEM_TRANSFER
+                                    <Terminal size={12} className="animate-pulse" /> SYSTEM_TRANSFER
                                 </div>
                                 <div className="flex gap-1">
                                     {[...Array(8)].map((_, i) => (
