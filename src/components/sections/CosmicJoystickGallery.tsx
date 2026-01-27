@@ -83,7 +83,10 @@ export function CosmicJoystickGallery() {
 
             // Refined scaling: Base size is 440px. Scale down significantly for mobile.
             const scale = active ? (isMobile ? 0.60 : 1.05) : (isMobile ? 0.40 : 0.8);
-            const yOffset = isMobile ? -60 : 0;
+            const yOffset = isMobile ? 40 : 0;
+
+            // Mobile Optimization: Skip tweening for items that are completely invisible
+            if (isMobile && opacity === 0 && item.style.opacity === '0') return;
 
             gsap.to(item, {
                 x: x,
@@ -94,11 +97,11 @@ export function CosmicJoystickGallery() {
                 opacity: opacity,
                 zIndex: 1000 + Math.round(z),
                 transformOrigin: "50% 50%",
-                duration: durationOverride,
-                ease: easeOverride,
+                duration: isMobile ? 0.4 : durationOverride,
+                ease: isMobile ? "power2.out" : easeOverride,
                 overwrite: 'auto',
                 force3D: true,
-                willChange: 'transform, opacity'
+                onComplete: () => { if (active) setIsAnimating(false); }
             });
         });
     }, [currentIndex]);
@@ -133,6 +136,14 @@ export function CosmicJoystickGallery() {
     }, [currentIndex, updateGallery]);
 
     // --- NAVIGATION ---
+    const [quickSetX, setQuickSetX] = useState<any>(null);
+
+    useEffect(() => {
+        if (innerPadRef.current) {
+            setQuickSetX(() => gsap.quickSetter(innerPadRef.current, "x", "px"));
+        }
+    }, []);
+
     const move = (dir: number) => {
         if (isPreviewOpen) return;
         if (isAnimating) return;
@@ -189,7 +200,7 @@ export function CosmicJoystickGallery() {
         // Clamp visually
         const clampedDelta = Math.max(-60, Math.min(60, deltaX));
 
-        gsap.to(innerPadRef.current, { x: clampedDelta, duration: 0.1, ease: "power1.out" });
+        if (quickSetX) quickSetX(clampedDelta);
 
         // Continuous Trigger Zones
         if (deltaX > 40) {
@@ -308,7 +319,7 @@ export function CosmicJoystickGallery() {
             tl.to(bannerRef.current, {
                 opacity: 1,
                 scale: 1,
-                filter: "blur(0px) brightness(1) saturate(1)", // Crystal clear
+                filter: isMobile ? "none" : "blur(0px) brightness(1) saturate(1)", // Crystal clear
                 duration: 1.2,
                 force3D: true
             }, 0)
@@ -342,7 +353,7 @@ export function CosmicJoystickGallery() {
                 .to(bannerRef.current, {
                     opacity: 0, // Go back to dark/void
                     scale: 1.1,
-                    filter: "blur(64px) brightness(0.15) saturate(1.8)", // Reset blur state
+                    filter: isMobile ? "none" : "blur(64px) brightness(0.15) saturate(1.8)", // Reset blur state
                     duration: 1.0,
                     force3D: true
                 }, 0);
@@ -375,7 +386,7 @@ export function CosmicJoystickGallery() {
                 const rotateY = angle;
                 const opacity = Math.abs(angle) > (isMobile ? 85 : 100) ? 0 : 1;
                 const scale = active ? (isMobile ? 0.65 : 1.15) : (isMobile ? 0.45 : 0.9);
-                const yOffset = isMobile ? -60 : 0;
+                const yOffset = isMobile ? 40 : 0;
 
                 tl.to(item, {
                     x: x, y: yOffset, z: z, rotateY: rotateY, scale: scale, opacity: opacity,
@@ -397,9 +408,10 @@ export function CosmicJoystickGallery() {
                     src={PRODUCTS[currentIndex].src}
                     alt="Background"
                     fill
-                    className="object-cover" // Removed blur classes to let GSAP handle it
+                    className="object-cover"
                     priority
-                    unoptimized
+                    sizes="100vw"
+                    quality={60}
                 />
             </div>
 
@@ -440,7 +452,7 @@ export function CosmicJoystickGallery() {
             {/* INFINITE GALLERY SLIDER */}
             <div
                 ref={sliderRef}
-                className="relative w-full h-full flex items-center justify-center z-10 -translate-y-[15%] md:-translate-y-[8%]"
+                className="relative w-full h-full flex items-center justify-center z-10 -translate-y-[10%] md:-translate-y-[8%]"
                 style={{ perspective: '2000px' }}
             >
                 {PRODUCTS.map((p, idx) => (
@@ -470,11 +482,13 @@ export function CosmicJoystickGallery() {
                                 <p className="text-[8px] font-black text-white tracking-[0.3em] uppercase">VARNOTHSAVA 2026</p>
                             </div>
 
-                            {/* eslint-disable-next-line @next/next/no-img-element */}
-                            <img
+                            <Image
                                 src={p.src}
                                 alt={p.title}
-                                className="absolute inset-0 w-full h-full object-cover opacity-90 group-hover:opacity-100 transition-all duration-[2000ms] group-hover:scale-105"
+                                fill
+                                className="object-cover object-top opacity-90 group-hover:opacity-100 transition-all duration-[2000ms] group-hover:scale-105"
+                                sizes="(max-width: 768px) 300px, 440px"
+                                priority={idx === currentIndex}
                             />
 
                             {/* BOTTOM GLOW */}

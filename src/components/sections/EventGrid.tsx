@@ -167,10 +167,12 @@ export function EventGrid({ missions }: EventGridProps) {
                             rotateX: 0,
                             rotateY: 0,
                             x: 0,
-                            duration: isMobile ? 0.4 : 1.2,
-                            delay: i * (isMobile ? 0.02 : 0.1),
-                            ease: isMobile ? "sine.out" : "power4.out",
-                            force3D: true
+                            duration: isMobile ? 0.3 : 1.2,
+                            delay: i * (isMobile ? 0.05 : 0.1),
+                            ease: isMobile ? "power2.out" : "power4.out",
+                            clearProps: "all",
+                            force3D: true,
+                            willChange: 'transform, opacity'
                         }
                     )
                 })

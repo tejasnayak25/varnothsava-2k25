@@ -7,7 +7,7 @@
     --emerald: #10b981;
     --emerald-dim: #064e3b;
     --emerald-glow: rgba(16, 185, 129, 0.4);
-    --bg-dark: #050505;
+    --bg-dark: #020202;
     --fest-emerald: #10b981;
     --fest-dim: #064e3b;
     --fest-text: #ecfdf5;
@@ -69,9 +69,10 @@ body {
     overflow-x: clip !important;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    scroll-behavior: smooth;
+    scroll-behavior: auto;
+    /* Changed to auto to let Framer Motion handle smoothness without clashing */
     position: relative;
-    touch-action: manipulation;
+    touch-action: pan-y pinch-zoom;
     overscroll-behavior-y: none;
     -webkit-backface-visibility: hidden;
     backface-visibility: hidden;
@@ -85,19 +86,46 @@ body {
 
 /* --- UTILITIES --- */
 
+/* Performance optimization for off-screen sections */
+.content-lazy {
+    content-visibility: auto;
+    contain-intrinsic-size: 1px 800px;
+    /* Increased for better estimated scroll height */
+}
+
 /* Hardware Acceleration */
 .gpu-accel {
     transform: translateZ(0);
-    will-change: transform, opacity;
     backface-visibility: hidden;
     perspective: 1000px;
+    will-change: transform, opacity;
 }
 
-.no-jank {
-    -webkit-backface-visibility: hidden;
-    backface-visibility: hidden;
-    transform: translate3d(0, 0, 0);
-    will-change: transform, opacity, filter;
+/* Mobile-only optimizations for extreme smoothness */
+@media (max-width: 768px) {
+    .gpu-accel {
+        will-change: transform, opacity;
+        transform: translateZ(0);
+        backface-visibility: hidden;
+    }
+
+    /* Disable intensive blur calculations during active scrolling */
+    .scrolling .backdrop-blur-lg,
+    .scrolling .backdrop-blur-xl,
+    .scrolling .backdrop-blur-2xl,
+    .scrolling .backdrop-blur-3xl {
+        backdrop-filter: blur(2px) !important;
+        -webkit-backdrop-filter: blur(2px) !important;
+    }
+}
+
+.buttery-smooth {
+    transition: all 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+    will-change: transform, opacity;
+}
+
+.interactive-spring {
+    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
 .smooth-scroll-fix {
@@ -274,11 +302,21 @@ body {
 @media (max-width: 768px) {
 
     /* Disable expensive blur filters globally for smoothness */
+    /* Remove expensive global filters */
     *,
     *::before,
     *::after {
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
+    }
+
+    /* Target ONLY specific glass elements for performance */
+    .glass-modal,
+    .backdrop-blur-md,
+    .backdrop-blur-xl {
         backdrop-filter: blur(8px) !important;
         -webkit-backdrop-filter: blur(8px) !important;
+        background-color: rgba(5, 8, 5, 0.9) !important;
     }
 
     /* Fallback for glass elements to ensure visibility */

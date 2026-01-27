@@ -38,8 +38,6 @@ type ViewMode = 'showcase' | 'explorer';
 export function CosmicGallery() {
     const [viewMode, setViewMode] = useState<ViewMode>('showcase');
     const [currentIndex, setCurrentIndex] = useState(0);
-    const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
-
     const activeItem = FULL_POOL[currentIndex];
 
     const handleNext = useCallback(() => {
@@ -52,13 +50,6 @@ export function CosmicGallery() {
 
     const toggleView = () => {
         setViewMode((prev) => (prev === 'showcase' ? 'explorer' : 'showcase'));
-    };
-
-    const handleMouseMove = (e: React.MouseEvent) => {
-        const { clientX, clientY } = e;
-        const x = (clientX / window.innerWidth - 0.5) * 30;
-        const y = (clientY / window.innerHeight - 0.5) * 30;
-        setMousePos({ x, y });
     };
 
     useEffect(() => {
@@ -74,7 +65,6 @@ export function CosmicGallery() {
 
     return (
         <main
-            onMouseMove={handleMouseMove}
             className="relative h-screen w-full bg-[#050805] overflow-hidden font-sans selection:bg-emerald-500/30"
         >
             {/* 1. KINETIC BACKGROUND LAYER */}
@@ -96,7 +86,7 @@ export function CosmicGallery() {
                             fill
                             sizes="100vw"
                             quality={40}
-                            className="object-cover blur-[20px] md:blur-[60px] brightness-[0.2] saturate-[1.2]"
+                            className="object-cover blur-[12px] md:blur-[30px] brightness-[0.2] saturate-[1.2]"
                             priority
                         />
                     </motion.div>
@@ -218,7 +208,7 @@ export function CosmicGallery() {
                                                 // filter prop removed to improve performance
                                             }}
                                             transition={{ type: 'spring', stiffness: 220, damping: 28, mass: 0.6 }}
-                                            className="absolute w-[300px] h-[450px] md:w-[420px] md:h-[600px] cursor-pointer no-jank"
+                                            className="absolute w-[300px] h-[450px] md:w-[420px] md:h-[600px] cursor-pointer no-jank will-change-transform"
                                             onClick={() => {
                                                 if (isActive) setViewMode('showcase');
                                                 else setCurrentIndex(idx);

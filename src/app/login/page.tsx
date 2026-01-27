@@ -77,18 +77,20 @@ function StudentPortalSphere() {
 
     return (
         <group>
-            {/* Outer Wireframe */}
-            <mesh ref={meshRef}>
-                <sphereGeometry args={[2.5, 64, 64]} />
-                <meshStandardMaterial
-                    color="#10b981"
-                    emissive="#10b981"
-                    emissiveIntensity={2}
-                    wireframe
-                    transparent
-                    opacity={0.3}
-                />
-            </mesh>
+            {/* Outer Wireframe - Suspended on mobile for GPU relief */}
+            {typeof window !== 'undefined' && window.innerWidth > 768 && (
+                <mesh ref={meshRef}>
+                    <sphereGeometry args={[2.5, 64, 64]} />
+                    <meshStandardMaterial
+                        color="#10b981"
+                        emissive="#10b981"
+                        emissiveIntensity={2}
+                        wireframe
+                        transparent
+                        opacity={0.3}
+                    />
+                </mesh>
+            )}
             {/* Inner Core */}
             <mesh ref={innerRef}>
                 <sphereGeometry args={[1.2, 32, 32]} />

@@ -31,14 +31,19 @@ const ANIME_AVATARS = [
 
 // --- ANIMATED BORDER WRAPPER ---
 const AnimatedBorderCard = ({ children, className = "", noPadding = false, hoverEffect = true }: { children: React.ReactNode, className?: string, noPadding?: boolean, hoverEffect?: boolean }) => {
+    const [isMobile, setIsMobile] = useState(false);
+    useEffect(() => {
+        setIsMobile(window.innerWidth < 768);
+    }, []);
+
     return (
         <div className={`relative group p-[1px] rounded-[1.5rem] md:rounded-[2rem] overflow-hidden ${className} gpu-accel`}>
             {/* The Animated Border Layer - Reduced intensity for performance */}
-            <div className="absolute inset-[-200%] md:inset-[-1000%] animate-[spin_10s_linear_infinite] bg-[conic-gradient(from_90deg_at_50%_50%,#00ff9d_0%,#00f2ff_25%,#10b981_50%,#00f2ff_75%,#00ff9d_100%)] opacity-20 group-hover:opacity-40 transition-opacity duration-1000" />
+            <div className={`absolute inset-[-200%] md:inset-[-1000%] ${isMobile ? 'animate-[spin_15s_linear_infinite]' : 'animate-[spin_10s_linear_infinite]'} bg-[conic-gradient(from_90deg_at_50%_50%,#00ff9d_0%,#00f2ff_25%,#10b981_50%,#00f2ff_75%,#00ff9d_100%)] opacity-20 group-hover:opacity-40 transition-opacity duration-1000`} />
 
             {/* The Glass Content Layer */}
             <div className={`
-                relative w-full h-full backdrop-blur-2xl rounded-[1.45rem] md:rounded-[1.95rem] bg-[#08090f]/90 md:bg-[#08090f]/95 
+                relative w-full h-full ${isMobile ? 'backdrop-blur-lg' : 'backdrop-blur-2xl'} rounded-[1.45rem] md:rounded-[1.95rem] bg-[#08090f]/90 md:bg-[#08090f]/95 
                 shadow-[0_12px_40px_-10px_rgba(0,0,0,0.8)] transition-all duration-500
                 ${noPadding ? '' : 'p-5 md:p-8 lg:p-10'}
             `}>
@@ -193,6 +198,21 @@ export default function ProfilePage() {
         }
     }, [userData])
 
+    const [isMobile, setIsMobile] = useState(false)
+
+    useEffect(() => {
+        const init = async () => {
+            setMounted(true)
+            setIsMobile(window.innerWidth < 768)
+            await mountUser()
+        }
+        init()
+
+        const checkMobile = () => setIsMobile(window.innerWidth < 768)
+        window.addEventListener('resize', checkMobile)
+        return () => window.removeEventListener('resize', checkMobile)
+    }, [])
+
     // Obvious Parallax & Motion Scale
     const { scrollY } = useScroll()
 
@@ -214,7 +234,12 @@ export default function ProfilePage() {
     }
 
     const itemVariants: Variants = {
-        hidden: { opacity: 0, y: 100, filter: 'blur(20px)', scale: 0.95 },
+        hidden: {
+            opacity: 0,
+            y: isMobile ? 30 : 100,
+            filter: isMobile ? 'none' : 'blur(20px)',
+            scale: 0.95
+        },
         visible: {
             opacity: 1,
             y: 0,
@@ -222,27 +247,13 @@ export default function ProfilePage() {
             scale: 1,
             transition: {
                 type: 'spring',
-                damping: 20,
-                stiffness: 80,
-                duration: 1.2
+                damping: isMobile ? 25 : 20,
+                stiffness: isMobile ? 120 : 80,
+                duration: isMobile ? 0.6 : 1.2,
+                willChange: 'transform, opacity'
             } as any
         }
     }
-
-    const [isMobile, setIsMobile] = useState(false)
-
-    useEffect(() => {
-        const init = async () => {
-            setMounted(true)
-            setIsMobile(window.innerWidth < 768)
-            await mountUser()
-        }
-        init()
-
-        const checkMobile = () => setIsMobile(window.innerWidth < 768)
-        window.addEventListener('resize', checkMobile)
-        return () => window.removeEventListener('resize', checkMobile)
-    }, [])
 
     useEffect(() => {
         if (mounted && needsOnboarding) {
@@ -627,19 +638,19 @@ export default function ProfilePage() {
                     <div className="fixed inset-0 z-[20000] flex items-center justify-center p-4 h-[100dvh] w-screen overflow-hidden">
                         {/* Stronger Backdrop */}
                         <motion.div
-                            initial={{ opacity: 0, backdropFilter: "blur(0px)" }}
-                            animate={{ opacity: 1, backdropFilter: "blur(12px)" }}
-                            exit={{ opacity: 0, backdropFilter: "blur(0px)" }}
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
                             onClick={() => setActiveModal(null)}
-                            className="absolute inset-0 bg-black/90 cursor-pointer"
+                            className="absolute inset-0 bg-black/90 cursor-pointer backdrop-blur-[4px] md:backdrop-blur-[12px]"
                         />
 
                         {/* Centered Modal Content */}
                         <motion.div
-                            initial={{ opacity: 0, scale: 0.9, y: 50 }}
+                            initial={{ opacity: 0, scale: 0.95, y: 30 }}
                             animate={{ opacity: 1, scale: 1, y: 0 }}
-                            exit={{ opacity: 0, scale: 0.95, y: 50 }}
-                            transition={{ type: "spring", bounce: 0.3, duration: 0.5 }}
+                            exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                            transition={{ type: "spring", damping: 25, stiffness: 200 }}
                             className="relative w-full max-w-lg max-h-[85dvh] overflow-y-auto custom-scrollbar p-[1px] rounded-[1.5rem] md:rounded-[2rem] mx-auto z-10 shadow-2xl"
                         >
                             {/* Mobile Modal Glass Wrapper */}
