@@ -45,7 +45,7 @@ export default function RootLayout({
             </head>
             <body className={`${outfit.variable} ${poppins.variable} ${inter.variable} font-sans bg-[#050805] text-white antialiased selection:bg-emerald-500/30`}>
                 <AppProvider>
-                    <Suspense fallback={null}>
+                    <Suspense fallback={<div className="fixed inset-0 bg-[#020604] z-[12000]" />}>
                         <LoadingScreen />
                     </Suspense>
                     <CustomCursor />

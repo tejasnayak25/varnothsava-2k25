@@ -58,10 +58,10 @@ const TechStatCard = ({ icon: Icon, label, value, theme }: any) => (
 
             {/* Inner Content */}
             <div
-                className="relative bg-black/80 backdrop-blur-2xl p-3 md:p-6 h-full flex flex-col items-center justify-center gap-1 md:gap-3 text-center"
+                className="relative bg-black/80 backdrop-blur-lg md:backdrop-blur-2xl p-3 md:p-6 h-full flex flex-col items-center justify-center gap-1 md:gap-3 text-center"
                 style={{ clipPath: 'polygon(15px 0, calc(100% - 8px) 0, 100% 8px, 100% calc(100% - 15px), calc(100% - 15px) 100%, 8px 100%, 0 calc(100% - 8px), 0 15px)' }}
             >
-                <div className={`p-2 md:p-3 bg-${theme}-500/20 border-2 border-${theme}-500/40 group-hover:scale-110 transition-transform`} style={{ clipPath: 'polygon(4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%, 0 4px)' }}>
+                <div className={`p-2 md:p-3 bg-${theme}-500/20 border-2 border-${theme}-500/40 group-hover:scale-110 transition-transform active:scale-95`} style={{ clipPath: 'polygon(4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%, 0 4px)', willChange: 'transform' }}>
                     <Icon size={16} className={`text-${theme}-500`} />
                 </div>
                 <div>
@@ -97,7 +97,7 @@ const TechContentCard = ({ children, theme }: any) => (
 
             {/* Inner Content */}
             <div
-                className="relative bg-black/80 backdrop-blur-2xl p-8 h-full"
+                className="relative bg-black/80 backdrop-blur-lg md:backdrop-blur-2xl p-8 h-full"
                 style={{ clipPath: 'polygon(29px 0, calc(100% - 14px) 0, 100% 14px, 100% calc(100% - 29px), calc(100% - 29px) 100%, 14px 100%, 0 calc(100% - 14px), 0 29px)' }}
             >
                 {children}
@@ -153,11 +153,11 @@ export default function EventDetailsPage() {
         <main className="min-h-screen bg-[#020202] text-white relative overflow-x-hidden font-sans" style={{ contain: 'layout paint' }}>
 
 
-            {/* Scroll Progress Indicator */}
+            {/* Scroll Progress Indicator - GPU Optimized */}
             <motion.div
-                className={`fixed top-0 left-0 h-1 bg-gradient-to-r ${twTheme === 'amber' ? 'from-amber-500 to-amber-300' : (twTheme === 'red' ? 'from-red-500 to-red-300' : 'from-emerald-500 to-emerald-300')} z-[100] shadow-[0_0_10px_rgba(0,0,0,0.5)]`}
+                className={`fixed top-0 left-0 right-0 h-1 bg-gradient-to-r ${twTheme === 'amber' ? 'from-amber-500 to-amber-300' : (twTheme === 'red' ? 'from-red-500 to-red-300' : 'from-emerald-500 to-emerald-300')} z-[100] origin-left`}
                 style={{
-                    width: scrollBarWidth,
+                    scaleX: scrollYProgress,
                     boxShadow: `0 0 20px ${themeColor === 'amber' ? 'rgba(245, 158, 11, 0.8)' : (themeColor === 'gaming' ? 'rgba(239, 68, 68, 0.8)' : 'rgba(16, 185, 129, 0.8)')}`
                 }}
             />

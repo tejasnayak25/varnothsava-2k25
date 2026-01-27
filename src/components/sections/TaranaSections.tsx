@@ -1,7 +1,7 @@
 
 'use client';
 
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { motion, useScroll, useTransform, useMotionValue, useVelocity, useSpring, useAnimationFrame } from 'framer-motion';
 import Image from 'next/image';
 import { Play, Music, ExternalLink, Activity } from 'lucide-react';
@@ -23,7 +23,20 @@ export function TaranaInPixels() {
     const x = useTransform(baseX, (v) => `${wrap(-20, -45, v)}%`);
     const directionFactor = useRef<number>(1);
 
+    const containerRef = useRef<HTMLDivElement>(null);
+    const [isInView, setIsInView] = useState(false);
+
+    useEffect(() => {
+        const observer = new IntersectionObserver(([entry]) => {
+            setIsInView(entry.isIntersecting);
+        }, { threshold: 0.01 });
+        if (containerRef.current) observer.observe(containerRef.current);
+        return () => observer.disconnect();
+    }, []);
+
     useAnimationFrame((t, delta) => {
+        if (!isInView) return;
+
         let moveBy = directionFactor.current * baseVelocity * (delta / 1000);
         if (velocityFactor.get() < 0) {
             directionFactor.current = -1;
@@ -46,7 +59,7 @@ export function TaranaInPixels() {
     const seamlessImages = [...images, ...images, ...images];
 
     return (
-        <section className="relative py-24 bg-[#020202] overflow-hidden border-t border-emerald-900/10">
+        <section ref={containerRef} className="relative py-24 bg-[#020202] overflow-hidden border-t border-emerald-900/10">
             <div className="container mx-auto px-6 mb-12 text-center">
                 <h2 className="text-4xl md:text-6xl font-[900] text-emerald-500 uppercase tracking-tighter mb-4 font-[family-name:var(--font-orbitron)]">
                     TARANA IN PIXELS
@@ -66,6 +79,7 @@ export function TaranaInPixels() {
                                 alt={`Tarana Glimpse ${i}`}
                                 fill
                                 className="object-cover transition-transform duration-700 group-hover:scale-110"
+                                sizes="(max-width: 768px) 280px, 400px"
                             />
                             <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-80" />
                             <div className="absolute bottom-6 left-6">
@@ -136,6 +150,7 @@ export function OriginalMusic() {
                                 alt={track.title}
                                 fill
                                 className="object-cover opacity-80 group-hover:opacity-100 group-hover:scale-105 transition-all duration-500"
+                                sizes="(max-width: 768px) 90vw, (max-width: 1200px) 45vw, 30vw"
                             />
 
                             {/* Play Overlay */}

@@ -119,15 +119,15 @@ function LoadingContent() {
     }, [])
 
     const snowParticles = useMemo(() => {
-        return [...Array(24)].map((_, i) => ({
+        return [...Array(isMobile ? 12 : 24)].map((_, i) => ({
             id: i,
             x: Math.random() * 2000 - 1000,
             yStart: Math.random() * 2000 - 1000,
             yEnd: Math.random() * 1000 + 500,
-            dur: 25 + Math.random() * 20,
+            dur: 20 + Math.random() * 15,
             rotate: Math.random() * 360
         }))
-    }, [])
+    }, [isMobile])
 
     useEffect(() => {
         const checkMobile = () => setIsMobile(window.innerWidth < 768)
@@ -151,24 +151,21 @@ function LoadingContent() {
         if (step === 'SYNCING') {
             const timer = setInterval(() => {
                 setProgress(p => {
-                    // GATEKEEPER: Wait for window load at 90%
-                    const isReady = typeof document !== 'undefined' && document.readyState === 'complete'
-
-                    if (p >= 90 && !isReady) {
-                        return 90
-                    }
+                    // GATEKEEPER: Wait for DOM interactivity (snappier than full window load)
+                    const isReady = typeof document !== 'undefined' &&
+                        (document.readyState === 'complete' || document.readyState === 'interactive')
 
                     if (p >= 100) {
                         clearInterval(timer)
-                        setTimeout(() => setStep('READY'), 200)
+                        setTimeout(() => setStep('READY'), 100)
                         return 100
                     }
 
-                    // Dynamic speed: Ultra-Cinematic (Very Slow for Testing)
-                    const increment = p < 60 ? 1.0 : p < 90 ? 0.5 : 0.2
+                    // Dynamic speed: Faster initial climb to feel responsive
+                    const increment = isReady ? (p < 60 ? 4.0 : 2.5) : (p < 60 ? 2.0 : p < 90 ? 1.0 : 0.4)
                     return Math.min(p + increment, 100)
                 })
-            }, 30)
+            }, 20)
             return () => clearInterval(timer)
         }
     }, [step])
@@ -209,9 +206,10 @@ function LoadingContent() {
                 className="fixed inset-0 z-[11000] flex items-center justify-center p-4 md:p-12 overflow-hidden select-none"
                 initial={{ opacity: 1 }}
                 exit={{
-                    scale: 1.1,
+                    scale: 1.05,
                     opacity: 0,
-                    transition: { duration: 0.8, ease: "easeInOut" }
+                    filter: "blur(10px)",
+                    transition: { duration: 0.6, ease: [0.33, 1, 0.68, 1] }
                 }}
                 style={{
                     willChange: 'opacity, transform',
@@ -386,8 +384,8 @@ function LoadingContent() {
                         style={{
                             clipPath: cockpitClip,
                             background: `linear-gradient(135deg, rgba(255,255,255,0.03), rgba(0,0,0,0.4))`,
-                            backdropFilter: isMobile ? 'none' : 'blur(40px)',
-                            WebkitBackdropFilter: isMobile ? 'none' : 'blur(40px)',
+                            backdropFilter: isMobile ? 'none' : 'blur(12px)',
+                            WebkitBackdropFilter: isMobile ? 'none' : 'blur(12px)',
                             border: `1px solid rgba(255,255,255,0.05)`,
                             boxShadow: isMobile ? 'none' : `0 40px 100px rgba(0,0,0,0.8)`
                         }}

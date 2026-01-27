@@ -61,19 +61,18 @@ function Scene() {
 
     return (
         <>
-            <ambientLight intensity={0.8} />
-            <pointLight position={[10, 10, 10]} intensity={4.5} color="#10b981" />
-            <spotLight position={[-10, 10, 10]} angle={0.25} penumbra={1} intensity={4.0} color="#10b981" />
-            <pointLight position={[0, -5, 0]} intensity={3.0} color="#064e3b" />
+            <ambientLight intensity={1.5} />
+            <pointLight position={[10, 10, 10]} intensity={3} color="#10b981" />
+            <spotLight position={[-10, 10, 10]} angle={0.25} penumbra={1} intensity={3} color="#10b981" />
 
-            <Float speed={2} rotationIntensity={0.5} floatIntensity={0.5}>
+            <Float speed={1.5} rotationIntensity={0.2} floatIntensity={0.2}>
                 <group ref={groupRef}>
                     {/* The Core Eternal Heart */}
-                    <Sphere args={[0.6, 24, 24]} ref={coreRef}>
+                    <Sphere args={[0.6, 16, 16]} ref={coreRef}>
                         <meshStandardMaterial
                             color="#10b981"
                             emissive="#10b981"
-                            emissiveIntensity={20}
+                            emissiveIntensity={10}
                             roughness={0}
                             metalness={1}
                         />
@@ -85,18 +84,18 @@ function Scene() {
                             color="#34d399"
                             wireframe
                             transparent
-                            opacity={0.3}
+                            opacity={0.2}
                             emissive="#10b981"
-                            emissiveIntensity={1.5}
+                            emissiveIntensity={1}
                         />
                     </Octahedron>
 
                     {/* Orbital Rings */}
-                    <Torus args={[2.2, 0.02, 12, 48]} ref={ring1Ref}>
-                        <meshStandardMaterial color="#10b981" emissive="#10b981" emissiveIntensity={5} transparent opacity={0.6} />
+                    <Torus args={[2.2, 0.02, 8, 32]} ref={ring1Ref}>
+                        <meshStandardMaterial color="#10b981" emissive="#10b981" emissiveIntensity={3} transparent opacity={0.5} />
                     </Torus>
-                    <Torus args={[2.6, 0.015, 12, 48]} ref={ring2Ref} rotation={[Math.PI / 2, 0, 0]}>
-                        <meshStandardMaterial color="#34d399" emissive="#10b981" emissiveIntensity={3} transparent opacity={0.4} />
+                    <Torus args={[2.6, 0.015, 8, 32]} ref={ring2Ref} rotation={[Math.PI / 2, 0, 0]}>
+                        <meshStandardMaterial color="#34d399" emissive="#10b981" emissiveIntensity={2} transparent opacity={0.3} />
                     </Torus>
 
                     {/* Levitating Monolith Shards */}
@@ -106,27 +105,14 @@ function Scene() {
                                 <Box args={[1, 1, 1]}>
                                     <meshStandardMaterial
                                         color={i % 2 === 0 ? "#34d399" : "#94a3b8"}
-                                        roughness={0.2}
-                                        metalness={0.8}
+                                        roughness={0.5}
+                                        metalness={0.5}
                                     />
                                 </Box>
-                                {/* Inner shard glow */}
-                                <mesh scale={0.4}>
-                                    <sphereGeometry args={[1, 16, 16]} />
-                                    <meshStandardMaterial color="#10b981" emissive="#10b981" emissiveIntensity={10} />
-                                </mesh>
                             </mesh>
                         ))}
                     </group>
                 </group>
-
-                {/* Ambient Magic Dust */}
-                {particles.map((p, i) => (
-                    <mesh key={i} position={p.position}>
-                        <sphereGeometry args={[p.size]} />
-                        <meshStandardMaterial color="#10b981" emissive="#10b981" emissiveIntensity={6} />
-                    </mesh>
-                ))}
             </Float>
 
             <OrbitControls enableZoom={false} enablePan={false} autoRotate autoRotateSpeed={0.5} />

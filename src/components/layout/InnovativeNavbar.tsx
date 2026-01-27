@@ -26,7 +26,6 @@ export function InnovativeNavbar() {
     const [lastScrollY, setLastScrollY] = useState(0)
     const [isMobile, setIsMobile] = useState(false)
     const [isMenuOpen, setIsMenuOpen] = useState(false)
-    const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 })
 
     // BIOMETRIC STATES
     const [isUnlocked, setIsUnlocked] = useState(false)
@@ -45,35 +44,37 @@ export function InnovativeNavbar() {
 
     const handlePressStart = () => {
         if (isUnlocked || scanComplete) return
-        if (pressIntervalRef.current) clearInterval(pressIntervalRef.current)
+        if (pressIntervalRef.current) cancelAnimationFrame(pressIntervalRef.current as any)
 
         setIsScanning(true)
         setShowError(false)
         setPressProgress(0)
 
         const startTime = Date.now()
-        pressIntervalRef.current = setInterval(() => {
+        const updateProgress = () => {
             const elapsed = Date.now() - startTime
-            const progress = Math.min((elapsed / 3000) * 100, 100)
+            const progress = Math.min((elapsed / 2500) * 100, 100)
             setPressProgress(progress)
 
-            if (elapsed >= 3000) {
-                if (pressIntervalRef.current) clearInterval(pressIntervalRef.current)
+            if (elapsed >= 2500) {
                 setScanComplete(true)
-                setTimeout(() => setIsUnlocked(true), 800)
+                setTimeout(() => setIsUnlocked(true), 600)
+            } else {
+                pressIntervalRef.current = requestAnimationFrame(updateProgress) as any
             }
-        }, 16)
+        }
+        pressIntervalRef.current = requestAnimationFrame(updateProgress) as any
     }
 
     const handlePressEnd = () => {
         if (scanComplete) return
 
         if (pressProgress < 100) {
-            if (pressIntervalRef.current) clearInterval(pressIntervalRef.current)
+            if (pressIntervalRef.current) cancelAnimationFrame(pressIntervalRef.current as any)
             setIsScanning(false)
             setPressProgress(0)
             setShowError(true)
-            setTimeout(() => setShowError(false), 3000)
+            setTimeout(() => setShowError(false), 2000)
         }
     }
 
@@ -94,7 +95,6 @@ export function InnovativeNavbar() {
                 const { innerWidth, innerHeight } = window
                 const x = (clientX - innerWidth / 2) / 60
                 const y = (clientY - innerHeight / 2) / 60
-                setMousePosition({ x, y })
                 navX.set(x)
                 navY.set(y)
             })
@@ -110,23 +110,42 @@ export function InnovativeNavbar() {
     // Navbar intelligence: Smoother Visibility Logic
     useMotionValueEvent(scrollY, "change", (latest) => {
         const direction = latest > lastScrollY ? "down" : "up"
-        const scrollDelta = Math.abs(latest - lastScrollY)
-
         if (latest < 50) {
             setIsVisible(true)
             setIsScrolled(false)
         } else {
             setIsScrolled(true)
-            if (scrollDelta > 10) { // Add buffer to prevent micro-stutters
-                if (direction === "down" && latest > 150) {
-                    setIsVisible(false)
-                } else if (direction === "up") {
-                    setIsVisible(true)
-                }
-            }
+            // The logic for visibility is now handled by the optimized scroll listener
         }
         setLastScrollY(latest)
     })
+
+    useEffect(() => {
+        let rafId: number;
+        const handleScroll = () => {
+            if (rafId) cancelAnimationFrame(rafId);
+
+            rafId = requestAnimationFrame(() => {
+                const currentScrollY = window.scrollY
+                if (currentScrollY > 100) {
+                    if (currentScrollY > lastScrollY + 15) {
+                        setIsVisible(false)
+                    } else if (currentScrollY < lastScrollY - 10) {
+                        setIsVisible(true)
+                    }
+                } else {
+                    setIsVisible(true)
+                }
+                setLastScrollY(currentScrollY)
+            });
+        }
+
+        window.addEventListener('scroll', handleScroll, { passive: true });
+        return () => {
+            window.removeEventListener('scroll', handleScroll);
+            if (rafId) cancelAnimationFrame(rafId);
+        };
+    }, [lastScrollY]); // Depend on lastScrollY to ensure it's up-to-date
 
     useEffect(() => {
         const checkMobile = () => {
@@ -138,8 +157,8 @@ export function InnovativeNavbar() {
         return () => window.removeEventListener('resize', checkMobile)
     }, [])
 
-    // SMOOTHER Spring Config
-    const springConfig = { damping: 40, stiffness: 300, mass: 1 }
+    // ULTIMATE SMOOTHNESS Spring Config
+    const springConfig = { damping: 25, stiffness: 200, mass: 0.8, restDelta: 0.001 }
 
     return (
         <>
@@ -168,7 +187,6 @@ export function InnovativeNavbar() {
                         {!isUnlocked ? (
                             /* THE CYBER-BIOMETRIC TERMINAL */
                             <motion.div
-                                layoutId="nav-container"
                                 className="pointer-events-auto flex flex-col items-center gap-6 no-jank"
                             >
                                 <AnimatePresence>
@@ -191,12 +209,14 @@ export function InnovativeNavbar() {
                                     <motion.div
                                         animate={{ rotate: 360 }}
                                         transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
-                                        className="absolute w-[180px] h-[180px] border border-emerald-500/10 rounded-full border-dashed z-0"
+                                        className="absolute w-[180px] h-[180px] border border-emerald-500/10 rounded-full border-dashed z-0 will-change-transform"
+                                        style={{ translateZ: 0 }}
                                     />
                                     <motion.div
                                         animate={{ rotate: -360 }}
                                         transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
-                                        className="absolute w-[140px] h-[140px] border-2 border-emerald-500/5 rounded-full border-dotted z-0"
+                                        className="absolute w-[140px] h-[140px] border-2 border-emerald-500/5 rounded-full border-dotted z-0 will-change-transform"
+                                        style={{ translateZ: 0 }}
                                     />
 
                                     <div className="absolute z-20 pointer-events-none">
@@ -251,11 +271,12 @@ export function InnovativeNavbar() {
                                             y: [0, 1, -1, 1, -1, 0]
                                         } : {}}
                                         transition={isScanning ? {
-                                            duration: 0.1,
+                                            duration: 0.05,
                                             repeat: Infinity,
                                             ease: "linear"
-                                        } : {}}
-                                        className="relative w-24 h-24 md:w-24 md:h-24 rounded-full bg-emerald-950/40 backdrop-blur-3xl border border-emerald-500/40 flex items-center justify-center shadow-[0_0_60px_rgba(16,185,129,0.2)] z-20 group"
+                                        } : { type: "spring", stiffness: 400, damping: 25 }}
+                                        className="relative w-24 h-24 md:w-24 md:h-24 rounded-full bg-emerald-950/40 backdrop-blur-xl md:backdrop-blur-3xl border border-emerald-500/40 flex items-center justify-center shadow-[0_0_60px_rgba(16,185,129,0.2)] z-20 group"
+                                        style={{ translateZ: 0 }}
                                     >
                                         <Fingerprint
                                             size={48}
@@ -263,7 +284,8 @@ export function InnovativeNavbar() {
                                             className={cn(
                                                 "transition-all duration-500 z-10",
                                                 isScanning ? "text-emerald-300 scale-110 drop-shadow-[0_0_15px_rgba(110,231,183,1)]" : "text-emerald-500/60",
-                                                scanComplete && "text-black scale-125"
+                                                scanComplete && "text-black scale-125",
+                                                "will-change-transform"
                                             )}
                                         />
                                     </motion.button>
@@ -290,11 +312,10 @@ export function InnovativeNavbar() {
                         ) : (
                             /* THE CYBER-DOCK [OBSIDIAN NEON] */
                             <motion.div
-                                layoutId="nav-container"
-                                initial={{ width: 100, height: 100, borderRadius: 50, filter: "brightness(0)" }}
-                                animate={{ width: "100%", height: isMobile ? 70 : 80, borderRadius: isMobile ? 24 : 0, filter: "brightness(1)" }}
+                                initial={{ opacity: 0, scale: 0.95 }}
+                                animate={{ width: "100%", height: isMobile ? 70 : 80, borderRadius: isMobile ? 24 : 0, opacity: 1, scale: 1 }}
                                 className="relative w-full max-w-[700px] h-[70px] md:h-[80px] flex items-center pointer-events-auto group/nav no-jank"
-                                style={{ willChange: 'transform, opacity, width, height', overflow: 'visible' }}
+                                style={{ willChange: 'transform, width, height, opacity', overflow: 'visible', translateZ: 0 }}
                             >
                                 <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 left-1/2 -translate-x-1/2 z-[6000] pointer-events-none">
                                     <div className={cn("absolute left-1/2 -translate-x-1/2", isMobile ? "-top-14" : "-top-20")}>

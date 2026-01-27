@@ -410,8 +410,21 @@ function ParallaxText({ children, baseVelocity = 100 }: ParallaxTextProps) {
 
     const x = useTransform(baseX, (v) => `${wrap(-20, -45, v)}%`);
 
+    const containerRef = useRef<HTMLDivElement>(null);
+    const [isInView, setIsInView] = useState(false);
     const directionFactor = useRef<number>(1);
+
+    useEffect(() => {
+        const observer = new IntersectionObserver(([entry]) => {
+            setIsInView(entry.isIntersecting);
+        }, { threshold: 0.01 });
+        if (containerRef.current) observer.observe(containerRef.current);
+        return () => observer.disconnect();
+    }, []);
+
     useAnimationFrame((t, delta) => {
+        if (!isInView) return;
+
         let moveBy = directionFactor.current * baseVelocity * (delta / 1000);
 
         if (velocityFactor.get() < 0) {
@@ -425,7 +438,7 @@ function ParallaxText({ children, baseVelocity = 100 }: ParallaxTextProps) {
     });
 
     return (
-        <div className="overflow-hidden m-0 whitespace-nowrap flex flex-nowrap">
+        <div ref={containerRef} className="overflow-hidden m-0 whitespace-nowrap flex flex-nowrap">
             <motion.div className="font-[1000] uppercase text-[12vw] leading-[0.85] tracking-tighter text-white/5 whitespace-nowrap flex flex-nowrap" style={{ x }}>
                 <span className="block mr-12">{children} </span>
                 <span className="block mr-12">{children} </span>
@@ -584,7 +597,12 @@ const VolumetricImage = () => {
 
 const ParallaxBackground = () => {
     const { scrollYProgress } = useScroll();
-    const y = useTransform(scrollYProgress, [0, 1], ["0%", "50%"]);
+    const [isMobile, setIsMobile] = useState(false);
+    useEffect(() => {
+        setIsMobile(window.innerWidth < 768);
+    }, []);
+
+    const y = useTransform(scrollYProgress, [0, 1], isMobile ? ["0%", "0%"] : ["0%", "50%"]);
 
     return (
         <motion.div
@@ -663,16 +681,17 @@ const ButtonSecondary = ({ children, onClick }: { children: React.ReactNode, onC
 
 // --- Sections ---
 
-const HeroSection = () => {
+const HeroSection = ({ shouldRender3D }: { shouldRender3D: boolean }) => {
     const router = useRouter()
     const { scrollY } = useScroll()
-    const yHero = useTransform(scrollY, [0, 500], [0, 100])
-    const opacityHero = useTransform(scrollY, [0, 1200], [1, 0]) // Extended range for better visibility
     const [isMobile, setIsMobile] = useState(false)
 
     useEffect(() => {
         setIsMobile(window.innerWidth < 768)
     }, [])
+
+    const yHero = useTransform(scrollY, [0, 500], isMobile ? [0, 0] : [0, -150])
+    const opacityHero = useTransform(scrollY, [0, 1200], [1, 0])
 
     return (
         <section className="relative min-h-[100vh] flex items-center overflow-hidden bg-[#020202] gpu-accel">
@@ -753,33 +772,37 @@ const HeroSection = () => {
                     </motion.div>
                 </motion.div>
 
-                {/* 3D Model */}
+                {/* 3D Model - SEQUENTIAL LOADING APPLIED HERE */}
                 <div className="relative h-[45vh] lg:h-[80vh] w-full order-1 lg:order-2 flex items-center justify-center perspective-1000">
-                    <motion.div
-                        initial={isMobile ? { opacity: 1, scale: 1, rotateY: 0 } : { opacity: 0, scale: 0.5, rotateY: 90 }}
-                        animate={{ opacity: 1, scale: 1, rotateY: 0 }}
-                        transition={{ duration: 1.5, type: "spring", bounce: 0.3 }}
-                        className="w-full h-full relative z-10"
-                    >
-                        <Fest3DModel />
+                    <AnimatePresence>
+                        {shouldRender3D && (
+                            <motion.div
+                                initial={{ opacity: 0, scale: 0.8 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                transition={{ duration: 1 }}
+                                className="w-full h-full relative z-10"
+                            >
+                                <Fest3DModel />
 
-                        {/* Interactive Floating Card */}
-                        <motion.div
-                            animate={{ y: [0, -15, 0] }}
-                            transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-                            className="absolute bottom-10 -right-4 md:right-0 p-5 bg-white/5 border border-emerald-500/20 backdrop-blur-xl rounded-2xl z-20 shadow-[0_10px_40px_rgba(0,0,0,0.5)] hidden md:block"
-                        >
-                            <div className="flex items-center gap-4">
-                                <div className="p-3 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400">
-                                    <Sparkles className="w-6 h-6" />
-                                </div>
-                                <div>
-                                    <div className="text-sm font-bold text-gray-400 uppercase tracking-wider">Total Prize Pool</div>
-                                    <div className="text-2xl font-[900] text-emerald-400">₹ 5,00,000+</div>
-                                </div>
-                            </div>
-                        </motion.div>
-                    </motion.div>
+                                {/* Interactive Floating Card */}
+                                <motion.div
+                                    animate={{ y: [0, -15, 0] }}
+                                    transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+                                    className="absolute bottom-10 -right-4 md:right-0 p-5 bg-white/5 border border-emerald-500/20 backdrop-blur-xl rounded-2xl z-20 shadow-[0_10px_40px_rgba(0,0,0,0.5)] hidden md:block"
+                                >
+                                    <div className="flex items-center gap-4">
+                                        <div className="p-3 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400">
+                                            <Sparkles className="w-6 h-6" />
+                                        </div>
+                                        <div>
+                                            <div className="text-sm font-bold text-gray-400 uppercase tracking-wider">Total Prize Pool</div>
+                                            <div className="text-2xl font-[900] text-emerald-400">₹ 5,00,000+</div>
+                                        </div>
+                                    </div>
+                                </motion.div>
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
                 </div>
             </div>
 
@@ -1181,9 +1204,22 @@ const MarvelTrailerSection = () => {
         "/img/IMG_5442.JPG"
     ]
 
+    const [isInView, setIsInView] = useState(false)
+    const containerRef = useRef<HTMLElement>(null)
+
+    useEffect(() => {
+        const observer = new IntersectionObserver(([entry]) => {
+            setIsInView(entry.isIntersecting)
+        }, { threshold: 0.1 })
+        if (containerRef.current) observer.observe(containerRef.current)
+        return () => observer.disconnect()
+    }, [])
+
     const imageRefs = useRef<(HTMLDivElement | null)[]>([])
 
     useEffect(() => {
+        if (!isInView) return
+
         let index = 0
         // Ensure first image is visible immediately
         if (imageRefs.current[0]) imageRefs.current[0]!.style.opacity = '1'
@@ -1197,10 +1233,10 @@ const MarvelTrailerSection = () => {
             if (imageRefs.current[index]) imageRefs.current[index]!.style.opacity = '1'
         }, 150)
         return () => clearInterval(interval)
-    }, [])
+    }, [isInView])
 
     return (
-        <section className="relative h-screen w-full bg-black overflow-hidden flex items-center justify-center gpu-accel">
+        <section ref={containerRef} className="relative h-screen w-full bg-black overflow-hidden flex items-center justify-center gpu-accel">
             {/* Rapid Fire Background - Optimized with stable DOM nodes */}
             <div className="absolute inset-0 opacity-40">
                 {images.map((img, i) => (
@@ -1422,32 +1458,42 @@ const ViewportLazy = ({ children }: { children: React.ReactNode }) => {
                 setIsVisible(true);
                 observer.disconnect();
             }
-        }, { rootMargin: "400px" }); // Preload well in advance
+        }, { rootMargin: "800px" }); // Increased to 800px for earlier pre-rendering
 
         if (ref.current) observer.observe(ref.current);
         return () => observer.disconnect();
     }, []);
 
-    return <div ref={ref} className="w-full gpu-accel content-lazy" style={{ minHeight: '10vh' }}>{isVisible ? children : null}</div>
+    return <div ref={ref} className="w-full content-lazy" style={{ minHeight: '80vh' }}>{isVisible ? children : null}</div>
 }
 
 export default function LandingPage() {
+    const [shouldRender3D, setShouldRender3D] = useState(false);
+
+    useEffect(() => {
+        // Delay 3D model mounting to avoid stutter during initial page entrance
+        const timer = setTimeout(() => {
+            setShouldRender3D(true);
+        }, 1200);
+        return () => clearTimeout(timer);
+    }, []);
+
     return (
-        <div className="bg-[#020202] min-h-screen text-white font-[family-name:var(--font-inter)] scroll-smooth">
+        <main className="bg-[#020202] text-white">
             <ScrollProgress />
-            <HeroSection />
+            <HeroSection shouldRender3D={shouldRender3D} />
             <ViewportLazy><WelcomeSection /></ViewportLazy>
             <ViewportLazy><AboutFestSection /></ViewportLazy>
             <ViewportLazy><HorizontalTimeline /></ViewportLazy>
             <ViewportLazy><SpecialAttractions /></ViewportLazy>
-            <div id="pronite-section">
+            <div id="pronite-section" className="relative">
                 <ProNiteSection />
                 <ViewportLazy><TaranaInPixels /></ViewportLazy>
                 <ViewportLazy><OriginalMusic /></ViewportLazy>
             </div>
-            <MarvelTrailerSection />
+            <ViewportLazy><MarvelTrailerSection /></ViewportLazy>
             <ViewportLazy><FAQ /></ViewportLazy>
             <Footer />
-        </div>
+        </main>
     )
 }
