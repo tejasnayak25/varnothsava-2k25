@@ -445,7 +445,7 @@ function LoadingContent() {
                     </div>
 
                     {/* CENTER CONTENT */}
-                    <div className="relative z-10 w-full max-w-2xl text-center space-y-12 px-8">
+                    <div className="relative z-10 w-full max-w-5xl text-center space-y-12 px-8">
                         <AnimatePresence mode="wait">
                             {step === 'SYNCING' && (
                                 <motion.div
@@ -455,7 +455,7 @@ function LoadingContent() {
                                     exit={{ opacity: 0, scale: 0.9 }}
                                     className="space-y-10"
                                 >
-                                    <div className={`space-y-6 md:space-y-10 p-10 md:p-14 lg:p-16 rounded-[2.5rem] md:rounded-[3.5rem] border border-white/10 bg-white/[0.03] backdrop-blur-3xl gpu-accel relative overflow-hidden group shadow-2xl`}>
+                                    <div className={`space-y-6 md:space-y-10 p-10 md:p-14 lg:p-16 rounded-[2.5rem] md:rounded-[3.5rem] border border-white/10 bg-white/[0.03] backdrop-blur-3xl gpu-accel relative overflow-hidden group shadow-2xl max-w-3xl mx-auto`}>
                                         <div className="absolute inset-0 bg-gradient-to-br from-white/[0.05] via-transparent to-transparent opacity-100" />
 
                                         {/* Animated Border Trail */}
@@ -501,7 +501,7 @@ function LoadingContent() {
                                         </div>
                                     </div>
 
-                                    <h1 className="text-4xl sm:text-6xl md:text-8xl font-black text-white italic tracking-[0.05em] uppercase leading-none opacity-20 select-none text-center">
+                                    <h1 className="text-4xl sm:text-6xl md:text-[12vw] font-black text-white italic tracking-[0.05em] uppercase leading-none opacity-20 select-none text-center">
                                         VARNOTHSAVA<br /><span className="text-white/5 not-italic">2K26</span>
                                     </h1>
                                 </motion.div>
