@@ -17,12 +17,15 @@ import {
     Download,
     Phone,
     Mail,
-    Globe
+    Globe,
+    Clock
 } from 'lucide-react'
 import { missions } from '@/data/missions'
 import { useApp } from '@/context/AppContext'
 import ProEventBackground from '@/components/ui/ProEventBackground'
 import { MissionCard } from '@/components/ui/MissionCard'
+import Image from 'next/image'
+import { cn } from '@/lib/utils'
 
 // Helper to get theme
 const getTheme = (type: string) => {
@@ -33,80 +36,107 @@ const getTheme = (type: string) => {
 
 // Map logical themes to Tailwind color keys
 const getTailwindTheme = (theme: string) => {
-    if (theme === 'gaming') return 'red'
+    if (theme === 'gaming') return 'violet'
     return theme
 }
 
 // Geometric Tech Card Component
-// Geometric Tech Card Component
-const TechStatCard = ({ icon: Icon, label, value, theme }: any) => (
-    <div className="relative group min-h-[120px] md:min-h-[170px]">
-        {/* Background Glow - Visible on hover */}
-        <div
-            className={`absolute inset-0 bg-${theme}-500/20 blur-xl opacity-0 group-hover:opacity-40 transition-opacity duration-500`}
-        />
+const TechStatCard = ({ icon: Icon, label, value, theme }: any) => {
+    const [isMobile, setIsMobile] = useState(false);
 
-        {/* Border Container */}
-        <div
-            className={`relative w-full h-full p-[1px] md:p-[2px] bg-gradient-to-b from-${theme}-500 via-${theme}-500/20 to-${theme}-500 overflow-hidden`}
-            style={{ clipPath: 'polygon(12px 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%, 0 12px)' }}
-        >
-            {/* Corner Accents */}
-            <div className={`absolute top-0 left-0 w-4 h-4 md:w-8 md:h-8 border-t-2 border-l-2 border-${theme}-500`} />
-            <div className={`absolute top-0 right-0 w-4 h-4 md:w-8 md:h-8 border-t-2 border-r-2 border-${theme}-500`} />
-            <div className={`absolute bottom-0 left-0 w-4 h-4 md:w-8 md:h-8 border-b-2 border-l-2 border-${theme}-500`} />
-            <div className={`absolute bottom-0 right-0 w-4 h-4 md:w-8 md:h-8 border-b-2 border-r-2 border-${theme}-500`} />
+    useEffect(() => {
+        setIsMobile(window.innerWidth < 768);
+    }, []);
 
-            {/* Inner Content */}
+    return (
+        <div className="relative group min-h-[120px] md:min-h-[170px]">
+            {/* Background Glow - Visible on hover - Desktop only */}
+            {!isMobile && (
+                <div
+                    className={`absolute inset-0 bg-${theme}-500/20 blur-xl opacity-0 group-hover:opacity-40 transition-opacity duration-500`}
+                />
+            )}
+
+            {/* Border Container */}
             <div
-                className="relative bg-black/80 backdrop-blur-lg md:backdrop-blur-2xl p-4 md:p-8x h-full flex flex-col items-center justify-center gap-1 md:gap-3 text-center"
-                style={{ clipPath: 'polygon(15px 0, calc(100% - 8px) 0, 100% 8px, 100% calc(100% - 15px), calc(100% - 15px) 100%, 8px 100%, 0 calc(100% - 8px), 0 15px)' }}
+                className={`relative w-full h-full p-[1px] md:p-[2px] bg-gradient-to-b from-${theme}-500 via-${theme}-500/20 to-${theme}-500 overflow-hidden`}
+                style={{ clipPath: 'polygon(12px 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%, 0 12px)' }}
             >
-                <div className={`p-2 md:p-3 bg-${theme}-500/20 border-2 border-${theme}-500/40 group-hover:scale-110 transition-transform active:scale-95`} style={{ clipPath: 'polygon(4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%, 0 4px)', willChange: 'transform' }}>
-                    <Icon size={16} className={`text-${theme}-500`} />
-                </div>
-                <div>
-                    <p className={`text-[7px] md:text-[9px] font-black uppercase tracking-[0.1em] md:tracking-[0.2em] text-${theme}-500/70 mb-0.5 md:mb-1`}>{label}</p>
-                    <p className="text-sm sm:text-lg md:text-2xl font-black italic uppercase tracking-tight text-white leading-snug">
-                        {value}</p>
+                {/* Corner Accents */}
+                <div className={`absolute top-0 left-0 w-4 h-4 md:w-8 md:h-8 border-t-2 border-l-2 border-${theme}-500`} />
+                <div className={`absolute top-0 right-0 w-4 h-4 md:w-8 md:h-8 border-t-2 border-r-2 border-${theme}-500`} />
+                <div className={`absolute bottom-0 left-0 w-4 h-4 md:w-8 md:h-8 border-b-2 border-l-2 border-${theme}-500`} />
+                <div className={`absolute bottom-0 right-0 w-4 h-4 md:w-8 md:h-8 border-b-2 border-r-2 border-${theme}-500`} />
+
+                {/* Inner Content */}
+                <div
+                    className={cn(
+                        "relative bg-black/80 p-4 md:p-8x h-full flex flex-col items-center justify-center gap-1 md:gap-3 text-center",
+                        isMobile ? "" : "backdrop-blur-lg md:backdrop-blur-2xl"
+                    )}
+                    style={{ clipPath: 'polygon(15px 0, calc(100% - 8px) 0, 100% 8px, 100% calc(100% - 15px), calc(100% - 15px) 100%, 8px 100%, 0 calc(100% - 8px), 0 15px)' }}
+                >
+                    <div className={`p-2 md:p-3 bg-${theme}-500/20 border-2 border-${theme}-500/40 group-hover:scale-110 transition-transform active:scale-95`} style={{ clipPath: 'polygon(4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%, 0 4px)', willChange: 'transform' }}>
+                        <Icon size={16} className={`text-${theme}-500`} />
+                    </div>
+                    <div>
+                        <p className={`text-[9px] md:text-[10px] font-black uppercase tracking-[0.1em] md:tracking-[0.2em] text-${theme}-500/70 mb-0.5 md:mb-1`}>{label}</p>
+                        <p className="text-base sm:text-lg md:text-2xl font-black italic uppercase tracking-tight text-white leading-snug">
+                            {value}</p>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
-)
+    );
+};
 
 // Geometric Tech Content Wrapper
-const TechContentCard = ({ children, theme }: any) => (
-    <div className="relative group h-full">
-        {/* Background Glow - Visible on hover */}
-        <div
-            className={`absolute inset-0 bg-${theme}-500/10 blur-xl opacity-0 group-hover:opacity-30 transition-opacity duration-500`}
-        />
+const TechContentCard = ({ children, theme }: any) => {
+    const [isMobile, setIsMobile] = useState(false);
 
-        {/* Border Container - Enhanced Geometric */}
-        <div
-            className={`relative w-full h-full p-[2px] bg-gradient-to-br from-${theme}-500 via-${theme}-500/30 to-${theme}-500 overflow-hidden`}
-            style={{ clipPath: 'polygon(30px 0, calc(100% - 15px) 0, 100% 15px, 100% calc(100% - 30px), calc(100% - 30px) 100%, 15px 100%, 0 calc(100% - 15px), 0 30px)' }}
-        >
-            {/* Corner Accents */}
-            <div className={`absolute top-0 left-0 w-10 h-10 border-t-2 border-l-2 border-${theme}-500 opacity-50`} />
-            <div className={`absolute top-0 right-0 w-10 h-10 border-t-2 border-r-2 border-${theme}-500 opacity-50`} />
-            <div className={`absolute bottom-0 left-0 w-10 h-10 border-b-2 border-l-2 border-${theme}-500 opacity-50`} />
-            <div className={`absolute bottom-0 right-0 w-10 h-10 border-b-2 border-r-2 border-${theme}-500 opacity-50`} />
+    useEffect(() => {
+        setIsMobile(window.innerWidth < 768);
+    }, []);
 
-            {/* Spinning Light Effect (Hover) */}
-            <div className={`absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent w-[200%] h-[200%] -translate-x-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 animate-spin`} style={{ animationDuration: '3s' }} />
+    return (
+        <div className="relative group h-full">
+            {/* Background Glow - Visible on hover - Desktop Only */}
+            {!isMobile && (
+                <div
+                    className={`absolute inset-0 bg-${theme}-500/10 blur-xl opacity-0 group-hover:opacity-30 transition-opacity duration-500`}
+                />
+            )}
 
-            {/* Inner Content */}
+            {/* Border Container - Enhanced Geometric */}
             <div
-                className="relative bg-black/80 backdrop-blur-lg md:backdrop-blur-2xl p-8 h-full"
-                style={{ clipPath: 'polygon(29px 0, calc(100% - 14px) 0, 100% 14px, 100% calc(100% - 29px), calc(100% - 29px) 100%, 14px 100%, 0 calc(100% - 14px), 0 29px)' }}
+                className={`relative w-full h-full p-[2px] bg-gradient-to-br from-${theme}-500 via-${theme}-500/30 to-${theme}-500 overflow-hidden`}
+                style={{ clipPath: 'polygon(30px 0, calc(100% - 15px) 0, 100% 15px, 100% calc(100% - 30px), calc(100% - 30px) 100%, 15px 100%, 0 calc(100% - 15px), 0 30px)' }}
             >
-                {children}
+                {/* Corner Accents */}
+                <div className={`absolute top-0 left-0 w-10 h-10 border-t-2 border-l-2 border-${theme}-500 opacity-50`} />
+                <div className={`absolute top-0 right-0 w-10 h-10 border-t-2 border-r-2 border-${theme}-500 opacity-50`} />
+                <div className={`absolute bottom-0 left-0 w-10 h-10 border-b-2 border-l-2 border-${theme}-500 opacity-50`} />
+                <div className={`absolute bottom-0 right-0 w-10 h-10 border-b-2 border-r-2 border-${theme}-500 opacity-50`} />
+
+                {/* Spinning Light Effect (Hover) - Desktop Only */}
+                {!isMobile && (
+                    <div className={`absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent w-[200%] h-[200%] -translate-x-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 animate-spin`} style={{ animationDuration: '3s' }} />
+                )}
+
+                {/* Inner Content */}
+                <div
+                    className={cn(
+                        "relative bg-black/80 p-8 h-full",
+                        !isMobile && "backdrop-blur-lg md:backdrop-blur-2xl"
+                    )}
+                    style={{ clipPath: 'polygon(29px 0, calc(100% - 14px) 0, 100% 14px, 100% calc(100% - 29px), calc(100% - 29px) 100%, 14px 100%, 0 calc(100% - 14px), 0 29px)' }}
+                >
+                    {children}
+                </div>
             </div>
         </div>
-    </div>
-)
+    )
+}
 
 export default function EventDetailsPage() {
     const { id } = useParams()
@@ -143,24 +173,25 @@ export default function EventDetailsPage() {
 
     const themeColor = mission ? (
         mission.type === 'Cultural' ? 'amber' :
-            (mission.type === 'Gaming' ?
-                (mission.title.toLowerCase().includes('valorant') ? 'gaming' : 'amber') :
-                'emerald')
+            (mission.type === 'Gaming' ? 'gaming' : 'emerald')
     ) : 'emerald'
 
     const twTheme = getTailwindTheme(themeColor)
-    const primaryGlow = themeColor === 'amber' ? 'rgba(245, 158, 11, 0.5)' : (themeColor === 'gaming' ? 'rgba(239, 68, 68, 0.5)' : 'rgba(16, 185, 129, 0.5)')
+    const primaryGlow = themeColor === 'amber' ? 'rgba(245, 158, 11, 0.5)' : (themeColor === 'gaming' ? 'rgba(139, 92, 246, 0.5)' : 'rgba(16, 185, 129, 0.5)')
 
     return (
         <main className="min-h-screen bg-[#020202] text-white relative overflow-x-hidden font-sans" style={{ contain: 'layout paint' }}>
 
 
+            {/* Background */}
+            <ProEventBackground theme={themeColor} scrollProgress={scrollYProgress} isDetailed={true} />
+
             {/* Scroll Progress Indicator - GPU Optimized */}
             <motion.div
-                className={`fixed top-0 left-0 right-0 h-1 bg-gradient-to-r ${twTheme === 'amber' ? 'from-amber-500 to-amber-300' : (twTheme === 'red' ? 'from-red-500 to-red-300' : 'from-emerald-500 to-emerald-300')} z-[100] origin-left`}
+                className={`fixed top-0 left-0 right-0 h-1 bg-gradient-to-r ${twTheme === 'amber' ? 'from-amber-500 to-amber-300' : (twTheme === 'violet' ? 'from-violet-500 to-violet-300' : 'from-emerald-500 to-emerald-300')} z-[100] origin-left`}
                 style={{
                     scaleX: scrollYProgress,
-                    boxShadow: `0 0 20px ${themeColor === 'amber' ? 'rgba(245, 158, 11, 0.8)' : (themeColor === 'gaming' ? 'rgba(239, 68, 68, 0.8)' : 'rgba(16, 185, 129, 0.8)')}`
+                    boxShadow: `0 0 20px ${themeColor === 'amber' ? 'rgba(245, 158, 11, 0.8)' : (themeColor === 'gaming' ? 'rgba(139, 92, 246, 0.8)' : 'rgba(16, 185, 129, 0.8)')}`
                 }}
             />
 
@@ -206,16 +237,19 @@ export default function EventDetailsPage() {
 
                                 {/* Image Container */}
                                 <div className="relative w-full h-full bg-black/40" style={{ clipPath: 'polygon(29px 0, calc(100% - 14px) 0, 100% 14px, 100% calc(100% - 29px), calc(100% - 29px) 100%, 14px 100%, 0 calc(100% - 14px), 0 29px)' }}>
-                                    <img
+                                    <Image
                                         src={mission.visual}
                                         alt={mission.title}
+                                        fill
+                                        priority
+                                        sizes="(max-width: 768px) 100vw, 50vw"
                                         className="w-full h-full object-cover opacity-90 group-hover:opacity-100 transition-opacity duration-700"
                                     />
                                     <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent" />
 
                                     <div className="absolute bottom-0 left-0 w-full p-6 md:p-8">
                                         <motion.h1
-                                            className={`text-3xl sm:text-4xl md:text-5xl font-black uppercase tracking-tighter leading-none mb-3 md:mb-4 ${twTheme === 'amber' ? 'text-amber-500' : (twTheme === 'red' ? 'text-red-500' : 'text-emerald-500')}`}
+                                            className={`text-3xl sm:text-4xl md:text-5xl font-black uppercase tracking-tighter leading-none mb-3 md:mb-4 ${twTheme === 'amber' ? 'text-amber-500' : (twTheme === 'violet' ? 'text-violet-500' : 'text-emerald-500')}`}
                                             style={{ textShadow: `0 0 30px ${primaryGlow}` }}
                                         >
 
@@ -224,10 +258,10 @@ export default function EventDetailsPage() {
                                         </motion.h1>
 
                                         <div className="flex flex-wrap gap-3 md:gap-4 items-center">
-                                            <span className="px-2 md:px-3 py-1 bg-white/10 backdrop-blur-md rounded-full text-[9px] md:text-[10px] font-bold uppercase tracking-widest border border-white/20">
+                                            <span className="px-2 md:px-3 py-1 bg-white/10 backdrop-blur-md rounded-full text-xs font-bold uppercase tracking-widest border border-white/20">
                                                 ID: {mission.id}
                                             </span>
-                                            <span className={`px-2 md:px-3 py-1 bg-${twTheme}-500/10 backdrop-blur-md rounded-full text-[9px] md:text-[10px] font-bold uppercase tracking-widest border border-${twTheme}-500/30 text-${twTheme}-400`}>
+                                            <span className={`px-2 md:px-3 py-1 bg-${twTheme}-500/10 backdrop-blur-md rounded-full text-xs font-bold uppercase tracking-widest border border-${twTheme}-500/30 text-${twTheme}-400`}>
                                                 {mission.type}
                                             </span>
 
@@ -263,7 +297,7 @@ export default function EventDetailsPage() {
                             <motion.button
                                 whileHover={{ scale: 1.05 }}
                                 whileTap={{ scale: 0.95 }}
-                                className="py-3 md:py-4 bg-white/[0.03] border border-white/10 hover:bg-white/10 hover:border-white/20 transition-all rounded-xl flex items-center justify-center gap-2 text-[9px] md:text-[10px] font-bold uppercase tracking-widest backdrop-blur-md"
+                                className="py-3 md:py-4 bg-white/[0.03] border border-white/10 hover:bg-white/10 hover:border-white/20 transition-all rounded-xl flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-widest backdrop-blur-md"
                             >
                                 <Download size={14} />
                                 BROCHURE
@@ -271,7 +305,7 @@ export default function EventDetailsPage() {
                             <motion.button
                                 whileHover={{ scale: 1.05 }}
                                 whileTap={{ scale: 0.95 }}
-                                className="py-3 md:py-4 bg-white/[0.03] border border-white/10 hover:bg-white/10 hover:border-white/20 transition-all rounded-xl flex items-center justify-center gap-2 text-[9px] md:text-[10px] font-bold uppercase tracking-widest backdrop-blur-md"
+                                className="py-3 md:py-4 bg-white/[0.03] border border-white/10 hover:bg-white/10 hover:border-white/20 transition-all rounded-xl flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-widest backdrop-blur-md"
                             >
                                 <Globe size={14} />
                                 TEASER
@@ -326,9 +360,9 @@ export default function EventDetailsPage() {
                         >
                             <div className="flex items-center gap-3">
                                 <Info size={18} className={`text-${twTheme}-500`} />
-                                <h2 className="text-xs md:text-sm font-black uppercase tracking-widest">MISSION BRIEF</h2>
+                                <h2 className="text-sm md:text-base font-black uppercase tracking-widest">MISSION BRIEF</h2>
                             </div>
-                            <p className="text-sm sm:text-base md:text-lg text-white/80 font-medium leading-relaxed font-mono">
+                            <p className="text-base md:text-lg text-white/80 font-medium leading-relaxed font-mono">
                                 {mission.description}
                             </p>
                         </motion.section>
@@ -345,11 +379,11 @@ export default function EventDetailsPage() {
                                     <div className="space-y-4 md:space-y-6">
                                         <div className="flex items-center gap-3">
                                             <FileText size={18} className={`text-${twTheme}-500`} />
-                                            <h2 className="text-xs md:text-sm font-black uppercase tracking-widest">RULES</h2>
+                                            <h2 className="text-sm md:text-base font-black uppercase tracking-widest">RULES</h2>
                                         </div>
                                         <ul className="space-y-3 md:space-y-4">
                                             {mission.rules?.map((rule: string, idx: number) => (
-                                                <li key={idx} className="flex gap-3 text-xs md:text-sm text-white/60 font-mono items-start">
+                                                <li key={idx} className="flex gap-3 text-sm md:text-base text-white/60 font-mono items-start">
                                                     <span className={`text-${twTheme}-500 mt-0.5 md:mt-1`}>▶</span>
                                                     {rule}
                                                 </li>
@@ -370,7 +404,7 @@ export default function EventDetailsPage() {
                                         <div className="space-y-4 md:space-y-6">
                                             <div className="flex items-center gap-3">
                                                 <Trophy size={18} className="text-amber-500" />
-                                                <h2 className="text-xs md:text-sm font-black uppercase tracking-widest">
+                                                <h2 className="text-sm md:text-base font-black uppercase tracking-widest">
                                                     EVALUATION
                                                 </h2>
                                             </div>
@@ -379,7 +413,7 @@ export default function EventDetailsPage() {
                                                 {mission.evaluation.map((item: string, idx: number) => (
                                                     <li
                                                         key={idx}
-                                                        className="flex gap-3 text-xs md:text-sm text-white/60 font-mono items-start"
+                                                        className="flex gap-3 text-sm md:text-base text-white/60 font-mono items-start"
                                                     >
                                                         <span className="text-amber-500 mt-0.5 md:mt-1 font-bold">
                                                             {idx + 1}.
@@ -487,10 +521,10 @@ export default function EventDetailsPage() {
                                 <TechContentCard theme={twTheme}>
                                     <div className="flex items-center justify-between">
                                         <div>
-                                            <h3 className="text-base md:text-lg font-black uppercase tracking-tighter">
+                                            <h3 className="text-lg md:text-xl font-black uppercase tracking-tighter">
                                                 {name}
                                             </h3>
-                                            <p className="text-[9px] md:text-[10px] font-bold text-white/40 uppercase tracking-widest mt-1">
+                                            <p className="text-[10px] md:text-xs font-bold text-white/40 uppercase tracking-widest mt-1">
                                                 {idx === 0 ? 'Faculty Coordinator' : 'Student Coordinator'}
                                             </p>
                                         </div>
@@ -535,9 +569,9 @@ export default function EventDetailsPage() {
                     />
 
                     <TechStatCard
-                        icon={Trophy}
-                        label="PRIZE POOL"
-                        value={mission.prizePool}
+                        icon={Clock}
+                        label="TIME"
+                        value={mission.time || 'TBA'}
                         theme={twTheme}
                     />
                     <TechStatCard

@@ -24,7 +24,7 @@ export function RegistrationModal({ isOpen, onClose, event, userData, onConfirm 
 
     if (!event) return null
 
-    const isTeamEvent = event.maxTeamSize > 1
+    const isTeamEvent = (event.maxTeamSize ?? 1) > 1
     const currentTotalMembers = 1 + memberIds.length // User + extra members
 
     const handleAddMember = () => {
@@ -37,7 +37,7 @@ export function RegistrationModal({ isOpen, onClose, event, userData, onConfirm 
             setError('You are already included as the leader.')
             return
         }
-        if (currentTotalMembers >= event.maxTeamSize) {
+        if (event.maxTeamSize && currentTotalMembers >= event.maxTeamSize) {
             setError(`Maximum team size for this event is ${event.maxTeamSize}.`)
             return
         }
@@ -62,7 +62,7 @@ export function RegistrationModal({ isOpen, onClose, event, userData, onConfirm 
             return
         }
 
-        if (currentTotalMembers < event.minTeamSize) {
+        if (event.minTeamSize && currentTotalMembers < event.minTeamSize) {
             setError(`This event requires at least ${event.minTeamSize} members. Please add ${event.minTeamSize - currentTotalMembers} more.`)
             setIsLoading(false)
             return
@@ -92,7 +92,7 @@ export function RegistrationModal({ isOpen, onClose, event, userData, onConfirm 
                             animate={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
                             onClick={onClose}
-                            className="fixed inset-0 bg-black/80 backdrop-blur-md"
+                            className="fixed inset-0 bg-black/80 backdrop-blur-[2px] md:backdrop-blur-md"
                         />
 
                         {/* Modal Content */}
@@ -131,7 +131,7 @@ export function RegistrationModal({ isOpen, onClose, event, userData, onConfirm 
                                 <div className="space-y-4 mb-4">
                                     <div className="p-4 bg-emerald-500/5 border border-emerald-500/10 rounded-2xl">
                                         <label className="text-[10px] font-black text-emerald-500/40 uppercase tracking-widest block mb-1">Squad_Capacity (Team Size)</label>
-                                        <div className="text-white font-bold text-base">{event.minTeamSize === event.maxTeamSize ? event.maxTeamSize : `${event.minTeamSize}-${event.maxTeamSize}`} Units</div>
+                                        <div className="text-white font-bold text-base">{(event.minTeamSize ?? 1) === (event.maxTeamSize ?? 1) ? (event.maxTeamSize ?? 1) : `${event.minTeamSize ?? 1}-${event.maxTeamSize ?? 1}`} Units</div>
                                     </div>
                                 </div>
 
@@ -189,7 +189,7 @@ export function RegistrationModal({ isOpen, onClose, event, userData, onConfirm 
                                             </div>
 
                                             {/* Add Member Input */}
-                                            {currentTotalMembers < event.maxTeamSize && (
+                                            {currentTotalMembers < (event.maxTeamSize ?? 1) && (
                                                 <div className="flex gap-2">
                                                     <div className="relative flex-1">
                                                         <Hash className="absolute left-4 top-1/2 -translate-y-1/2 text-emerald-500/30" size={16} />

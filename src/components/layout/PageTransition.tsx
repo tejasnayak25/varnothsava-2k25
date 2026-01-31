@@ -47,18 +47,20 @@ export function PageTransition({ children }: { children: ReactNode }) {
                 </motion.div>
             </AnimatePresence>
 
-            {/* Cinematic Shutter - Only for sub-pages to maintain premium storytelling */}
-            <motion.div
-                key={`sweep-${pathname}`}
-                initial={{ x: '100%' }}
-                animate={{ x: '-200%' }}
-                transition={{ duration: 0.8, ease: [0.76, 0, 0.24, 1] }}
-                className="fixed inset-0 z-[9999] pointer-events-none flex"
-            >
-                <div className="flex-1 bg-[#050805] border-r border-emerald-500/20" />
-                <div className="flex-1 bg-[#0a120a] border-x border-emerald-500/10" />
-                <div className="flex-1 bg-[#050805] border-l border-emerald-500/20" />
-            </motion.div>
+            {/* Cinematic Shutter - Only for sub-pages, DISABLED for leaderboard to prevent clash */}
+            {pathname !== '/leaderboard' && (
+                <motion.div
+                    key={`sweep-${pathname}`}
+                    initial={{ x: '100%' }}
+                    animate={{ x: '-200%' }}
+                    transition={{ duration: 0.8, ease: [0.76, 0, 0.24, 1] }}
+                    className="fixed inset-0 z-[9999] pointer-events-none flex"
+                >
+                    <div className="flex-1 bg-[#050805] border-r border-emerald-500/20" />
+                    <div className="flex-1 bg-[#0a120a] border-x border-emerald-500/10" />
+                    <div className="flex-1 bg-[#050805] border-l border-emerald-500/20" />
+                </motion.div>
+            )}
         </div>
     )
 }

@@ -2,10 +2,10 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
 /**
- * Security Middleware
+ * Security Proxy
  * Implements CORS, security headers, and basic request validation
  */
-export function middleware(request: NextRequest) {
+export default function proxy(request: NextRequest) {
     const origin = request.headers.get('origin');
     const pathname = request.nextUrl.pathname;
 
@@ -14,6 +14,8 @@ export function middleware(request: NextRequest) {
         process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000',
         'http://localhost:3000',
         'http://127.0.0.1:3000',
+        'http://192.168.1.100:3000',
+        'http://192.168.56.1:3000',
     ];
 
     // Production origins (add your production domains)

@@ -25,9 +25,36 @@ const nextConfig: NextConfig = {
       {
         protocol: 'https',
         hostname: 'img.youtube.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'encrypted-tbn0.gstatic.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'wallpapers.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'api.dicebear.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'nekos.best',
+      },
+      {
+        protocol: 'https',
+        hostname: 'www.mekathlon.com',
       }
     ],
   },
+  allowedDevOrigins: [
+    "192.168.1.100:3000",
+    "192.168.56.1:3000",
+    "localhost:3000",
+    "127.0.0.1:3000",
+    "*.localhost"
+  ],
   compiler: {
     removeConsole: process.env.NODE_ENV === "production",
   },

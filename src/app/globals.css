@@ -254,10 +254,59 @@ body {
     animation: shimmer 3s infinite linear;
 }
 
+@keyframes grain {
+
+    0%,
+    100% {
+        transform: translate(0, 0);
+    }
+
+    10% {
+        transform: translate(-1%, -1%);
+    }
+
+    20% {
+        transform: translate(1%, 1%);
+    }
+
+    30% {
+        transform: translate(-2%, 0);
+    }
+
+    40% {
+        transform: translate(2%, 2%);
+    }
+
+    50% {
+        transform: translate(-1%, 1%);
+    }
+
+    60% {
+        transform: translate(1%, -1%);
+    }
+
+    70% {
+        transform: translate(0, 2%);
+    }
+
+    80% {
+        transform: translate(-2%, 1%);
+    }
+
+    90% {
+        transform: translate(1%, 2%);
+    }
+}
+
+.animate-grain {
+    animation: grain 0.8s steps(10) infinite;
+}
+
 @keyframes text-shimmer {
     0% {
         background-position: 200% center;
     }
+
     100% {
         background-position: -200% center;
     }
@@ -288,6 +337,15 @@ body {
 
 .custom-scrollbar-hide::-webkit-scrollbar {
     display: none;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+    display: none;
+}
+
+.no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
 }
 
 .ease-expo {
@@ -324,6 +382,15 @@ body {
 /* --- MOBILE PERFORMANCE OVERRIDES --- */
 @media (max-width: 768px) {
 
+    /* Optimize touch scrolling */
+    html,
+    body {
+        -webkit-overflow-scrolling: touch;
+        overscroll-behavior-y: contain;
+        scroll-behavior: auto;
+        /* Let JS handle smooth scroll */
+    }
+
     /* Disable expensive blur filters globally for smoothness */
     /* Remove expensive global filters */
     *,
@@ -351,13 +418,31 @@ body {
     /* Disable heavy large shadows/glows */
     .shadow-2xl,
     .drop-shadow-2xl {
-        box-shadow: none !important;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1) !important;
+        /* Lighter shadow */
+        filter: none !important;
+    }
+
+    /* Disable expensive filters */
+    .blur-sm,
+    .blur,
+    .blur-md,
+    .blur-lg,
+    .blur-xl {
         filter: none !important;
     }
 
     /* Hardware accelerate everything */
     * {
         -webkit-font-smoothing: antialiased;
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    /* Optimize animations for mobile */
+    [class*="animate-"],
+    [class*="motion-"] {
+        animation-duration: 0.3s !important;
+        transition-duration: 0.3s !important;
     }
 
     /* Force 'Medium' sizes for large headings on mobile */
@@ -369,6 +454,39 @@ body {
 
     .text-h2 {
         font-size: clamp(1.4rem, 6vw, 2rem) !important;
+    }
+
+    /* Optimize images for mobile */
+    img {
+        image-rendering: -webkit-optimize-contrast;
+        transform: translateZ(0);
+    }
+
+    /* Reduce motion for better performance */
+    @keyframes mesh-drift {
+
+        0%,
+        100% {
+            transform: translate(0, 0) scale(1);
+        }
+
+        50% {
+            transform: translate(2%, 2%) scale(1.02);
+        }
+    }
+
+    @keyframes slow-pulse {
+
+        0%,
+        100% {
+            opacity: 0.3;
+            transform: scale(1);
+        }
+
+        50% {
+            opacity: 0.5;
+            transform: scale(1.02);
+        }
     }
 }
 
@@ -411,3 +529,78 @@ body {
     background-size: 100% 4px;
     z-index: 100;
 }
+
+/* === VIEWPORT-LOCKED CULTURAL PAGE SCROLLBAR === */
+/* Premium scrollbar for internal Cultural events container */
+.custom-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(245, 158, 11, 0.3) transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+    width: 8px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, rgba(245, 158, 11, 0.4), rgba(245, 158, 11, 0.2));
+    border-radius: 10px;
+    border: 2px solid transparent;
+    background-clip: padding-box;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(180deg, rgba(245, 158, 11, 0.6), rgba(245, 158, 11, 0.4));
+    background-clip: padding-box;
+}
+
+/* === SMOOTH SCROLL BEHAVIOR FOR PINNED SECTION === */
+.scroll-smooth {
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* Dampened, fluid scrolling for premium feel */
+@supports (scroll-behavior: smooth) {
+    .scroll-smooth {
+        scroll-snap-type: none;
+        overscroll-behavior: contain;
+    }
+}
+
+/* Ensure background stays fixed and fills viewport */
+.fixed-background-layer {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    pointer-events: none;
+}
+/* --- DYNAMIC BACKGROUND ANIMATIONS --- */
+@keyframes gridScroll {
+    0% { background-position: 0 0; }
+    100% { background-position: 50px 50px; }
+}
+
+@keyframes scanLine {
+    0% { transform: translateX(-100%); opacity: 0; }
+    10% { opacity: 1; }
+    90% { opacity: 1; }
+    100% { transform: translateX(100%); opacity: 0; }
+}
+
+@keyframes floatParticle {
+    0%, 100% { transform: translate(0, 0) rotate(0deg); }
+    33% { transform: translate(10px, -20px) rotate(120deg); }
+    66% { transform: translate(-10px, -10px) rotate(240deg); }
+}
+
+@keyframes pulseGlow {
+    0%, 100% { box-shadow: 0 0 20px currentColor; }
+    50% { box-shadow: 0 0 40px currentColor; }
+}
+

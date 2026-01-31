@@ -13,8 +13,25 @@ interface ProEventBackgroundProps {
 // --- EPIC LIVELY GAMING BACKGROUND (CHARACTERS & ARENA) ---
 // --- EPIC LIVELY GAMING BACKGROUND (CHARACTERS & ARENA) ---
 const GamingPulse = React.memo(({ scrollProgress, isMobile }: { scrollProgress: any, isMobile: boolean }) => {
+    const [mounted, setMounted] = React.useState(false)
+    const [sparks, setSparks] = React.useState<any[]>([])
+
     const y = useTransform(scrollProgress, (val: number) => val * 50)
     const scale = useTransform(scrollProgress, (val: number) => 1 + val * 0.05)
+
+    React.useEffect(() => {
+        setMounted(true)
+        // Generate sparks only on client
+        const count = isMobile ? 3 : 10
+        const newSparks = [...Array(count)].map((_, i) => ({
+            id: i,
+            left: Math.random() * 100 + '%',
+            top: Math.random() * 100 + '%',
+            duration: 3 + Math.random() * 2,
+            delay: Math.random() * 5
+        }))
+        setSparks(newSparks)
+    }, [isMobile])
 
     return (
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
@@ -83,13 +100,13 @@ const GamingPulse = React.memo(({ scrollProgress, isMobile }: { scrollProgress: 
                 )}
 
                 {/* Energy Sparks */}
-                {[...Array(isMobile ? 3 : 10)].map((_, i) => (
+                {sparks.map((s) => (
                     <motion.div
-                        key={`spark-${i}`}
+                        key={`spark-${s.id}`}
                         className="absolute w-[1.5px] h-[1.5px] bg-white rounded-full shadow-[0_0_10px_white]"
-                        style={{ left: `${Math.random() * 100}%`, top: `${Math.random() * 100}%`, willChange: 'opacity, transform' }}
+                        style={{ left: s.left, top: s.top, willChange: 'opacity, transform' }}
                         animate={{ opacity: [0, 0.6, 0], scale: [0, 1.2, 0] }}
-                        transition={{ duration: 3 + Math.random() * 2, repeat: Infinity, delay: Math.random() * 5 }}
+                        transition={{ duration: s.duration, repeat: Infinity, delay: s.delay }}
                     />
                 ))}
             </div>
@@ -101,7 +118,6 @@ const GamingPulse = React.memo(({ scrollProgress, isMobile }: { scrollProgress: 
     )
 })
 
-// --- HIGH-PERFORMANCE GRID ENGINE ---
 const GridBeams = React.memo(({ theme = 'emerald' }: { theme?: 'emerald' | 'amber' | 'cyan' | 'indigo' | 'gaming' }) => {
     // ... existing useEffect with added gaming logic ...
     const canvasRef = useRef<HTMLCanvasElement>(null)
@@ -145,7 +161,7 @@ const GridBeams = React.memo(({ theme = 'emerald' }: { theme?: 'emerald' | 'ambe
         const squares: { x: number; y: number; life: number; maxLife?: number }[] = []
         const particles: { x: number; y: number; s: number; vy: number }[] = []
 
-        const particleCount = isMobile ? 4 : 40
+        const particleCount = isMobile ? 1 : 30
         for (let i = 0; i < particleCount; i++) {
             particles.push({
                 x: Math.random() * width,
@@ -161,23 +177,23 @@ const GridBeams = React.memo(({ theme = 'emerald' }: { theme?: 'emerald' | 'ambe
             time += 0.05
             ctx.clearRect(0, 0, width, height)
 
-            // Dynamic "Breathing" Grid Layer
+            // Dynamic "Breathing" Grid Layer - SUPER VISIBLE!
             // Broaden "Technical" definition (Technical = anything not Cultural)
             const isTechnical = theme !== 'amber'
-            const baseOpacity = isTechnical ? (isMobile ? 0.1 : 0.15) : 0.08
+            const baseOpacity = isEmerald ? (isMobile ? 0.2 : 0.35) : (isTechnical ? 0.15 : 0.08)
             const pulse = (Math.sin(time * 0.5) + 1) * 0.5 // 0 to 1 oscillating
-            const pulseAmplitude = isMobile ? 0.02 : 0.05
+            const pulseAmplitude = isMobile ? 0.04 : 0.1
             const currentGridOpacity = baseOpacity + (pulse * pulseAmplitude)
 
             ctx.strokeStyle = `rgba(${rgb}, ${currentGridOpacity})`
-            ctx.lineWidth = 1
+            ctx.lineWidth = isEmerald ? 2 : 1
             ctx.beginPath()
             for (let x = 0; x <= width; x += gridSize) { ctx.moveTo(x, 0); ctx.lineTo(x, height) }
             for (let y = 0; y <= height; y += gridSize) { ctx.moveTo(0, y); ctx.lineTo(width, y) }
             ctx.stroke()
 
             // Increased Beam Frequency for Liveliness
-            if (Math.random() < (isMobile ? 0.02 : 0.08)) {
+            if (Math.random() < (isEmerald ? (isMobile ? 0.05 : 0.3) : (isMobile ? 0.01 : 0.08))) {
                 const axis = Math.random() > 0.5 ? 'x' : 'y'
                 beams.push({
                     x: Math.floor(Math.random() * (width / gridSize)) * gridSize,
@@ -192,38 +208,42 @@ const GridBeams = React.memo(({ theme = 'emerald' }: { theme?: 'emerald' | 'ambe
                 const beamLen = isMobile ? 60 : 120
                 const grad = ctx.createLinearGradient(b.x, b.y, b.axis === 'x' ? b.x + beamLen : b.x, b.axis === 'y' ? b.y + beamLen : b.y)
                 grad.addColorStop(0, 'transparent'); grad.addColorStop(1, `rgba(${rgb}, ${b.life * 0.8})`) // Brighter beams
-                ctx.strokeStyle = grad; ctx.lineWidth = 1.5; ctx.beginPath()
+                ctx.strokeStyle = grad; ctx.lineWidth = isEmerald ? 2.5 : 1.5; ctx.beginPath()
                 if (b.axis === 'x') { ctx.moveTo(b.x, b.y); ctx.lineTo(b.x + beamLen, b.y); b.x += b.speed }
                 else { ctx.moveTo(b.x, b.y); ctx.lineTo(b.x, b.y + beamLen); b.y += b.speed }
                 ctx.stroke()
             }
 
-            // Enhanced "Lively" Pattern for Emerald Theme
-            const squareProb = isTechnical ? 0.25 : 0.08 // Significantly increased probability for tech and non-tech
+            // SUPER LIVELY Pattern for Technical Theme - Constantly Animated!
+            const squareProb = isEmerald ? (isMobile ? 0.4 : 0.9) : (isTechnical ? 0.5 : 0.08) // Maximized for emerald
             if (Math.random() < squareProb) {
                 squares.push({
                     x: Math.floor(Math.random() * (width / gridSize)) * gridSize,
                     y: Math.floor(Math.random() * (height / gridSize)) * gridSize,
                     life: 0,
-                    maxLife: isTechnical ? 0.8 + Math.random() * 0.4 : 0.6 + Math.random() * 0.3
+                    maxLife: isTechnical ? 1.0 + Math.random() * 0.6 : 0.6 + Math.random() * 0.3
                 })
             }
 
             for (let i = squares.length - 1; i >= 0; i--) {
-                const s = squares[i]; s.life += (isTechnical ? 0.015 : 0.02)
+                const s = squares[i]; s.life += (isTechnical ? 0.022 : 0.02) // Faster animation
                 if (s.life >= (s.maxLife || 1)) { squares.splice(i, 1); continue }
 
-                // Tech theme gets a more digital/solid look
-                const maxOpacity = isTechnical ? 0.25 : 0.12
+                // Super bright and visible squares for maximum liveliness!
+                const maxOpacity = isEmerald ? 0.6 : (isTechnical ? 0.4 : 0.12)
                 const opacity = Math.sin((s.life / (s.maxLife || 1)) * Math.PI) * maxOpacity
+
+                // Skip rendering low opacity squares on mobile
+                if (isMobile && opacity < 0.1) continue;
 
                 ctx.fillStyle = `rgba(${rgb}, ${opacity})`
                 ctx.fillRect(s.x + 1, s.y + 1, gridSize - 2, gridSize - 2)
 
-                // Optional: Outline for extra "tech" feel
-                if (isTechnical && opacity > 0.1) {
-                    const pad = isMobile ? 2 : 4
-                    ctx.strokeStyle = `rgba(${rgb}, ${opacity * 1.5})`
+                // Super bright outlines for extra "tech" feel - Skip on mobile
+                if (!isMobile && isTechnical && opacity > 0.08) {
+                    const pad = 4
+                    ctx.strokeStyle = `rgba(${rgb}, ${opacity * 3.5})`
+                    ctx.lineWidth = 2
                     ctx.strokeRect(s.x + pad, s.y + pad, gridSize - (pad * 2), gridSize - (pad * 2))
                 }
             }
@@ -270,7 +290,7 @@ const FloatingOrbs = React.memo(({ theme = 'emerald' }: { theme?: 'emerald' | 'a
         }
         const rgb = getRGB()
         const orbs: { x: number; y: number; r: number; vx: number; vy: number; alpha: number }[] = []
-        const count = isMobile ? 3 : 8
+        const count = isMobile ? 2 : 8
         for (let i = 0; i < count; i++) {
             orbs.push({
                 x: Math.random() * width, y: Math.random() * height,
@@ -289,7 +309,7 @@ const FloatingOrbs = React.memo(({ theme = 'emerald' }: { theme?: 'emerald' | 'a
                 grad.addColorStop(0, `rgba(${rgb}, ${orb.alpha})`); grad.addColorStop(1, 'transparent')
                 ctx.fillStyle = grad; ctx.beginPath(); ctx.arc(orb.x, orb.y, orb.r, 0, Math.PI * 2); ctx.fill()
             }
-            rafId = requestAnimationFrame(render)
+            rafId = requestAnimationFrame(render); return () => cancelAnimationFrame(rafId)
         }
         rafId = requestAnimationFrame(render); return () => cancelAnimationFrame(rafId)
     }, [theme, isMobile])
@@ -300,9 +320,8 @@ const FloatingOrbs = React.memo(({ theme = 'emerald' }: { theme?: 'emerald' | 'a
 export default function ProEventBackground({ theme = 'emerald', scrollProgress = 0, isDetailed = false }: { theme: any, scrollProgress: any, isDetailed?: boolean }) {
     const [isMobile, setIsMobile] = React.useState(false)
 
-    // Using useTransform for smooth parallax without re-renders
-    const amberY = useTransform(scrollProgress,[0, 1], isMobile ? [40, 70] : [300, 600] )
-    //  starts lower, moves gently
+    // Proportions and stickiness for Cultural theme
+    // amberY removed as it's no longer needed for static stickiness
 
 
     React.useEffect(() => {
@@ -350,36 +369,29 @@ export default function ProEventBackground({ theme = 'emerald', scrollProgress =
                     exit={{ opacity: 0 }}
                     transition={{ duration: 0.8 }}
                 >
-                    {/* Ambient Glows */}
-                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(251,191,36,0.2),transparent_80%)]" />
-                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_10%_10%,rgba(245,158,11,0.15),transparent_60%)]" />
-
                     {!isDetailed && (
                         <div className="absolute inset-0 z-0 overflow-hidden bg-[#0f0901]">
-    {/* Normalized Background Image */}
-    <motion.div
-    className="absolute inset-0 flex items-center justify-center"
-    style={{ y: amberY }}
->
-    <Image
-        src="/cultural-bg.png"
-        alt=""
-        priority
-        className="max-w-full max-h-full object-contain"
-        width={1920}
-        height={1080}
-        style={{
-            filter: 'brightness(0.9) contrast(1.05)',
-        }}
-    />
-</motion.div>
+                            {/* Single Professional FIXED Background Layer - PRESERVING PROPORTIONS */}
+                            <div
+                                className="absolute inset-0 w-full h-full"
+                                style={{
+                                    backgroundColor: '#0f0901',
+                                    backgroundImage: `
+                                            radial-gradient(ellipse at center 20%, transparent 30%, rgba(15, 9, 1, 0.3) 100%),
+                                            url('/cultural-bg-new.png')
+                                        `,
+                                    backgroundSize: 'cover',
+                                    backgroundPosition: 'center top',
+                                    backgroundRepeat: 'no-repeat',
+                                    filter: 'brightness(1.5) contrast(1.4) saturate(1.25)',
+                                    maskImage: 'linear-gradient(to bottom, black 0%, black 95%, transparent 100%)',
+                                    WebkitMaskImage: 'linear-gradient(to bottom, black 0%, black 95%, transparent 100%)',
+                                }}
+                            />
 
-
-
-    {/* Soft vignette instead of heavy gradients */}
-    <div className="absolute inset-0 bg-radial-fade z-10" />
-</div>
-
+                            {/* Cinematic Top Glow to connect with Headers */}
+                            <div className="absolute inset-x-0 top-0 h-48 bg-gradient-to-b from-[#f59e0b]/25 to-transparent pointer-events-none" />
+                        </div>
                     )}
 
                     <FloatingOrbs theme="amber" />
@@ -389,25 +401,33 @@ export default function ProEventBackground({ theme = 'emerald', scrollProgress =
             {theme === 'emerald' && (
                 <motion.div
                     key="emerald-layer"
-                    className="fixed inset-0 z-0 pointer-events-none bg-[#010502] will-change-opacity gpu-accel"
+                    className="fixed inset-0 z-0 pointer-events-none bg-transparent will-change-opacity gpu-accel"
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
                     transition={{ duration: 0.8 }}
                 >
-                    {/* Deepened background radial gradients - Reduced Opacity */}
-                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_10%,rgba(16,185,129,0.1),transparent_70%)]" />
-                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_90%_90%,rgba(16,185,129,0.05),transparent_50%)]" />
+                    {/* Main Technical Page */}
+                    {!isDetailed ? (
+                        <>
+                            {/* Animated Beams on top of the dynamic background */}
+                            <div className="absolute inset-0 opacity-100">
+                                <GridBeams theme={theme} />
+                            </div>
 
-                    {/* Grid Beams - Lower Opacity for subtler effect */}
-                    <div className="absolute inset-0 opacity-40 mix-blend-screen">
-                        <GridBeams theme={theme} />
-                    </div>
+                            <FloatingOrbs theme="emerald" />
 
-                    <FloatingOrbs theme="emerald" />
-
-                    {/* High Contrast Overlay - Darker edges */}
-                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,transparent_30%,rgba(0,0,0,0.8)_100%)] pointer-events-none" />
+                            {/* Vignette Overlay - Reduced intensity */}
+                            <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,transparent_20%,rgba(1,5,2,0.4)_100%)] pointer-events-none" />
+                        </>
+                    ) : (
+                        // Detailed Page - Clean, Dark
+                        <>
+                            <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_10%,rgba(16,185,129,0.1),transparent_70%)]" />
+                            <div className="absolute inset-0 bg-[radial-gradient(circle_at_90%_90%,rgba(16,185,129,0.05),transparent_50%)]" />
+                            <FloatingOrbs theme="emerald" />
+                        </>
+                    )}
                 </motion.div>
             )}
 
