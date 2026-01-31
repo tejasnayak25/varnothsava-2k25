@@ -78,16 +78,23 @@ const TypewriterText = ({ text }: { text: string }) => {
 
     useEffect(() => {
         let currentIndex = 0
-        const interval = setInterval(() => {
+        let timeoutId: NodeJS.Timeout
+
+        const typeNext = () => {
             if (currentIndex <= text.length) {
                 setDisplayedText(text.substring(0, currentIndex))
                 currentIndex++
+                timeoutId = setTimeout(typeNext, 100)
             } else {
-                // Optional: loop animation
-                setTimeout(() => { currentIndex = 0 }, 5000)
+                timeoutId = setTimeout(() => {
+                    currentIndex = 0
+                    typeNext()
+                }, 5000)
             }
-        }, 100)
-        return () => clearInterval(interval)
+        }
+
+        typeNext()
+        return () => clearTimeout(timeoutId)
     }, [text])
 
     return (

@@ -48,7 +48,21 @@ interface AppContextType {
     updateProfile: (data: { name: string, usn: string, phone: string, collegeName: string }) => Promise<boolean>,
     mountUser: () => Promise<void>,
     isSiteLoaded: boolean,
-    setIsSiteLoaded: (val: boolean) => void
+    setIsSiteLoaded: (val: boolean) => void,
+    pageTheme: PageTheme,
+    setPageTheme: (theme: PageTheme) => void
+}
+
+export type PageTheme = {
+    name: string;
+    rgb: string;
+    primary: string;
+}
+
+const DEFAULT_THEME: PageTheme = {
+    name: 'DEFAULT',
+    rgb: '16, 185, 129', // Emerald
+    primary: '#10b981'
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined)
@@ -96,7 +110,13 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     const [userData, setUserData] = useState<UserData | null>(null)
     const [needsOnboarding, setNeedsOnboarding] = useState(false)
     const [isSiteLoaded, setIsSiteLoaded] = useState(false)
+    const [pageTheme, setPageTheme] = useState<PageTheme>(DEFAULT_THEME)
     const router = useRouter();
+
+    // Sync state with CSS Variable for global access
+    useEffect(() => {
+        document.documentElement.style.setProperty('--nav-current-theme', pageTheme.rgb);
+    }, [pageTheme]);
 
     useEffect(() => {
         const unsubscribe = auth.onAuthStateChanged((user) => {
@@ -369,7 +389,9 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
             updateProfile,
             mountUser,
             isSiteLoaded,
-            setIsSiteLoaded
+            setIsSiteLoaded,
+            pageTheme,
+            setPageTheme
         }}>
             {children}
         </AppContext.Provider>

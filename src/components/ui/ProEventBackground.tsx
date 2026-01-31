@@ -299,19 +299,39 @@ const FloatingOrbs = React.memo(({ theme = 'emerald' }: { theme?: 'emerald' | 'a
                 alpha: Math.random() * 0.06 + 0.02
             })
         }
-        let rafId: number; let lastTime = 0; const interval = 1000 / 30
+        let rafId: number;
+        let lastTime = 0;
+        const interval = 1000 / 30; // 30 FPS
+
         const render = (time: number) => {
-            if (time - lastTime < interval) { rafId = requestAnimationFrame(render); return }
-            lastTime = time; ctx.clearRect(0, 0, width, height)
-            for (const orb of orbs) {
-                orb.x += orb.vx; orb.y += orb.vy; if (orb.x < -orb.r) orb.x = width + orb.r; if (orb.x > width + orb.r) orb.x = -orb.r; if (orb.y < -orb.r) orb.y = height + orb.r; if (orb.y > height + orb.r) orb.y = -orb.r
-                const grad = ctx.createRadialGradient(orb.x, orb.y, 0, orb.x, orb.y, orb.r)
-                grad.addColorStop(0, `rgba(${rgb}, ${orb.alpha})`); grad.addColorStop(1, 'transparent')
-                ctx.fillStyle = grad; ctx.beginPath(); ctx.arc(orb.x, orb.y, orb.r, 0, Math.PI * 2); ctx.fill()
+            if (time - lastTime < interval) {
+                rafId = requestAnimationFrame(render);
+                return;
             }
-            rafId = requestAnimationFrame(render); return () => cancelAnimationFrame(rafId)
-        }
-        rafId = requestAnimationFrame(render); return () => cancelAnimationFrame(rafId)
+            lastTime = time;
+            ctx.clearRect(0, 0, width, height);
+
+            for (const orb of orbs) {
+                orb.x += orb.vx;
+                orb.y += orb.vy;
+                if (orb.x < -orb.r) orb.x = width + orb.r;
+                if (orb.x > width + orb.r) orb.x = -orb.r;
+                if (orb.y < -orb.r) orb.y = height + orb.r;
+                if (orb.y > height + orb.r) orb.y = -orb.r;
+
+                const grad = ctx.createRadialGradient(orb.x, orb.y, 0, orb.x, orb.y, orb.r);
+                grad.addColorStop(0, `rgba(${rgb}, ${orb.alpha})`);
+                grad.addColorStop(1, 'transparent');
+                ctx.fillStyle = grad;
+                ctx.beginPath();
+                ctx.arc(orb.x, orb.y, orb.r, 0, Math.PI * 2);
+                ctx.fill();
+            }
+            rafId = requestAnimationFrame(render);
+        };
+
+        rafId = requestAnimationFrame(render);
+        return () => cancelAnimationFrame(rafId);
     }, [theme, isMobile])
 
     return <canvas ref={canvasRef} className="absolute inset-0 w-full h-full opacity-50 pointer-events-none" />

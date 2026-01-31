@@ -20,7 +20,7 @@ interface EventGridProps {
 }
 
 export function EventGrid({ missions }: EventGridProps) {
-    const { userData, registerMission, isLoggedIn, isSiteLoaded } = useApp()
+    const { userData, registerMission, isLoggedIn, isSiteLoaded, setPageTheme } = useApp()
     const router = useRouter()
     const [filter, setFilter] = useState<'All' | 'Technical' | 'Cultural' | 'Gaming'>('All')
     const [subFilter, setSubFilter] = useState<'All' | 'Hobby Club' | 'General' | 'Promotional'>('All')
@@ -42,6 +42,14 @@ export function EventGrid({ missions }: EventGridProps) {
     const techY = useTransform(scrollYProgress, [0, 1], [0, -80])
     const cultY = useTransform(scrollYProgress, [0, 1], [0, -40])
     const gameY = useTransform(scrollYProgress, [0, 1], [0, -100])
+
+    useEffect(() => {
+        setPageTheme({
+            name: 'DEFAULT',
+            rgb: '16, 185, 129',
+            primary: '#10b981'
+        })
+    }, [setPageTheme])
 
     useEffect(() => {
         const handleScroll = () => {
@@ -217,15 +225,27 @@ export function EventGrid({ missions }: EventGridProps) {
                 onEnter: () => {
                     if (!isMobile) {
                         const themeValue = theme as string
-                        setActiveThemeOverride(theme)
-                        document.documentElement.style.setProperty('--nav-current-theme', themeValue === 'amber' ? '245, 158, 11' : themeValue === 'cyan' ? '6, 182, 212' : themeValue === 'gaming' ? '139, 92, 246' : '16, 185, 129')
+                        const rgb = themeValue === 'amber' ? '245, 158, 11' : themeValue === 'cyan' ? '6, 182, 212' : themeValue === 'gaming' ? '139, 92, 246' : '16, 185, 129'
+                        const primary = themeValue === 'amber' ? '#f59e0b' : themeValue === 'cyan' ? '#06b6d4' : themeValue === 'gaming' ? '#8b5cf6' : '#10b981'
+
+                        setPageTheme({
+                            name: themeValue.toUpperCase(),
+                            rgb,
+                            primary
+                        })
                     }
                 },
                 onEnterBack: () => {
                     if (!isMobile) {
                         const themeValue = theme as string
-                        setActiveThemeOverride(theme)
-                        document.documentElement.style.setProperty('--nav-current-theme', themeValue === 'amber' ? '245, 158, 11' : themeValue === 'cyan' ? '6, 182, 212' : themeValue === 'gaming' ? '139, 92, 246' : '16, 185, 129')
+                        const rgb = themeValue === 'amber' ? '245, 158, 11' : themeValue === 'cyan' ? '6, 182, 212' : themeValue === 'gaming' ? '139, 92, 246' : '16, 185, 129'
+                        const primary = themeValue === 'amber' ? '#f59e0b' : themeValue === 'cyan' ? '#06b6d4' : themeValue === 'gaming' ? '#8b5cf6' : '#10b981'
+
+                        setPageTheme({
+                            name: themeValue.toUpperCase(),
+                            rgb,
+                            primary
+                        })
                     }
                 },
             })

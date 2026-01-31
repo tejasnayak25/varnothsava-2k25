@@ -5,6 +5,7 @@ import Image from "next/image";
 import { motion, AnimatePresence, useScroll, useTransform, useSpring, useInView, useAnimation, Variants } from "framer-motion";
 import { ArrowDown, Calendar, MapPin, Ticket, Star, ChevronRight, Camera, Gauge, Skull, Info, Bookmark } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useApp } from "@/context/AppContext";
 import { Special_Elite, Bebas_Neue, Abril_Fatface, Rye, Cormorant_Garamond, Graduate, Staatliches, Anton } from 'next/font/google';
 
 const specialElite = Special_Elite({ weight: '400', subsets: ['latin'] });
@@ -1692,9 +1693,16 @@ const TechnicalOverlay = ({ isRevealed }: { isRevealed: boolean }) => {
 export default function MotomaniaPage() {
     const [isRevealed, setIsRevealed] = useState(false);
     const [isMounted, setIsMounted] = useState(false);
+    const { setPageTheme } = useApp()
 
     useEffect(() => {
         setIsMounted(true);
+
+        setPageTheme({
+            name: 'MOTO',
+            rgb: '205, 92, 9',
+            primary: '#cd5c09'
+        })
 
         // Wait for high priority assets and smooth start
         const timer = setTimeout(() => {

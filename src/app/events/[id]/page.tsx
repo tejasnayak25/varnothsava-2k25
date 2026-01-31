@@ -335,7 +335,13 @@ export default function EventDetailsPage() {
                                             className="w-full h-full cursor-pointer relative"
                                             onClick={() => setIsVideoPlaying(true)}
                                         >
-                                            <img src={mission.visual} className="w-full h-full object-cover opacity-40 blur-sm scale-105" />
+                                            <Image
+                                                src={mission.visual}
+                                                alt={mission.title}
+                                                fill
+                                                sizes="(max-width: 768px) 100vw, 800px"
+                                                className="w-full h-full object-cover opacity-40 blur-sm scale-105"
+                                            />
                                             <div className="absolute inset-0 flex items-center justify-center">
                                                 <div className={`w-16 h-16 md:w-20 md:h-20 rounded-full border-2 border-${twTheme}-500 flex items-center justify-center bg-${twTheme}-500/10 group-hover:scale-110 transition-transform`}>
                                                     <Play fill="currentColor" size={24} className={`text-${twTheme}-500 translate-x-1 md:w-8 md:h-8`} />

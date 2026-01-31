@@ -40,7 +40,7 @@ const NAV_LINKS = [
 
 export function InnovativeNavbar() {
     const pathname = usePathname()
-    const { isLoggedIn, cart } = useApp()
+    const { isLoggedIn, cart, pageTheme } = useApp()
 
     // UI STATES
     const [isScrolled, setIsScrolled] = useState(false)
@@ -49,17 +49,19 @@ export function InnovativeNavbar() {
     const [isMobile, setIsMobile] = useState(false)
     const [isMenuOpen, setIsMenuOpen] = useState(false)
 
-    // BIOMETRIC STATES - REMOVED
-
     const { scrollY } = useScroll()
 
 
-    // Magnetic pull for the whole navbar
+    // Magnetic pull for the whole navbar - DISABLED ON MOBILE for smoothness
     const navX = useSpring(0, { stiffness: 100, damping: 30 })
     const navY = useSpring(0, { stiffness: 100, damping: 30 })
 
     useEffect(() => {
-        if (typeof window !== 'undefined' && window.innerWidth < 768) return
+        if (typeof window !== 'undefined' && (window.innerWidth < 768 || 'ontouchstart' in window)) {
+            navX.set(0)
+            navY.set(0)
+            return
+        }
 
         let rafId: number;
         const handleMouseMove = (e: MouseEvent) => {
@@ -77,18 +79,15 @@ export function InnovativeNavbar() {
             window.removeEventListener('mousemove', handleMouseMove)
             cancelAnimationFrame(rafId)
         }
-    }, [])
-    // Navbar intelligence: Scroll direction and magnitude
+    }, [navX, navY])
 
     // Navbar intelligence: Smoother Visibility Logic
     useMotionValueEvent(scrollY, "change", (latest) => {
-        const direction = latest > lastScrollY ? "down" : "up"
         if (latest < 50) {
             setIsVisible(true)
             setIsScrolled(false)
         } else {
             setIsScrolled(true)
-            // The logic for visibility is now handled by the optimized scroll listener
         }
         setLastScrollY(latest)
     })
@@ -118,12 +117,12 @@ export function InnovativeNavbar() {
             window.removeEventListener('scroll', handleScroll);
             if (rafId) cancelAnimationFrame(rafId);
         };
-    }, [lastScrollY]); // Depend on lastScrollY to ensure it's up-to-date
+    }, [lastScrollY]);
 
     useEffect(() => {
         const checkMobile = () => {
             const width = window.innerWidth;
-            setIsMobile(width < 768);
+            setIsMobile(width < 768 || 'ontouchstart' in window);
         }
         checkMobile()
         window.addEventListener('resize', checkMobile)
@@ -133,9 +132,8 @@ export function InnovativeNavbar() {
     // ULTIMATE SMOOTHNESS Spring Config
     const springConfig = { damping: 25, stiffness: 200, mass: 0.8, restDelta: 0.001 }
 
-    // Dynamic Theme Logic
-    const isMoto = pathname === '/leaderboard'
-    const themeRgb = isMoto ? '205, 92, 9' : '16, 185, 129' // Orange vs Emerald
+    // Dynamic Theme Logic - Use Context
+    const themeRgb = pageTheme.rgb
 
     return (
         <>
@@ -150,13 +148,19 @@ export function InnovativeNavbar() {
                             y: isMobile ? 0 : navY,
                             '--theme-rgb': themeRgb
                         } as any}
-                        transition={isMobile ? { duration: 0.3, ease: 'easeOut' } : { type: 'spring', ...springConfig }}
-                        className="fixed z-[5000] bottom-0 left-0 right-0 flex justify-center pb-[max(1rem,env(safe-area-inset-bottom))] md:pb-8 px-4 md:px-8 pointer-events-none no-jank"
+                        transition={isMobile ? { duration: 0.2, ease: 'easeOut' } : { type: 'spring', ...springConfig }}
+                        className="fixed z-[5000] bottom-0 left-0 right-0 flex justify-center pb-[max(1rem,env(safe-area-inset-bottom))] md:pb-8 px-4 md:px-8 pointer-events-none no-jank translate-gpu"
                     >
                         {/* THE CYBER-DOCK [OBSIDIAN NEON] */}
                         <motion.div
                             initial={{ opacity: 0, scale: 0.95 }}
-                            animate={{ width: "100%", height: isMobile ? 70 : 80, borderRadius: isMobile ? 24 : 0, opacity: 1, scale: 1 }}
+                            animate={{
+                                width: "100%",
+                                height: isMobile ? 70 : 80,
+                                borderRadius: isMobile ? 24 : 0,
+                                opacity: 1,
+                                scale: 1
+                            }}
                             className="relative w-full max-w-[700px] h-[70px] md:h-[80px] flex items-center pointer-events-auto group/nav no-jank"
                             style={{ willChange: 'transform, width, height, opacity', overflow: 'visible', translateZ: 0 }}
                         >
@@ -195,7 +199,7 @@ export function InnovativeNavbar() {
                             </div>
 
                             <div className="absolute inset-0 -z-10 overflow-visible">
-                                <svg width="100%" height="80" viewBox="0 0 700 80" preserveAspectRatio="none" fill="none" className="absolute inset-0 z-0 drop-shadow-[0_-10px_40px_rgba(0,0,0,0.5)]">
+                                <svg width="100%" height="80" viewBox="0 0 700 80" preserveAspectRatio="none" fill="none" className="absolute inset-0 z-0 drop-shadow-[0_-10px_40px_rgba(0,0,0,0.5)] translate-gpu">
                                     <path
                                         d="M0 40C0 17.9086 17.9086 0 40 0H270C285 0 290 5 300 18C315 35 385 35 400 18C410 5 415 0 430 0H660C682.091 0 700 17.9086 700 40V80H0V40Z"
                                         fill="rgba(5, 8, 5, 0.95)"
@@ -205,9 +209,10 @@ export function InnovativeNavbar() {
                                         stroke="rgba(var(--theme-rgb), 0.5)"
                                         strokeWidth="1.5"
                                         strokeLinecap="round"
+                                        className="translate-gpu"
                                     />
                                 </svg>
-                                <div className="absolute inset-0 bg-white/[0.02] backdrop-blur-3xl rounded-[2.5rem] -z-20 pointer-events-none" style={{ clipPath: 'polygon(0% 20%, 100% 20%, 100% 100%, 0% 100%)' }} />
+                                <div className={cn("absolute inset-0 bg-white/[0.02] rounded-[2.5rem] -z-20 pointer-events-none translate-gpu", isMobile ? "backdrop-blur-md" : "backdrop-blur-3xl")} style={{ clipPath: 'polygon(0% 20%, 100% 20%, 100% 100%, 0% 100%)' }} />
                             </div>
 
                             <div className="flex-1 flex justify-around items-center px-1 xs:px-2 md:px-4 h-full">

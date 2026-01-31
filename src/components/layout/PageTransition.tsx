@@ -3,6 +3,7 @@
 import { motion, AnimatePresence } from 'framer-motion'
 import { usePathname } from 'next/navigation'
 import { ReactNode, useState, useEffect } from 'react'
+import { useApp } from '@/context/AppContext'
 
 /**
  * PageTransition System
@@ -10,11 +11,12 @@ import { ReactNode, useState, useEffect } from 'react'
  */
 export function PageTransition({ children }: { children: ReactNode }) {
     const pathname = usePathname()
+    const { pageTheme } = useApp()
     const [isMobile, setIsMobile] = useState(false)
     const isLandingPage = pathname === '/'
 
     useEffect(() => {
-        setIsMobile(window.innerWidth < 768)
+        setIsMobile(window.innerWidth < 768 || 'ontouchstart' in window)
     }, [])
 
     // CRITICAL: When the target is the landing page, we completely bypass AnimatePresence.
@@ -39,7 +41,7 @@ export function PageTransition({ children }: { children: ReactNode }) {
                     initial={{ opacity: 0, y: isMobile ? 10 : 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0 }}
-                    transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+                    transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
                     className="relative w-full"
                     style={{ willChange: 'opacity, transform' }}
                 >
@@ -53,12 +55,17 @@ export function PageTransition({ children }: { children: ReactNode }) {
                     key={`sweep-${pathname}`}
                     initial={{ x: '100%' }}
                     animate={{ x: '-200%' }}
-                    transition={{ duration: 0.8, ease: [0.76, 0, 0.24, 1] }}
+                    transition={{ duration: 0.6, ease: [0.76, 0, 0.24, 1] }}
                     className="fixed inset-0 z-[9999] pointer-events-none flex"
                 >
-                    <div className="flex-1 bg-[#050805] border-r border-emerald-500/20" />
-                    <div className="flex-1 bg-[#0a120a] border-x border-emerald-500/10" />
-                    <div className="flex-1 bg-[#050805] border-l border-emerald-500/20" />
+                    <div className="flex-1 bg-black border-r flex flex-col items-end justify-center px-12" style={{ borderColor: `rgba(${pageTheme.rgb}, 0.2)` }}>
+                        <div className="flex flex-col items-center gap-2 opacity-50">
+                            <div className="w-8 h-8 rounded-full border-2 border-t-transparent animate-spin" style={{ borderColor: `rgba(${pageTheme.rgb}, 0.4)`, borderTopColor: 'transparent' }} />
+                            <span className="text-[10px] uppercase tracking-[0.4em] font-bold" style={{ color: `rgb(${pageTheme.rgb})` }}>Redirecting</span>
+                        </div>
+                    </div>
+                    <div className="flex-1 bg-black border-x" style={{ borderColor: `rgba(${pageTheme.rgb}, 0.1)` }} />
+                    <div className="flex-1 bg-black border-l" style={{ borderColor: `rgba(${pageTheme.rgb}, 0.2)` }} />
                 </motion.div>
             )}
         </div>
