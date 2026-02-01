@@ -1,6 +1,7 @@
 ﻿'use client'
 
 import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react'
+import { createPortal } from 'react-dom'
 import { motion, AnimatePresence, useScroll, useTransform, useMotionValueEvent } from 'framer-motion'
 import { Search, Zap, ChevronDown, Trophy, X, CheckCircle2, Loader2, ShieldCheck, Mail, Grid, Filter } from 'lucide-react'
 import { useRouter } from 'next/navigation'
@@ -223,31 +224,32 @@ export function EventGrid({ missions }: EventGridProps) {
                 start: "top 60%",
                 end: "bottom 40%",
                 onEnter: () => {
-                    if (!isMobile) {
-                        const themeValue = theme as string
-                        const rgb = themeValue === 'amber' ? '245, 158, 11' : themeValue === 'cyan' ? '6, 182, 212' : themeValue === 'gaming' ? '139, 92, 246' : '16, 185, 129'
-                        const primary = themeValue === 'amber' ? '#f59e0b' : themeValue === 'cyan' ? '#06b6d4' : themeValue === 'gaming' ? '#8b5cf6' : '#10b981'
+                    const themeValue = theme as string
+                    // Removed isMobile check for debugging to ensure it fires
+                    const rgb = themeValue === 'amber' ? '245, 158, 11' : themeValue === 'cyan' ? '6, 182, 212' : themeValue === 'gaming' ? '139, 92, 246' : '16, 185, 129'
+                    const primary = themeValue === 'amber' ? '#f59e0b' : themeValue === 'cyan' ? '#06b6d4' : themeValue === 'gaming' ? '#8b5cf6' : '#10b981'
 
-                        setPageTheme({
-                            name: themeValue.toUpperCase(),
-                            rgb,
-                            primary
-                        })
-                    }
+                    setPageTheme({
+                        name: themeValue.toUpperCase(),
+                        rgb,
+                        primary
+                    })
+                    setActiveThemeOverride(theme as any)
                 },
                 onEnterBack: () => {
-                    if (!isMobile) {
-                        const themeValue = theme as string
-                        const rgb = themeValue === 'amber' ? '245, 158, 11' : themeValue === 'cyan' ? '6, 182, 212' : themeValue === 'gaming' ? '139, 92, 246' : '16, 185, 129'
-                        const primary = themeValue === 'amber' ? '#f59e0b' : themeValue === 'cyan' ? '#06b6d4' : themeValue === 'gaming' ? '#8b5cf6' : '#10b981'
+                    const themeValue = theme as string
+                    const rgb = themeValue === 'amber' ? '245, 158, 11' : themeValue === 'cyan' ? '6, 182, 212' : themeValue === 'gaming' ? '139, 92, 246' : '16, 185, 129'
+                    const primary = themeValue === 'amber' ? '#f59e0b' : themeValue === 'cyan' ? '#06b6d4' : themeValue === 'gaming' ? '#8b5cf6' : '#10b981'
 
-                        setPageTheme({
-                            name: themeValue.toUpperCase(),
-                            rgb,
-                            primary
-                        })
-                    }
+                    setPageTheme({
+                        name: themeValue.toUpperCase(),
+                        rgb,
+                        primary
+                    })
+                    setActiveThemeOverride(theme as any)
                 },
+                markers: true, // DEBUG: Enable markers to visualize triggers
+                id: `section-${theme}` // DEBUG: Label markers
             })
         })
 
@@ -340,12 +342,25 @@ export function EventGrid({ missions }: EventGridProps) {
         }
     }
 
-    const backgroundComponent = useMemo(() => (
-        <>
-            <DynamicEventBackground theme={getBackgroundTheme() as any} />
-            <ProEventBackground theme={getBackgroundTheme()} scrollProgress={scrollYProgress} />
-        </>
-    ), [activeThemeOverride, filter]) // Removed scrollYProgress to prevent unnecessary re-renders during scroll
+    // Portal implementation to fix background scrolling issue
+    const [mounted, setMounted] = useState(false)
+
+    useEffect(() => {
+        setMounted(true)
+        return () => setMounted(false)
+    }, [])
+
+    const backgroundComponent = useMemo(() => {
+        if (!mounted) return null
+
+        return createPortal(
+            <div className="fixed inset-0 z-0">
+                <DynamicEventBackground theme={getBackgroundTheme() as any} />
+                <ProEventBackground theme={getBackgroundTheme()} scrollProgress={scrollYProgress} />
+            </div>,
+            document.body
+        )
+    }, [mounted, activeThemeOverride, filter, getBackgroundTheme, scrollYProgress])
 
     return (
         <>
@@ -383,13 +398,19 @@ export function EventGrid({ missions }: EventGridProps) {
                         )}
                     </AnimatePresence>
 
+                    {/* DEBUG INDICATOR */}
+                    <div className="fixed top-24 right-4 z-[9999] bg-black/80 text-white p-2 text-xs font-mono border border-white/20">
+                        Theme: {activeThemeOverride || 'None'} <br />
+                        Filter: {filter} <br />
+                        Scroll: {Math.round(scrollYProgress.get() * 100)}%
+                    </div>
+
                     {/* Header Section */}
                     <div
                         className={`flex flex-col xl:flex-row items-center xl:items-end justify-between ${(searchQuery === '' && filter === 'All') ? 'mb-8 md:mb-16' : 'mb-4 md:mb-8'} gap-6 md:gap-10 border-b border-white/10 pb-6 md:pb-10 relative`}
                     >
                         <motion.div
                             className="header-reveal space-y-1 w-full xl:w-auto text-center xl:text-left py-2"
-                            style={{ y: filter === 'Cultural' ? 0 : headerY }}
                         >
                             <motion.div
                                 animate={{ opacity: [0.4, 1, 0.4] }}

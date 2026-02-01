@@ -31,6 +31,14 @@ export const SmoothScroll = ({ children }: SmoothScrollProps) => {
 
         lenisRef.current = lenis;
 
+        // Synchronize GSAP ScrollTrigger with Lenis
+        // This ensures animations fire exactly when they should during smooth scrolling
+        if (typeof window !== 'undefined') {
+            import('gsap/ScrollTrigger').then(({ ScrollTrigger }) => {
+                lenis.on('scroll', ScrollTrigger.update)
+            })
+        }
+
         function raf(time: number) {
             lenis.raf(time);
             requestAnimationFrame(raf);
