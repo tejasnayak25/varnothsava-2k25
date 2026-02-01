@@ -3,6 +3,7 @@
 import { motion, AnimatePresence, useMotionValue, useTransform } from 'framer-motion'
 import { useState, useEffect, useMemo, Suspense } from 'react'
 import { usePathname, useSearchParams } from 'next/navigation'
+import Image from 'next/image'
 import {
     Rocket, Shield, Activity, Zap, Target, Terminal,
     Star, Camera, Image as ImageIcon, User, Lock, Music
@@ -289,9 +290,11 @@ function LoadingContent() {
                             ease: "easeInOut"
                         }}
                     >
-                        <img
+                        <Image
                             src="/img/ancient_ruins_dark.png"
                             alt="Ancient Ruins"
+                            fill
+                            priority
                             className="w-full h-full object-cover opacity-100 grayscale-0"
                         />
                         {/* Dark Vignette */}
@@ -321,8 +324,10 @@ function LoadingContent() {
                         <div className="absolute bottom-[-10%] left-0 w-full h-[50vh] bg-gradient-to-t from-[#022c22]/60 via-[#064e3b]/20 to-transparent blur-3xl animate-pulse-slow will-change-[opacity]" />
                     </div>
 
-                    {/* High-End Film Grain Texture */}
-                    <div className="absolute inset-0 opacity-[0.05] pointer-events-none mix-blend-overlay bg-[url('https://grainy-gradients.vercel.app/noise.svg')]" />
+                    {/* High-End Film Grain Texture - Disabled on mobile */}
+                    {!isMobile && (
+                        <div className="absolute inset-0 opacity-[0.05] pointer-events-none mix-blend-overlay bg-[url('https://grainy-gradients.vercel.app/noise.svg')]" />
+                    )}
 
                     {/* INTERACTIVE FIREFLIES (Parallax Foreground) - HIDDEN ON MOBILE */}
                     <motion.div
@@ -697,7 +702,7 @@ function LoadingContent() {
                                             {/* Text Content */}
                                             <span className="relative z-10 text-xl md:text-3xl text-white uppercase tracking-[0.2em] flex items-center gap-4 drop-shadow-lg whitespace-nowrap" style={{ fontFamily: "'Rye', serif" }}>
                                                 <span className="text-emerald-500 group-hover:text-emerald-300 transition-colors hidden sm:inline">❖</span>
-                                                Enter Portal
+                                                ENTER THE FEST
                                                 <span className="text-emerald-500 group-hover:text-emerald-300 transition-colors hidden sm:inline">❖</span>
                                             </span>
 

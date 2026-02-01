@@ -12,6 +12,7 @@ import {
 } from 'lucide-react'
 import { useApp } from '@/context/AppContext'
 import { useRouter } from 'next/navigation'
+import Image from 'next/image'
 import Tilt from 'react-parallax-tilt'
 
 // --- CONSTANTS ---
@@ -364,8 +365,14 @@ export default function ProfilePage() {
                                     <div className="flex flex-col items-center text-center">
                                         <div className="relative mb-6 group/avatar">
                                             <div className="relative w-28 md:w-36 h-28 md:h-36 rounded-[2rem] md:rounded-[2.5rem] p-1.5 bg-gradient-to-br from-emerald-500/50 via-cyan-500/50 to-emerald-500/50">
-                                                <div className="w-full h-full bg-[#05060a] rounded-[1.8rem] md:rounded-[2.2rem] overflow-hidden border border-white/10">
-                                                    <img src={userData.avatar} alt={userData.name} className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110" />
+                                                <div className="w-full h-full bg-[#05060a] rounded-[1.8rem] md:rounded-[2.2rem] overflow-hidden border border-white/10 relative">
+                                                    <Image
+                                                        src={userData.avatar}
+                                                        alt={userData.name}
+                                                        fill
+                                                        sizes="(max-width: 768px) 112px, 144px"
+                                                        className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110"
+                                                    />
                                                 </div>
                                             </div>
                                             <button
@@ -413,8 +420,14 @@ export default function ProfilePage() {
                                             <div className="relative mb-6 group/avatar">
                                                 <div className="absolute -inset-6 bg-emerald-500/20 blur-[40px] rounded-full opacity-60 group-hover:opacity-100 transition-opacity duration-700" />
                                                 <div className="relative w-28 md:w-36 h-28 md:h-36 rounded-[2rem] md:rounded-[2.5rem] p-1.5 bg-gradient-to-br from-emerald-500/50 via-cyan-500/50 to-emerald-500/50">
-                                                    <div className="w-full h-full bg-[#05060a] rounded-[1.8rem] md:rounded-[2.2rem] overflow-hidden border border-white/10">
-                                                        <img src={userData.avatar} alt={userData.name} className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110" />
+                                                    <div className="w-full h-full bg-[#05060a] rounded-[1.8rem] md:rounded-[2.2rem] overflow-hidden border border-white/10 relative">
+                                                        <Image
+                                                            src={userData.avatar}
+                                                            alt={userData.name}
+                                                            fill
+                                                            sizes="(max-width: 768px) 112px, 144px"
+                                                            className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110"
+                                                        />
                                                     </div>
                                                 </div>
                                                 <button
@@ -682,7 +695,13 @@ export default function ProfilePage() {
                                                             <div className="w-8 h-8 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin" />
                                                         </div>
                                                     )}
-                                                    <img src={userData.avatar} className="w-full h-full object-cover" />
+                                                    <Image
+                                                        src={userData.avatar}
+                                                        alt="Avatar"
+                                                        fill
+                                                        sizes="128px"
+                                                        className="w-full h-full object-cover"
+                                                    />
                                                 </div>
                                             </div>
                                             <div className="space-y-2">
@@ -709,7 +728,13 @@ export default function ProfilePage() {
                                                             className="group relative aspect-square rounded-2xl overflow-hidden border border-white/10 hover:border-white/40 transition-all active:scale-95"
                                                         >
                                                             <div className={`absolute inset-0 opacity-0 group-hover:opacity-20 transition-opacity bg-gradient-to-br ${avatar.color}`} />
-                                                            <img src={avatar.src} alt={avatar.name} className="w-full h-full object-cover" />
+                                                            <Image
+                                                                src={avatar.src}
+                                                                alt={avatar.name}
+                                                                fill
+                                                                sizes="100px"
+                                                                className="w-full h-full object-cover"
+                                                            />
                                                             {userData.avatar === avatar.src && (
                                                                 <div className="absolute inset-0 ring-2 ring-emerald-500 ring-offset-2 ring-offset-black rounded-2xl" />
                                                             )}
@@ -725,10 +750,13 @@ export default function ProfilePage() {
 
                                     {activeModal === 'qr' && (
                                         <div className="text-center space-y-6">
-                                            <div className="p-4 bg-white rounded-[2rem] inline-block shadow-2xl ring-8 ring-emerald-500/10">
-                                                <img
+                                            <div className="p-4 bg-white rounded-[2rem] inline-block shadow-2xl ring-8 ring-emerald-500/10 relative">
+                                                <Image
                                                     src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${userData.profileCode}`}
                                                     alt="Entry Pass QR"
+                                                    width={200}
+                                                    height={200}
+                                                    unoptimized
                                                     className="w-48 h-48"
                                                 />
                                             </div>
@@ -789,7 +817,13 @@ export default function ProfilePage() {
                                                                 <div className="w-6 h-6 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin" />
                                                             </div>
                                                         )}
-                                                        <img src={userData.avatar} className="w-full h-full object-cover" />
+                                                        <Image
+                                                            src={userData.avatar}
+                                                            alt="Avatar"
+                                                            fill
+                                                            sizes="96px"
+                                                            className="w-full h-full object-cover"
+                                                        />
                                                     </div>
                                                 </div>
 

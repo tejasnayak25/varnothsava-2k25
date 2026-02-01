@@ -4,6 +4,7 @@ import React from 'react'
 import { motion } from 'framer-motion'
 import { ShoppingCart, ArrowLeft, Trash2, ShieldCheck, Zap } from 'lucide-react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { useApp } from '@/context/AppContext'
 
 export default function CheckoutPage() {
@@ -49,8 +50,14 @@ export default function CheckoutPage() {
                                         animate={{ opacity: 1, x: 0 }}
                                         className="relative group p-4 bg-white/5 border border-white/10 rounded-xl flex items-center gap-4 hover:border-emerald-500/30 transition-all"
                                     >
-                                        <div className="w-20 h-20 rounded-lg overflow-hidden border border-white/10 shrink-0">
-                                            <img src={item.visual} className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all" alt="" />
+                                        <div className="w-20 h-20 rounded-lg overflow-hidden border border-white/10 shrink-0 relative">
+                                            <Image
+                                                src={item.visual}
+                                                alt={item.title}
+                                                fill
+                                                sizes="80px"
+                                                className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all"
+                                            />
                                         </div>
                                         <div className="flex-1 min-w-0">
                                             <h3 className="text-sm font-black uppercase tracking-tight truncate">{item.title}</h3>

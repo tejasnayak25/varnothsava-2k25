@@ -5,7 +5,16 @@ import { motion, AnimatePresence, useScroll, useTransform, useSpring, useVelocit
 import { useRouter } from 'next/navigation'
 import dynamic from 'next/dynamic'
 import Image from 'next/image'
+import { useApp } from '@/context/AppContext'
 import { Orbitron } from 'next/font/google' // Import new font
+import Link from 'next/link'
+const quickLinks = [
+    { label: "About Us", href: "#about" },
+    { label: "Events", href: "/events" },
+    { label: "Sponsors", href: "#sponsors" },
+    { label: "Contact", href: "#contact" },
+];
+
 import {
     ArrowRight, MapPin, Mail, Phone,
     Facebook, Instagram, Youtube, Twitter,
@@ -86,8 +95,17 @@ const SystemWindow = ({ children, title }: { children: React.ReactNode, title?: 
         {/* Scanline BG */}
         <div className="absolute inset-0 bg-[linear-gradient(rgba(16,185,129,0.05)_1px,transparent_1px)] bg-[size:100%_4px] pointer-events-none" />
 
+        {/* Runic Border Accents */}
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 opacity-20 pointer-events-none select-none text-[8px] text-emerald-400 font-serif tracking-[0.5em] whitespace-nowrap">
+            ᚦ ᚢ ᚱ ᛁ ᛗ ᚨ ᛏ ᛚ
+        </div>
+        <div className="absolute bottom-0 left-1/2 -translate-x-1/2 opacity-20 pointer-events-none select-none text-[8px] text-emerald-400 font-serif tracking-[0.5em] whitespace-nowrap">
+            ᚨ ᛚ ᛁ ᚱ ᚦ ᚢ ᛗ ᛏ
+        </div>
+
         {title && (
-            <div className="absolute top-0 left-0 bg-emerald-600/20 px-4 py-1 border-b border-r border-emerald-500/50">
+            <div className="absolute top-0 left-0 bg-emerald-600/20 px-4 py-1 border-b border-r border-emerald-500/50 flex items-center gap-2">
+                <span className="text-[10px] text-emerald-400/50 font-serif italic">ᛗ</span>
                 <SystemText className="text-[10px] text-emerald-300 font-bold">{title}</SystemText>
             </div>
         )}
@@ -97,6 +115,11 @@ const SystemWindow = ({ children, title }: { children: React.ReactNode, title?: 
 
 // --- 3D Stage Component ---
 const ConcertStage = () => {
+    const [isMobile, setIsMobile] = useState(false)
+    useEffect(() => {
+        setIsMobile(window.innerWidth < 768)
+    }, [])
+
     return (
         <div className="absolute inset-0 perspective-1000 pointer-events-none overflow-hidden bg-[#020202]">
             {/* Atmospheric Backglow */}
@@ -104,7 +127,7 @@ const ConcertStage = () => {
 
             {/* Realistic Stage Background Image - ANIMATED LIVE FEEL */}
             <motion.div
-                animate={{ scale: [1, 1.1, 1] }}
+                animate={isMobile ? {} : { scale: [1, 1.1, 1] }}
                 transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
                 className="absolute inset-0 opacity-40 mix-blend-screen grayscale-[0.5] sm:animate-none"
             >
@@ -112,7 +135,7 @@ const ConcertStage = () => {
                     src="https://images.unsplash.com/photo-1501281668745-f7f57925c3b4?q=80&w=1740&auto=format&fit=crop"
                     alt="Concert Stage"
                     fill
-                    priority
+                    priority={!isMobile}
                     className="object-cover"
                     sizes="100vw"
                 />
@@ -121,8 +144,10 @@ const ConcertStage = () => {
             {/* Grid */}
             <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[200vw] h-[100vh] bg-[linear-gradient(rgba(16,185,129,0.15)_1px,transparent_1px),linear-gradient(90deg,rgba(16,185,129,0.15)_1px,transparent_1px)] bg-[size:50px_50px] [transform:rotateX(60deg)_translateY(200px)] opacity-50 origin-bottom" />
 
-            {/* Particles */}
-            <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.15] mix-blend-overlay" />
+            {/* Particles - Disable noise on mobile for performance */}
+            {!isMobile && (
+                <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.15] mix-blend-overlay" />
+            )}
         </div>
     )
 }
@@ -209,6 +234,23 @@ const ProNiteSection = () => {
                                         PRO NITE 2K26
                                     </motion.div>
                                     <p className="text-emerald-500/60 font-mono text-sm tracking-widest mt-2">CLASSICAL ROOTS // ROCK ENERGY</p>
+
+                                    {/* Local Scroll Hint - COLLEGE FEST STYLE */}
+                                    <motion.div
+                                        initial={{ opacity: 0 }}
+                                        animate={{ opacity: 1 }}
+                                        transition={{ delay: 2 }}
+                                        className="mt-12 flex flex-col items-center gap-3"
+                                    >
+                                        <div className="flex items-center gap-3">
+                                            <div className="h-[1px] w-8 bg-emerald-500/50" />
+                                            <span className={`${orbitron.className} text-[12px] text-white font-bold uppercase tracking-[0.2em]`}>
+                                                Scroll to Launch
+                                            </span>
+                                            <div className="h-[1px] w-8 bg-emerald-500/50" />
+                                        </div>
+                                        <ChevronDown className="w-5 h-5 text-emerald-400 animate-bounce" />
+                                    </motion.div>
                                 </div>
                             </SystemWindow>
                         </motion.div>
@@ -258,7 +300,7 @@ const ProNiteSection = () => {
                                 className="order-2 lg:order-1 perspective-1000 mt-2 md:mt-0"
                             >
                                 <SystemWindow title="PRO NITE // S-RANK ARTIST">
-                                    <div className="p-4 md:p-6 space-y-4 md:space-y-6 bg-black/40 backdrop-blur-md">
+                                    <div className="p-4 md:p-8 space-y-4 md:space-y-6 bg-black/40 backdrop-blur-md">
                                         <div className="flex items-center gap-4 md:gap-6">
                                             <div className="p-3 md:p-4 bg-emerald-500/10 border border-emerald-500 rounded-xl shadow-[0_0_20px_rgba(16,185,129,0.3)]">
                                                 {React.createElement(bandMembers[activeIndex].icon, { className: "w-6 h-6 md:w-10 md:h-10 text-emerald-400" })}
@@ -285,8 +327,8 @@ const ProNiteSection = () => {
 
                                         <div className="space-y-1 md:space-y-2">
                                             <div className="text-[10px] md:text-xs text-emerald-500 font-bold tracking-widest uppercase">Identity</div>
-                                            {/* STAGGERED TEXT REVEAL FOR NAME */}
-                                            <h3 className="text-2xl md:text-7xl font-[900] text-transparent bg-clip-text bg-gradient-to-r from-white via-emerald-200 to-white uppercase tracking-tighter leading-none font-[family-name:var(--font-orbitron)] drop-shadow-[0_0_15px_rgba(16,185,129,0.5)] flex flex-wrap gap-x-2 gap-y-1 break-words">
+                                            {/* STAGGERED TEXT REVEAL FOR NAME - FIX: Reduced font size and added break-all for extremely long names */}
+                                            <h3 className="text-2xl md:text-4xl lg:text-6xl font-[900] text-transparent bg-clip-text bg-gradient-to-r from-white via-emerald-200 to-white uppercase tracking-tighter leading-[1.1] font-[family-name:var(--font-orbitron)] drop-shadow-[0_0_15px_rgba(16,185,129,0.5)] flex flex-wrap gap-x-2 gap-y-1 break-words overflow-hidden">
                                                 {bandMembers[activeIndex].name.split(" ").map((word, i) => (
                                                     <motion.span
                                                         key={i}
@@ -610,8 +652,12 @@ const ParallaxBackground = () => {
             className="absolute inset-0 z-0 pointer-events-none opacity-30"
         >
             <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-emerald-900/40 via-[#020202] to-[#020202]"></div>
-            <div className="absolute top-[20%] right-[-10%] w-[600px] h-[600px] bg-purple-900/20 rounded-full blur-[120px]" />
-            <div className="absolute bottom-[20%] left-[-10%] w-[600px] h-[600px] bg-emerald-900/20 rounded-full blur-[120px]" />
+            {!isMobile && (
+                <>
+                    <div className="absolute top-[20%] right-[-10%] w-[600px] h-[600px] bg-purple-900/20 rounded-full blur-[120px]" />
+                    <div className="absolute bottom-[20%] left-[-10%] w-[600px] h-[600px] bg-emerald-900/20 rounded-full blur-[120px]" />
+                </>
+            )}
         </motion.div>
     );
 };
@@ -680,10 +726,37 @@ const ButtonSecondary = ({ children, onClick }: { children: React.ReactNode, onC
 )
 
 // --- Ancient Hero Overlay Component ---
+// --- Atmospheric Components ---
+
+const GodRays = () => (
+    <div className="absolute inset-0 pointer-events-none overflow-hidden z-0">
+        <div className="absolute top-[-50%] left-[-20%] w-[150%] h-[200%] rotate-[25deg] opacity-20">
+            {[...Array(5)].map((_, i) => (
+                <motion.div
+                    key={`ray-${i}`}
+                    initial={{ opacity: 0.1, x: -100 }}
+                    animate={{
+                        opacity: [0.1, 0.3, 0.1],
+                        x: [0, 50, 0]
+                    }}
+                    transition={{
+                        duration: 8 + i * 2,
+                        repeat: Infinity,
+                        ease: "easeInOut"
+                    }}
+                    className="absolute h-full w-[10vw] bg-gradient-to-r from-transparent via-emerald-100/20 to-transparent blur-[80px]"
+                    style={{ left: `${20 * i}%` }}
+                />
+            ))}
+        </div>
+    </div>
+)
+
 // --- Realistic Ancient Background Component ---
 // --- Realistic Ancient Background Component ---
 const RealisticAncientBackground = () => {
     // FIX: Hydration Mismatch. Move random generation to useEffect.
+    const [isMobile, setIsMobile] = useState(false)
     const [dustParticles, setDustParticles] = useState<Array<{
         width: number,
         height: number,
@@ -693,12 +766,20 @@ const RealisticAncientBackground = () => {
         delay: number,
         initialX: number,
         initialY: number,
-        travelX: number
+        travelX: number,
+        color: string
+    }>>([])
+    const [runes, setRunes] = useState<Array<{
+        top: number,
+        left: number,
+        rotate: number,
+        char: string
     }>>([])
 
     useEffect(() => {
+        setIsMobile(window.innerWidth < 768)
         // Generate random particles ONLY on client-side to avoid mismatch
-        const particles = [...Array(6)].map(() => ({
+        const particles = [...Array(window.innerWidth < 768 ? 4 : 12)].map(() => ({
             width: Math.random() * 3 + 1,
             height: Math.random() * 3 + 1,
             left: Math.random() * 100,
@@ -707,9 +788,20 @@ const RealisticAncientBackground = () => {
             delay: Math.random() * 5,
             initialX: Math.random() * 100,
             initialY: Math.random() * 100,
-            travelX: Math.random() * 50 - 25
+            travelX: Math.random() * 50 - 25,
+            color: Math.random() > 0.7 ? "bg-amber-400/40" : "bg-emerald-100/20"
         }))
         setDustParticles(particles)
+
+        // Generate random runes ONLY on client-side
+        const runeChars = ['ᚦ', 'ᚢ', 'ᚱ', 'ᛁ', 'ᛗ', 'ᚨ']
+        const newRunes = [...Array(6)].map((_, i) => ({
+            top: Math.random() * 100,
+            left: Math.random() * 100,
+            rotate: Math.random() * 360,
+            char: runeChars[i % runeChars.length]
+        }))
+        setRunes(newRunes)
     }, [])
 
     return (
@@ -721,14 +813,17 @@ const RealisticAncientBackground = () => {
                     alt="Ancient Ruins Atmosphere"
                     fill
                     className="object-cover object-center"
-                    priority
+                    priority={!isMobile}
                 />
                 {/* Gradient Fade to merge with black bg */}
                 <div className="absolute inset-0 bg-gradient-to-t from-[#020202] via-transparent to-[#020202]" />
                 <div className="absolute inset-0 bg-gradient-to-r from-[#020202] via-transparent to-[#020202]" />
             </div>
 
-            {/* 2. CINEMATIC DUST / SPORES (Replaces cartoon stones) */}
+            {/* God Rays */}
+            <GodRays />
+
+            {/* 2. CINEMATIC DUST / SPORES / EMBERS */}
             <div className="absolute inset-0 z-10 overflow-hidden">
                 {dustParticles.map((p, i) => (
                     <motion.div
@@ -745,7 +840,7 @@ const RealisticAncientBackground = () => {
                             ease: "linear",
                             delay: p.delay
                         }}
-                        className="absolute rounded-full bg-emerald-100/20 blur-[1px]"
+                        className={`absolute rounded-full blur-[1px] ${p.color}`}
                         style={{
                             width: p.width + 'px',
                             height: p.height + 'px',
@@ -758,6 +853,23 @@ const RealisticAncientBackground = () => {
 
             {/* 3. SUBTLE MIST LAYERS (Atmosphere) */}
             <div className="absolute bottom-0 w-full h-[40vh] bg-gradient-to-t from-[#020202] to-transparent z-10" />
+
+            {/* 4. ANCIENT RUNES (Background Layer) */}
+            <div className="absolute inset-0 opacity-5 pointer-events-none mix-blend-overlay">
+                {runes.map((rune, i) => (
+                    <div
+                        key={`bg-rune-${i}`}
+                        className="absolute text-[10rem] font-serif text-emerald-400"
+                        style={{
+                            top: `${rune.top}%`,
+                            left: `${rune.left}%`,
+                            transform: `rotate(${rune.rotate}deg)`
+                        }}
+                    >
+                        {rune.char}
+                    </div>
+                ))}
+            </div>
         </div>
     )
 }
@@ -773,15 +885,17 @@ const HeroSection = ({ shouldRender3D }: { shouldRender3D: boolean }) => {
         setIsMobile(window.innerWidth < 768)
     }, [])
 
-    const yHero = useTransform(scrollY, [0, 500], isMobile ? [0, 0] : [0, -150])
+    const yHeroRaw = useTransform(scrollY, [0, 500], isMobile ? [0, 0] : [0, -150])
+    const yHero = useSpring(yHeroRaw, { stiffness: 100, damping: 30 })
     const opacityHero = useTransform(scrollY, [0, 1200], [1, 0])
 
     return (
         <section className="relative min-h-[100vh] flex items-center overflow-hidden bg-[#020202] gpu-accel">
             {/* God Level Parallax BG */}
             <div className="absolute inset-0 pointer-events-none">
-                <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.03] mix-blend-overlay" />
-                {/* Glowing Orbs for Liveliness - Hidden on Mobile */}
+                {!isMobile && (
+                    <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.03] mix-blend-overlay" />
+                )}                {/* Glowing Orbs for Liveliness - Hidden on Mobile */}
                 {!isMobile && (
                     <>
                         <motion.div
@@ -913,6 +1027,11 @@ const HeroSection = ({ shouldRender3D }: { shouldRender3D: boolean }) => {
 }
 
 const WelcomeSection = () => {
+    const [isMobile, setIsMobile] = useState(false)
+    useEffect(() => {
+        setIsMobile(window.innerWidth < 768)
+    }, [])
+
     return (
         <section className="py-20 px-4 md:px-12 relative bg-[#020202] gpu-accel">
             <ParallaxBackground />
@@ -921,7 +1040,7 @@ const WelcomeSection = () => {
                 <RevealOnScroll className="relative group perspective-1000">
                     <div className="absolute inset-0 bg-gradient-to-br from-emerald-500 to-purple-600 rounded-[3rem] blur-2xl opacity-20 group-hover:opacity-40 transition-opacity duration-700" />
                     <motion.div
-                        whileHover={{ scale: 1.02, rotateY: 5 }}
+                        whileHover={isMobile ? {} : { scale: 1.02, rotateY: 5 }}
                         transition={{ type: "spring", stiffness: 100 }}
                         className="relative h-[300px] md:h-[500px] rounded-[2.5rem] md:rounded-[3rem] overflow-hidden border border-white/10 shadow-2xl"
                     >
@@ -979,10 +1098,12 @@ const WelcomeSection = () => {
 const AboutFestSection = () => {
     const sectionRef = useRef<HTMLElement>(null)
     const { scrollYProgress } = useScroll({ target: sectionRef, offset: ["start end", "end start"] })
-    const y = useTransform(scrollYProgress, [0, 1], ["0%", "20%"]) // Parallax effect
+    const yRaw = useTransform(scrollYProgress, [0, 1], [0, 20]) // Float for spring
+    const ySpring = useSpring(yRaw, { stiffness: 100, damping: 30 })
+    const y = useTransform(ySpring, (v) => `${v}%`) // Convert to % string after spring
 
     return (
-        <section ref={sectionRef} className="py-32 px-4 md:px-6 container mx-auto relative z-10">
+        <section id='about' ref={sectionRef} className="py-32 px-4 md:px-6 container mx-auto relative z-10 gpu-accel">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
                 <RevealOnScroll className="order-2 lg:order-1 space-y-8">
                     <StaggerTitle title="About The Fest" subtitle="A Legacy of Excellence" />
@@ -1102,31 +1223,68 @@ const HorizontalTimeline = () => {
 
     // Dynamic transform to fix gap based on screen width
     const [endValue, setEndValue] = useState("-55%") // Default safe value
+    const [isMobile, setIsMobile] = useState(false)
+
     useEffect(() => {
         const updateTarget = () => {
+            const mobile = window.innerWidth < 768
+            setIsMobile(mobile)
             // Mobile needs ~75-85%, Desktop/Wide needs much less ~35-45%
-            setEndValue(window.innerWidth < 768 ? "-85%" : "-40%")
+            setEndValue(mobile ? "-85%" : "-40%")
         }
         updateTarget()
         window.addEventListener('resize', updateTarget)
         return () => window.removeEventListener('resize', updateTarget)
     }, [])
 
-    const x = useTransform(scrollYProgress, [0, 1], ["1%", endValue])
+    const xRaw = useTransform(scrollYProgress, [0, 1], [1, parseFloat(endValue)])
+    const xSmooth = useSpring(xRaw, {
+        stiffness: 40,
+        damping: 20,
+        mass: 0.5,
+        restDelta: 0.001
+    })
+    const x = useTransform(xSmooth, (v) => `${v}%`)
 
     return (
-        <section ref={sectionRef} className="relative h-[250vh] bg-[#020202] gpu-accel smooth-scroll-fix">
+        <section ref={sectionRef} className="relative h-[350vh] bg-[#020202] gpu-accel smooth-scroll-fix">
             <div className="sticky top-0 h-screen flex items-center overflow-hidden">
-                <div className="absolute top-10 left-8 md:left-20 z-20 bg-black/50 backdrop-blur-md px-6 py-3 rounded-full border border-white/10">
-                    <StaggerTitle title="The Saga" subtitle="4 Days. Infinite Memories." />
+                <div className="absolute top-4 left-4 md:top-8 md:left-12 z-40 pointer-events-none">
+                    <div className="bg-black/95 backdrop-blur-2xl px-5 py-4 md:px-6 md:py-5 rounded-xl md:rounded-2xl border border-emerald-500/30 shadow-[0_0_40px_rgba(0,0,0,0.8)] flex flex-col gap-1 md:gap-4">
+                        <div className="flex flex-col gap-0 md:gap-1">
+                            <span className="text-emerald-400 text-[9px] md:text-[10px] font-bold tracking-[0.3em] uppercase opacity-80">
+                                4 Days. Infinite Memories.
+                            </span>
+                            <h2 className={`${orbitron.className} text-xl md:text-3xl lg:text-4xl text-white font-black tracking-tight uppercase`}>
+                                College Fest <span className="text-emerald-500">Schedule</span>
+                            </h2>
+                        </div>
+
+                        <div className="h-[px] w-full bg-emerald-500/20 hidden md:block" />
+
+                        <div className="md:flex items-center gap-4 hidden">
+                            <div className="flex flex-col items-center">
+                                <ChevronDown className="w-5 h-5 text-emerald-400 animate-bounce mb-[-4px]" />
+                                <ChevronDown className="w-5 h-5 text-emerald-400/50 animate-bounce" />
+                            </div>
+                            <div className="flex flex-col">
+                                <span className={`${orbitron.className} text-[11px] text-white font-bold uppercase tracking-[0.1em]`}>
+                                    Scroll Down
+                                </span>
+                                <span className="text-[9px] text-emerald-500/70 font-bold uppercase tracking-widest">
+                                    To Explore The Saga
+                                </span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 {/* Animated Gradient Background for Liveliness */}
                 <div className="absolute inset-0 bg-gradient-to-r from-emerald-900/10 via-black to-purple-900/10 animate-pulse-slow" />
 
-                <motion.div style={{ x }} className="flex gap-4 md:gap-16 px-4 md:px-[10vw] items-center">
+                <motion.div style={{ x }} className="flex gap-6 md:gap-16 px-4 md:px-[10vw] items-center pt-44 md:pt-0">
                     {timelineData.map((day, i) => (
-                        <div key={i} className="relative w-[85vw] md:w-[600px] h-[65vh] md:h-[75vh] flex-shrink-0 group perspective-1000">
+                        <div key={i} className="relative w-[88vw] md:w-[600px] h-[62vh] md:h-[75vh] flex-shrink-0 group perspective-1000">
                             {/* 3D Tilt Wrapper */}
                             <motion.div
                                 className="w-full h-full relative preserve-3d transition-all duration-500 ease-out"
@@ -1159,9 +1317,10 @@ const HorizontalTimeline = () => {
                                                     fill
                                                     className="object-cover transition-transform duration-1000 group-hover:scale-110 opacity-80 group-hover:opacity-100"
                                                     sizes="(max-width: 768px) 80vw, 400px"
+                                                    quality={40}
                                                 />
-                                                <div className="absolute top-6 left-6 z-20">
-                                                    <div className="text-[5rem] leading-none font-[1000] text-white/10 select-none font-[family-name:var(--font-poppins)] group-hover:text-emerald-500/20 transition-colors">
+                                                <div className="absolute top-4 left-4 md:top-6 md:left-6 z-20">
+                                                    <div className="text-[3.5rem] md:text-[5rem] leading-none font-[1000] text-white/10 select-none font-[family-name:var(--font-poppins)] group-hover:text-emerald-500/20 transition-colors">
                                                         {day.day.split(' ')[1]}
                                                     </div>
                                                 </div>
@@ -1169,30 +1328,30 @@ const HorizontalTimeline = () => {
                                         </div>
 
                                         {/* Content Section */}
-                                        <div className="flex-1 pt-6 px-8 pb-8 flex flex-col relative z-20">
-                                            <h3 className="text-4xl font-[900] text-white uppercase tracking-tighter mb-4 font-[family-name:var(--font-poppins)] group-hover:text-emerald-400 transition-colors">
+                                        <div className="flex-1 pt-4 md:pt-6 px-6 md:px-8 pb-6 md:pb-8 flex flex-col relative z-20">
+                                            <h3 className="text-2xl md:text-4xl font-[900] text-white uppercase tracking-tighter mb-2 md:mb-4 font-[family-name:var(--font-poppins)] group-hover:text-emerald-400 transition-colors">
                                                 {day.title}
                                             </h3>
-                                            <div className="flex items-center gap-3 mb-8">
-                                                <div className="px-4 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-bold uppercase tracking-widest group-hover:bg-emerald-500 group-hover:text-black transition-all shadow-[0_0_10px_rgba(16,185,129,0.2)]">
+                                            <div className="flex items-center gap-3 mb-4 md:mb-8">
+                                                <div className="px-4 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[10px] md:text-xs font-bold uppercase tracking-widest group-hover:bg-emerald-500 group-hover:text-black transition-all shadow-[0_0_10px_rgba(16,185,129,0.2)]">
                                                     {day.date}
                                                 </div>
-                                                <div className="h-[1px] flex-1 bg-white/10 group-hover:bg-emerald-500/50 transition-colors" />
+                                                <div className="h-[px] flex-1 bg-white/10 group-hover:bg-emerald-500/50 transition-colors" />
                                             </div>
 
                                             {/* Timeline Events List */}
-                                            <div className="flex-1 overflow-y-auto custom-scrollbar-hide space-y-0 relative pr-2">
+                                            <div className={`flex-1 ${isMobile ? 'overflow-visible' : 'overflow-y-auto custom-scrollbar-hide'} space-y-0 relative pr-2`}>
                                                 <div className="absolute left-[7px] top-2 bottom-2 w-[2px] bg-white/10 group-hover:bg-emerald-500/20 transition-colors" />
 
                                                 {day.events.map((ev, j) => (
-                                                    <div key={j} className="relative pl-8 py-3 group/item transition-colors hover:bg-white/5 rounded-r-xl">
-                                                        <div className="absolute left-[3px] top-[22px] w-2.5 h-2.5 rounded-full border-2 border-[#080808] bg-gray-600 group-hover/item:bg-emerald-500 transition-colors z-10 shadow-[0_0_10px_black] group-hover/item:shadow-[0_0_10px_#10b981]" />
+                                                    <div key={j} className="relative pl-7 md:pl-8 py-2 md:py-3 group/item transition-colors hover:bg-white/5 rounded-r-xl">
+                                                        <div className="absolute left-[3px] top-[18px] md:top-[22px] w-2 h-2 md:w-2.5 md:h-2.5 rounded-full border-2 border-[#080808] bg-gray-600 group-hover/item:bg-emerald-500 transition-colors z-10 shadow-[0_0_10px_black] group-hover/item:shadow-[0_0_10px_#10b981]" />
                                                         <div className="flex justify-between items-center">
-                                                            <div>
-                                                                <div className="text-white font-bold text-lg group-hover/item:text-emerald-400 transition-colors">{ev.name}</div>
-                                                                <div className="text-xs font-bold text-gray-500 uppercase tracking-wider mt-0.5">{ev.type}</div>
+                                                            <div className="min-w-0 pr-2">
+                                                                <div className="text-white font-bold text-sm md:text-lg group-hover/item:text-emerald-400 transition-colors truncate">{ev.name}</div>
+                                                                <div className="text-[9px] md:text-xs font-bold text-gray-500 uppercase tracking-wider mt-0.5">{ev.type}</div>
                                                             </div>
-                                                            <div className="text-xs font-bold text-emerald-500/80 bg-emerald-500/5 px-2 py-1 rounded border border-emerald-500/10 group-hover/item:border-emerald-500 transition-colors">
+                                                            <div className="text-[10px] md:text-xs font-bold text-emerald-500/80 bg-emerald-500/5 px-2 py-1 rounded border border-emerald-500/10 group-hover/item:border-emerald-500 transition-colors shrink-0">
                                                                 {ev.time}
                                                             </div>
                                                         </div>
@@ -1208,7 +1367,7 @@ const HorizontalTimeline = () => {
                 </motion.div>
 
                 {/* Progress Bar */}
-                <div className="absolute bottom-10 left-10 md:left-20 right-10 md:right-20 h-1 bg-white/10 rounded-full overflow-hidden">
+                <div className="absolute bottom-6 md:bottom-10 left-10 md:left-20 right-10 md:right-20 h-1 bg-white/10 rounded-full overflow-hidden">
                     <motion.div
                         style={{ width: useTransform(scrollYProgress, [0, 1], ["0%", "100%"]) }}
                         className="h-full bg-emerald-500 shadow-[0_0_15px_#10b981]"
@@ -1258,7 +1417,7 @@ const SpecialAttractions = () => (
                             className="object-cover transition-transform duration-[1.5s] ease-in-out group-hover:scale-110 opacity-50 group-hover:opacity-70"
                             sizes="(max-width: 768px) 100vw, 25vw"
                         />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-transparent" />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/25 via-black/10 to-transparent" />
                     </div>
 
                     <div className="relative z-10">
@@ -1278,7 +1437,6 @@ const SpecialAttractions = () => (
 )
 
 const MarvelTrailerSection = () => {
-    // Fast-paced image switching for "Marvel Intro" vibe
     const images = [
         "/img/1 (1).jpg",
         "/img/DSC_0007.JPG",
@@ -1291,7 +1449,16 @@ const MarvelTrailerSection = () => {
     ]
 
     const [isInView, setIsInView] = useState(false)
+    const [currentIndex, setCurrentIndex] = useState(0)
+    const [isMobile, setIsMobile] = useState(false)
     const containerRef = useRef<HTMLElement>(null)
+
+    useEffect(() => {
+        const checkMobile = () => setIsMobile(window.innerWidth < 768)
+        checkMobile()
+        window.addEventListener('resize', checkMobile)
+        return () => window.removeEventListener('resize', checkMobile)
+    }, [])
 
     useEffect(() => {
         const observer = new IntersectionObserver(([entry]) => {
@@ -1301,49 +1468,39 @@ const MarvelTrailerSection = () => {
         return () => observer.disconnect()
     }, [])
 
-    const imageRefs = useRef<(HTMLDivElement | null)[]>([])
-
     useEffect(() => {
         if (!isInView) return
 
-        let index = 0
-        // Ensure first image is visible immediately
-        if (imageRefs.current[0]) imageRefs.current[0]!.style.opacity = '1'
-
+        const intervalTime = isMobile ? 2500 : 300 // Much slower on mobile to prevent OOM
         const interval = setInterval(() => {
-            const prevIndex = index
-            index = (index + 1) % images.length
-
-            // Direct DOM manipulation to avoid React Render Cycle
-            if (imageRefs.current[prevIndex]) imageRefs.current[prevIndex]!.style.opacity = '0'
-            if (imageRefs.current[index]) imageRefs.current[index]!.style.opacity = '1'
-        }, 150)
+            setCurrentIndex(prev => (prev + 1) % images.length)
+        }, intervalTime)
         return () => clearInterval(interval)
-    }, [isInView])
+    }, [isInView, isMobile])
 
     return (
         <section ref={containerRef} className="relative h-screen w-full bg-black overflow-hidden flex items-center justify-center gpu-accel">
-            {/* Rapid Fire Background - Optimized with stable DOM nodes */}
+            {/* Rapid Fire Background - Rendering only active image to save MASSIVE memory */}
             <div className="absolute inset-0 opacity-40">
-                {images.map((img, i) => (
-                    <div
-                        key={img}
-                        ref={el => { imageRefs.current[i] = el }}
-                        className="absolute inset-0 transition-opacity duration-75 will-change-[opacity]"
-                        style={{ opacity: i === 0 ? 1 : 0 }}
+                <AnimatePresence mode="wait">
+                    <motion.div
+                        key={currentIndex}
+                        initial={{ opacity: 0, scale: 1 }}
+                        animate={{ opacity: 1, scale: 1.1 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: isMobile ? 1.5 : 0.4, ease: "linear" }}
+                        className="absolute inset-0"
                     >
                         <Image
-                            src={img}
+                            src={images[currentIndex]}
                             alt="Montage"
                             fill
                             className="object-cover grayscale contrast-125 brightness-50"
-                            sizes="(max-width: 768px) 100vw, 50vw"
-                            quality={60}
-                            loading={i === 0 ? "eager" : "lazy"}
-                            priority={i === 0}
+                            priority
+                            sizes="100vw"
                         />
-                    </div>
-                ))}
+                    </motion.div>
+                </AnimatePresence>
 
                 <div className="absolute inset-0 bg-red-600 mix-blend-multiply opacity-20 pointer-events-none" />
                 <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-30 mix-blend-overlay pointer-events-none" />
@@ -1456,7 +1613,9 @@ const FAQ = () => {
 }
 
 const Footer = () => (
-    <footer className="bg-[#020202] border-t border-white/5 pt-24 pb-12 px-4 md:px-6 relative overflow-hidden">
+
+    <footer id='contact' className="bg-[#020202] border-t border-white/5 pt-24 pb-12 px-4 md:px-6 relative overflow-hidden">
+
         {/* Giant Footer Text */}
         <div className="absolute top-0 left-0 w-full overflow-hidden pointer-events-none opacity-[0.03]">
             <ParallaxText baseVelocity={2}>VARNOTHSAVA</ParallaxText>
@@ -1472,32 +1631,69 @@ const Footer = () => (
                 </p>
                 <div className="flex gap-4">
                     {[
-                        { icon: Instagram, label: "Instagram" },
-                        { icon: Youtube, label: "Youtube" },
-                        { icon: Twitter, label: "Twitter" },
-                        { icon: Facebook, label: "Facebook" }
+                        {
+                            icon: Instagram,
+                            label: "Instagram",
+                            href: "https://www.instagram.com/smvitm.sode?igsh=OGRscmdvNWE5cmw1"
+                        },
+                        {
+                            icon: Youtube,
+                            label: "Youtube",
+                            href: "https://youtube.com/@smvitmbantakal?si=cxfczlxJ8UBSCnWk"
+                        },
+                        {
+                            icon: Twitter,
+                            label: "Twitter",
+                            href: "https://x.com/SmvitM"
+                        },
+                        {
+                            icon: Facebook,
+                            label: "Facebook",
+                            href: "https://www.bing.com/ck/a?!&&p=e16294a49a02fecc4f723d443aec0dc71fc7e868ca0a228b8f2992937a05870fJmltdHM9MTc2OTQ3MjAwMA&ptn=3&ver=2&hsh=4&fclid=1b88ac8a-931f-6104-1062-ba1f92ff6076&psq=sode+college+facebook+account&u=a1aHR0cHM6Ly93d3cuZmFjZWJvb2suY29tL29mZmljaWFsc212aXRtLw" // better than Instagram link
+                        }
                     ].map((item, i) => (
-                        <a key={i} href="#" aria-label={`Visit our ${item.label} page`} className="w-12 h-12 rounded-full bg-white/5 flex items-center justify-center text-white hover:bg-emerald-500 hover:text-black transition-all hover:scale-110 border border-white/10 hover:border-emerald-500">
+                        <a
+                            key={i}
+                            href={item.href}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            aria-label={`Visit our ${item.label} page`}
+                            className="w-12 h-12 rounded-full bg-white/5 flex items-center justify-center 
+                       text-white hover:bg-emerald-500 hover:text-black transition-all 
+                       hover:scale-110 border border-white/10 hover:border-emerald-500"
+                        >
                             <item.icon className="w-5 h-5" />
                         </a>
                     ))}
                 </div>
+
             </div>
 
             {/* ... Other Footer Links ... */}
+
             <div>
-                <h4 className="text-white font-bold uppercase tracking-widest mb-8 text-xs font-[family-name:var(--font-inter)]">Quick Links</h4>
+                <h4 className="text-white font-bold uppercase tracking-widest mb-8 text-xs font-[family-name:var(--font-inter)]">
+                    Quick Links
+                </h4>
+
                 <ul className="space-y-4 text-sm text-gray-400 font-medium">
-                    {['About Us', 'Events', 'Sponsors', 'Contact'].map((link) => (
-                        <li key={link}>
-                            <a href="#" className="hover:text-emerald-400 transition-colors flex items-center gap-2 group">
-                                <ArrowRight className="w-3 h-3 opacity-0 group-hover:opacity-100 -translate-x-2 group-hover:translate-x-0 transition-transform" />
-                                {link}
-                            </a>
+                    {quickLinks.map((link) => (
+                        <li key={link.href}>
+                            <Link
+                                href={link.href}
+                                className="hover:text-emerald-400 transition-colors flex items-center gap-2 group"
+                            >
+                                <ArrowRight
+                                    className="w-3 h-3 opacity-0 group-hover:opacity-100 
+                        -translate-x-2 group-hover:translate-x-0 transition-transform"
+                                />
+                                {link.label}
+                            </Link>
                         </li>
                     ))}
                 </ul>
             </div>
+
 
             <div>
                 <h4 className="text-white font-bold uppercase tracking-widest mb-8 text-xs font-[family-name:var(--font-inter)]">Legal</h4>
@@ -1536,27 +1732,48 @@ const Footer = () => (
 
 const ViewportLazy = ({ children }: { children: React.ReactNode }) => {
     const [isVisible, setIsVisible] = useState(false);
-    const ref = useRef(null);
+    const containerRef = useRef<HTMLDivElement>(null);
+    const heightRef = useRef<number | null>(null); // Memorize height
 
     useEffect(() => {
         const observer = new IntersectionObserver(([entry]) => {
             if (entry.isIntersecting) {
                 setIsVisible(true);
-                observer.disconnect();
+            } else {
+                // When unmounting, save the current height if it exists
+                if (containerRef.current && containerRef.current.offsetHeight > 0) {
+                    heightRef.current = containerRef.current.offsetHeight;
+                }
+                setIsVisible(false);
             }
-        }, { rootMargin: "800px" }); // Increased to 800px for earlier pre-rendering
+        }, { rootMargin: "600px" });
 
-        if (ref.current) observer.observe(ref.current);
+        if (containerRef.current) observer.observe(containerRef.current);
         return () => observer.disconnect();
     }, []);
 
-    return <div ref={ref} className="w-full content-lazy" style={{ minHeight: '80vh' }}>{isVisible ? children : null}</div>
+    return (
+        <div
+            ref={containerRef}
+            className="w-full content-lazy relative"
+            style={{ minHeight: heightRef.current ? `${heightRef.current}px` : '40vh' }}
+        >
+            {isVisible ? children : null}
+        </div>
+    )
 }
 
 export default function LandingPage() {
     const [shouldRender3D, setShouldRender3D] = useState(false);
+    const { setPageTheme } = useApp()
 
     useEffect(() => {
+        setPageTheme({
+            name: 'DEFAULT',
+            rgb: '16, 185, 129',
+            primary: '#10b981'
+        })
+
         // Delay 3D model mounting to avoid stutter during initial page entrance
         const timer = setTimeout(() => {
             setShouldRender3D(true);

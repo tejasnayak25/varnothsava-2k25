@@ -4,6 +4,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import gsap from 'gsap';
 import Image from 'next/image';
 import { cn } from '@/lib/utils';
+import { useApp } from '@/context/AppContext';
 import { ChevronLeft, ChevronRight, Zap, X } from 'lucide-react';
 
 // --- PREMIUM IMAGE DATA ---
@@ -38,6 +39,15 @@ export function CosmicJoystickGallery() {
     const [isPreviewOpen, setIsPreviewOpen] = useState(false);
     const [isAnimating, setIsAnimating] = useState(false);
     const [isPortrait, setIsPortrait] = useState(false);
+    const { setPageTheme } = useApp()
+
+    useEffect(() => {
+        setPageTheme({
+            name: 'DEFAULT',
+            rgb: '16, 185, 129',
+            primary: '#10b981'
+        })
+    }, [setPageTheme])
 
     const [isDragging, setIsDragging] = useState(false);
 
@@ -170,12 +180,17 @@ export function CosmicJoystickGallery() {
         }, 200); // Repeat every 200ms
     };
 
-    const stopContinuousMove = () => {
+    const stopContinuousMove = useCallback(() => {
         if (intervalRef.current) {
             clearInterval(intervalRef.current);
             intervalRef.current = null;
         }
-    };
+    }, []);
+
+    // Cleanup on unmount
+    useEffect(() => {
+        return () => stopContinuousMove();
+    }, [stopContinuousMove]);
 
     const handlePointerDown = (e: React.PointerEvent) => {
         if (isPreviewOpen) {
@@ -319,7 +334,7 @@ export function CosmicJoystickGallery() {
             tl.to(bannerRef.current, {
                 opacity: 1,
                 scale: 1,
-                filter: isMobile ? "none" : "blur(0px) brightness(1) saturate(1)", // Crystal clear
+                filter: isMobile ? "brightness(0.5) saturate(1.2)" : "blur(0px) brightness(1) saturate(1)", // No blur on mobile
                 duration: 1.2,
                 force3D: true
             }, 0)
@@ -353,7 +368,7 @@ export function CosmicJoystickGallery() {
                 .to(bannerRef.current, {
                     opacity: 0, // Go back to dark/void
                     scale: 1.1,
-                    filter: isMobile ? "none" : "blur(64px) brightness(0.15) saturate(1.8)", // Reset blur state
+                    filter: isMobile ? "brightness(0.15) saturate(1.8)" : "blur(64px) brightness(0.15) saturate(1.8)", // No blur on mobile
                     duration: 1.0,
                     force3D: true
                 }, 0);

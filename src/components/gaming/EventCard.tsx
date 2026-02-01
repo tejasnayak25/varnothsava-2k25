@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from "react";
+import Image from "next/image";
 import "@/styles/event-card.css";
 
 interface EventCardProps {
@@ -78,7 +79,13 @@ export default function EventCard({
                     <div className="hex-outer-ring" />
                     <div className="hex-mid-ring" />
                     <div className="character-frame">
-                        <img src={image} alt={gameName} className="character-img" />
+                        <Image
+                            src={image}
+                            alt={gameName}
+                            fill
+                            sizes="(max-width: 768px) 100vw, 400px"
+                            className="character-img object-cover"
+                        />
                         <div className="character-overlay" />
                     </div>
                     {/* Floating elements */}
