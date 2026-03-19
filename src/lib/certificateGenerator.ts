@@ -1,4 +1,4 @@
-import { Resvg } from '@resvg/resvg-js';
+import puppeteer from 'puppeteer';
 
 export async function generateCertificate(
     name: string,
@@ -12,60 +12,128 @@ export async function generateCertificate(
     const templateRes = await fetch(`${origin}/image_copy_7.png`);
     if (!templateRes.ok) throw new Error(`Template fetch failed: ${templateRes.status}`);
     const templateBuffer = Buffer.from(await templateRes.arrayBuffer());
-
-    // ── Convert template to base64 ─────────────────────────────────────────────────────
     const templateBase64 = templateBuffer.toString('base64');
 
-    // Escape XML/HTML entities in text
-    const escapeXml = (str: string) => {
+    // Escape HTML entities
+    const escapeHtml = (str: string) => {
         return str
             .replace(/&/g, '&amp;')
             .replace(/</g, '&lt;')
             .replace(/>/g, '&gt;')
             .replace(/"/g, '&quot;')
-            .replace(/'/g, '&apos;');
+            .replace(/'/g, '&#39;');
     };
 
-    const safeName = escapeXml(name.toUpperCase());
-    const safeCollege = escapeXml(college.toUpperCase());
+    const safeName = escapeHtml(name.toUpperCase());
+    const safeCollege = escapeHtml(college.toUpperCase());
 
-    // ── Create SVG with embedded template image ────────────────────────────────────────
-    const svg = `<?xml version="1.0" encoding="UTF-8"?>
-<svg width="1599" height="1131" xmlns="http://www.w3.org/2000/svg">
-  <!-- Background template image -->
-  <image href="data:image/png;base64,${templateBase64}" x="0" y="0" width="1599" height="1131"/>
-  
-  <!-- Name text -->
-  <text x="${1599 * 0.36}" y="594" 
-        font-family="Arial, sans-serif" 
-        font-size="54" 
-        font-weight="bold" 
-        fill="#1B2631"
-        text-anchor="start">
-    ${safeName}
-  </text>
-  
-  <!-- College text -->
-  <text x="${1599 * 0.26}" y="654" 
-        font-family="Arial, sans-serif" 
-        font-size="34" 
-        font-style="italic" 
-        fill="#515a5a"
-        text-anchor="start">
-    ${safeCollege}
-  </text>
-</svg>`;
+    // ── Create HTML with embedded certificate ──────────────────────────────────────────
+    const html = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="UTF-8">
+            <style>
+                body {
+                    margin: 0;
+                    padding: 0;
+                    background: transparent;
+                }
+                .certificate {
+                    position: relative;
+                    width: 1599px;
+                    height: 1131px;
+                    margin: 0;
+                    padding: 0;
+                }
+                .certificate img {
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                }
+                .name {
+                    position: absolute;
+                    left: ${1599 * 0.36}px;
+                    top: 594px;
+                    font-size: 54px;
+                    font-weight: bold;
+                    color: #1B2631;
+                    font-family: Arial, sans-serif;
+                    max-width: ${1599 - 1599 * 0.36 - 50}px;
+                    white-space: nowrap;
+                    text-overflow: ellipsis;
+                    overflow: hidden;
+                    margin: 0;
+                    padding: 0;
+                }
+                .college {
+                    position: absolute;
+                    left: ${1599 * 0.26}px;
+                    top: 654px;
+                    font-size: 34px;
+                    font-style: italic;
+                    color: #515a5a;
+                    font-family: Arial, sans-serif;
+                    max-width: ${1599 - 1599 * 0.26 - 50}px;
+                    white-space: nowrap;
+                    text-overflow: ellipsis;
+                    overflow: hidden;
+                    margin: 0;
+                    padding: 0;
+                }
+            </style>
+        </head>
+        <body>
+            <div class="certificate">
+                <img src="data:image/png;base64,${templateBase64}" alt="Certificate">
+                <div class="name">${safeName}</div>
+                <div class="college">${safeCollege}</div>
+            </div>
+        </body>
+        </html>
+    `;
 
-    // ── Render SVG to PNG using resvg (Vercel-compatible) ───────────────────────────────
-    const resvg = new Resvg(svg, {
-        fitTo: {
-            mode: 'original',
-        },
-        dpi: 96,
-    });
+    // ── Use Puppeteer to render HTML to PNG ────────────────────────────────────────────
+    let browser;
+    try {
+        browser = await puppeteer.launch({
+            headless: true,
+            args: [
+                '--no-sandbox',
+                '--disable-setuid-sandbox',
+                '--disable-gpu',
+                '--single-process',
+                '--no-first-run',
+            ],
+        });
 
-    const pngData = resvg.render();
-    const pngBuffer = pngData.asPng();
+        const page = await browser.newPage();
+        
+        // Set viewport to exact certificate size
+        await page.setViewport({
+            width: 1599,
+            height: 1131,
+            deviceScaleFactor: 1,
+        });
 
-    return Buffer.from(pngBuffer);
+        // Load HTML content
+        await page.setContent(html, {
+            waitUntil: 'networkidle0',
+        });
+
+        // Take screenshot
+        const pngBuffer = await page.screenshot({
+            type: 'png',
+            omitBackground: false,
+        }) as Buffer;
+
+        await page.close();
+        return pngBuffer;
+    } finally {
+        if (browser) {
+            await browser.close();
+        }
+    }
 }
