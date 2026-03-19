@@ -41,14 +41,32 @@ export async function generateCertificate(
     const templateBuffer = Buffer.from(await templateRes.arrayBuffer());
 
     // ── SVG XML ───────────────────────────────────────────────────────────────────────
-    // Using EXACTING XML standards to avoid the "corrupt header" error.
-    // Specifying "Liberation Serif" directly which is the standard on Vercel's Linux.
+    // Using system-safe font stack + fallback to ensure deployment compatibility
+    // Removed dependency on specific fonts; using generic serif/italic for SVG rendering
     const svgOverlay = Buffer.from(`<?xml version="1.0" encoding="UTF-8"?>
 <svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">
-  <style>
-    .nameText { font-family: "Liberation Serif", serif; font-weight: bold; font-size: ${nameFontSize}px; fill: #1B2631; }
-    .collText { font-family: "Liberation Serif", serif; font-style: italic; font-size: ${collegeFontSize}px; fill: #515a5a; }
-  </style>
+  <defs>
+    <style type="text/css">
+      @font-face {
+        font-family: 'CertFont';
+        src: local('Liberation Serif'), local('DejaVu Serif'), local('Times New Roman'), local('serif');
+      }
+      .nameText { 
+        font-family: CertFont, 'DejaVu Serif', serif; 
+        font-weight: bold; 
+        font-size: ${nameFontSize}px; 
+        fill: #1B2631;
+        text-rendering: optimizeLegibility;
+      }
+      .collText { 
+        font-family: CertFont, 'DejaVu Serif', serif; 
+        font-style: italic; 
+        font-size: ${collegeFontSize}px; 
+        fill: #515a5a;
+        text-rendering: optimizeLegibility;
+      }
+    </style>
+  </defs>
   <text x="${nameX}" y="${nameY}" class="nameText" text-anchor="start">${safeName}</text>
   <text x="${collegeX}" y="${collegeY}" class="collText" text-anchor="start">${safeCollege}</text>
 </svg>`, 'utf-8');
