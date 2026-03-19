@@ -43,6 +43,7 @@
     "next": "16.1.1",
     "nodemailer": "^8.0.2",
     "pdf-parse": "^2.4.5",
+    "pdfkit": "^0.18.0",
     "postprocessing": "^6.38.2",
     "qrcode": "^1.5.4",
     "razorpay": "^2.9.6",

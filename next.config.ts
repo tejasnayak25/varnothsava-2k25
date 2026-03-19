@@ -5,7 +5,10 @@ const nextConfig: NextConfig = {
   poweredByHeader: false,
   compress: true,
   reactStrictMode: true,
-  serverExternalPackages: ["firebase-admin", "sharp"],
+  serverExternalPackages: ["firebase-admin", "sharp", "pdfkit"],
+  outputFileTracingIncludes: {
+    "/*": ["./node_modules/pdfkit/js/data/**/*"],
+  },
   transpilePackages: ["@splinetool/react-spline"],
   images: {
     formats: ['image/avif', 'image/webp'],
