@@ -41,13 +41,13 @@ export async function GET(
         console.log(`[CERT] Generating for Name: "${rawName}", College: "${rawCollege}"`);
         
         // generateCertificate fetches the template via URL (no filesystem dependency)
-        const imageBuffer = await generateCertificate(rawName, rawCollege, request.url);
+        const certificateBuffer = await generateCertificate(rawName, rawCollege, request.url);
         console.log(`[CERT] OK: Generated in ${Date.now() - startTime}ms`);
         
-        return new NextResponse(new Uint8Array(imageBuffer), {
+        return new NextResponse(new Uint8Array(certificateBuffer), {
             headers: {
-                'Content-Type': 'image/png',
-                'Content-Disposition': `attachment; filename="Certificate_${rawName.replace(/\s+/g, '_')}.png"`,
+                'Content-Type': 'application/pdf',
+                'Content-Disposition': `attachment; filename="Certificate_${rawName.replace(/\s+/g, '_')}.pdf"`,
                 'Cache-Control': 'no-store',
             },
         });
