@@ -159,7 +159,7 @@ export const CertificateModal = ({ isOpen, onClose, userData }: CertificateModal
                                         {isDownloading ? (
                                             <><Loader2 size={15} className="animate-spin" /> Generating...</>
                                         ) : (
-                                            <><Download size={15} /> Download PNG</>
+                                            <><Download size={15} /> Download PDF</>
                                         )}
                                     </motion.button>
 
