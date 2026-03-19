@@ -32,7 +32,7 @@ export const CertificateModal = ({ isOpen, onClose, userData }: CertificateModal
     return (
         <AnimatePresence>
             {isOpen && (
-                <div className="fixed inset-0 z-[99999] flex items-end sm:items-center justify-center p-2 sm:p-4">
+                <div className="fixed inset-0 z-[99999] flex items-end sm:items-center justify-center p-0 sm:p-4">
                     {/* Backdrop */}
                     <motion.div
                         initial={{ opacity: 0 }}
@@ -48,7 +48,7 @@ export const CertificateModal = ({ isOpen, onClose, userData }: CertificateModal
                         animate={{ scale: 1, opacity: 1, y: 0 }}
                         exit={{ scale: 0.92, opacity: 0, y: 60 }}
                         transition={{ type: 'spring', damping: 28, stiffness: 260 }}
-                        className="relative w-full max-w-md sm:max-w-lg md:max-w-xl bg-[#09100d] border-t sm:border border-amber-500/40 sm:rounded-[2rem] rounded-t-[2rem] shadow-[0_0_120px_rgba(245,158,11,0.25)] overflow-hidden flex flex-col max-h-[96dvh]"
+                        className="relative w-full max-w-none sm:max-w-lg md:max-w-xl bg-[#09100d] border-t sm:border border-amber-500/40 sm:rounded-[2rem] rounded-t-[2rem] shadow-[0_0_120px_rgba(245,158,11,0.25)] overflow-hidden flex flex-col max-h-[100dvh] sm:max-h-[96dvh]"
                     >
                         {/* Ambient Glow */}
                         <div className="absolute -top-20 left-1/2 -translate-x-1/2 w-40 sm:w-64 h-20 sm:h-32 bg-amber-500/20 blur-[40px] sm:blur-[60px] pointer-events-none" />
