@@ -1,4 +1,7 @@
-import sharp from 'sharp';
+import PDFDocument from 'pdfkit';
+import { fromPath } from 'pdf2pic';
+import fs from 'fs';
+import path from 'path';
 
 export async function generateCertificate(
     name: string,
@@ -6,80 +9,101 @@ export async function generateCertificate(
     requestUrl: string
 ): Promise<Buffer> {
 
-    const width = 1599;
-    const height = 1131;
-
-    // Dynamic sizing logic
-    const nameFontSize = name.length > 15 ? Math.max(22, 54 - (name.length - 15) * 2) : 54;
-    const collegeFontSize = college.length > 25 ? Math.max(18, 34 - (college.length - 25) * 0.5) : 34;
-
-    const nameX = Math.round(width * 0.36);
-    const collegeX = Math.round(width * 0.26);
-    
-    // Nudge names for visual alignment
-    const nameY = 594; 
-    const collegeY = 654;
-
-    // ── XML Escaping ───────────────────────────────────────────────────────────
-    const escapeXml = (unsafe: string) => {
-        return unsafe.toString()
-            .replace(/&/g, '&amp;')
-            .replace(/</g, '&lt;')
-            .replace(/>/g, '&gt;')
-            .replace(/"/g, '&quot;')
-            .replace(/'/g, '&apos;');
-    };
-
-    const safeName = escapeXml(name.toUpperCase());
-    const safeCollege = escapeXml(college.toUpperCase());
-
-    // ── Template image fetch ─────────────────────────────────────────────────────────
+    // ── Fetch template image ──────────────────────────────────────────────────────────
     const baseUrl = new URL(requestUrl);
     const origin = `${baseUrl.protocol}//${baseUrl.host}`;
     const templateRes = await fetch(`${origin}/image_copy_7.png`);
     if (!templateRes.ok) throw new Error(`Template fetch failed: ${templateRes.status}`);
     const templateBuffer = Buffer.from(await templateRes.arrayBuffer());
 
-    // ── SVG XML ───────────────────────────────────────────────────────────────────────
-    // Using system-safe font stack + fallback to ensure deployment compatibility
-    // Removed dependency on specific fonts; using generic serif/italic for SVG rendering
-    const svgOverlay = Buffer.from(`<?xml version="1.0" encoding="UTF-8"?>
-<svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">
-  <defs>
-    <style type="text/css">
-      @font-face {
-        font-family: 'CertFont';
-        src: local('Liberation Serif'), local('DejaVu Serif'), local('Times New Roman'), local('serif');
-      }
-      .nameText { 
-        font-family: CertFont, 'DejaVu Serif', serif; 
-        font-weight: bold; 
-        font-size: ${nameFontSize}px; 
-        fill: #1B2631;
-        text-rendering: optimizeLegibility;
-      }
-      .collText { 
-        font-family: CertFont, 'DejaVu Serif', serif; 
-        font-style: italic; 
-        font-size: ${collegeFontSize}px; 
-        fill: #515a5a;
-        text-rendering: optimizeLegibility;
-      }
-    </style>
-  </defs>
-  <text x="${nameX}" y="${nameY}" class="nameText" text-anchor="start">${safeName}</text>
-  <text x="${collegeX}" y="${collegeY}" class="collText" text-anchor="start">${safeCollege}</text>
-</svg>`, 'utf-8');
+    // ── Create PDF with text overlay ──────────────────────────────────────────────────
+    return new Promise(async (resolve, reject) => {
+        try {
+            const doc = new PDFDocument({
+                size: [1599, 1131],
+                margin: 0,
+            });
 
-    // ── Output ──────────────────────────────────────────────────────────
-    const outputBuffer = await sharp(templateBuffer)
-        .composite([{ 
-            input: svgOverlay, 
-            top: 0, 
-            left: 0 
-        }])
-        .png()
-        .toBuffer();
+            // Add the template image as background
+            const tempImagePath = path.join('/tmp', `temp_cert_${Date.now()}.png`);
+            fs.writeFileSync(tempImagePath, templateBuffer);
 
-    return outputBuffer;
+            doc.image(tempImagePath, 0, 0, {
+                width: 1599,
+                height: 1131,
+            });
+
+            // Add name text
+            const nameX = 1599 * 0.36;
+            const nameY = 594;
+            
+            doc.fontSize(54)
+                .font('Helvetica-Bold')
+                .fillColor('#1B2631')
+                .text(name.toUpperCase(), nameX, nameY, {
+                    width: 1599 - nameX - 50,
+                    align: 'left',
+                });
+
+            // Add college text
+            const collegeX = 1599 * 0.26;
+            const collegeY = 654;
+
+            doc.fontSize(34)
+                .font('Helvetica-Oblique')
+                .fillColor('#515a5a')
+                .text(college.toUpperCase(), collegeX, collegeY, {
+                    width: 1599 - collegeX - 50,
+                    align: 'left',
+                });
+
+            // Collect PDF data
+            const chunks: Buffer[] = [];
+
+            doc.on('data', (chunk: Buffer) => {
+                chunks.push(chunk);
+            });
+
+            doc.on('end', async () => {
+                try {
+                    const pdfBuffer = Buffer.concat(chunks);
+                    
+                    // Clean up temp image
+                    fs.unlinkSync(tempImagePath);
+
+                    // Convert PDF to PNG image
+                    const tempPdfPath = path.join('/tmp', `temp_cert_${Date.now()}.pdf`);
+                    fs.writeFileSync(tempPdfPath, pdfBuffer);
+
+                    const converter = fromPath(tempPdfPath, {
+                        density: 100,
+                        saveFilename: `temp_cert_${Date.now()}`,
+                        savePath: '/tmp',
+                        format: 'png',
+                        width: 1599,
+                        height: 1131,
+                    });
+
+                    const pngResult = await converter(1);
+                    const pngBuffer = fs.readFileSync((pngResult as any).path);
+
+                    // Clean up temp files
+                    fs.unlinkSync(tempPdfPath);
+                    fs.unlinkSync((pngResult as any).path);
+
+                    resolve(pngBuffer);
+                } catch (err) {
+                    reject(err);
+                }
+            });
+
+            doc.on('error', (err: Error) => {
+                reject(err);
+            });
+
+            doc.end();
+        } catch (err) {
+            reject(err);
+        }
+    });
 }
